@@ -271,11 +271,11 @@ const QUOTES = [
   "I'm not alone. The right guidance can turn confusion into clarity. This time, I'm ready.",
 ];
 
-const CARD_POSITIONS = [
-  { top: "18vh", left: "8%", rotate: -4 },
-  { top: "30vh", right: "8%", rotate: 5 },
-  { top: "22vh", left: "12%", rotate: -2 },
-  { top: "28vh", right: "10%", rotate: 3 },
+const CARD_POSITIONS: React.CSSProperties[] = [
+  { top: "18vh", left: "8%", transform: "rotate(-4deg)" },
+  { top: "30vh", right: "8%", transform: "rotate(5deg)" },
+  { top: "22vh", left: "12%", transform: "rotate(-2deg)" },
+  { top: "28vh", right: "10%", transform: "rotate(3deg)" },
 ];
 
 const TORN_CLIP =
