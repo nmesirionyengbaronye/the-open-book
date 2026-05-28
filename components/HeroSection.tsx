@@ -1,200 +1,199 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
+import { Canvas } from "@react-three/fiber";
+import { motion } from "framer-motion";
 
 export default function HeroSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+  const [pageTextures, setPageTextures] = useState<THREE.CanvasTexture[]>([]);
 
+  // Generate page textures with textbook content
   useEffect(() => {
-    let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, controls: OrbitControls, bookGroup: THREE.Group;
-    let clock: THREE.Clock = new THREE.Clock();
+    const pageCount = 30;
+    const contentLines = [
+      "F = ma",
+      "E = mc²",
+      "V = IR",
+      "PV = nRT",
+      "∇·E = ρ/ε₀",
+      "∇×B = μ₀J + μ₀ε₀∂E/∂t",
+      "∮E·dΦ = -dΦB/dt",
+      "δQ = dU + δW",
+      "∫F·dx = ΔK",
+      "∑F = 0",
+      "∑M = 0",
+      "σ = F/A",
+      "ε = ΔL/L",
+      "I = Vr/Rt",
+      "Q = It",
+      "C = Q/V",
+      "τ = RC",
+      "f = 1/T",
+      "ω = 2πf",
+      "v = fλ",
+      "n₁sinθ₁ = n₂sinθ₂",
+      "1/f = 1/u + 1/v",
+      "E = hf",
+      "p = h/λ",
+      "ΔE = hf",
+      "T = 2π√(L/g)",
+      "P = IV",
+      "Q = CV",
+      "τ = Iα",
+    ];
 
-    const initThree = () => {
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0a0a0f);
+    const textures: THREE.CanvasTexture[] = [];
+    for (let i = 0; i < pageCount; i++) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d")!;
+      canvas.width = 512;
+      canvas.height = 256;
 
-      camera = new THREE.PerspectiveCamera(
-        45,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-      );
-      camera.position.set(0, 5, 10);
+      // Background
+      ctx.fillStyle = "#f8f4e3";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setClearColor(0x0a0a0f, 0);
-      if (containerRef.current) {
-        containerRef.current.appendChild(renderer.domElement);
-      }
+      // Text
+      ctx.fillStyle = "#5d4037";
+      ctx.font = "bold 20px Space Grotesk";
+      ctx.textAlign = "center";
 
-      // Add lights
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-      scene.add(ambientLight);
+      const line1 = contentLines[i % contentLines.length];
+      const line2 = `Problem Set ${i + 1}`;
+      const line3 = `Due: ${2024 + Math.floor(i / 5)}-${(i % 12) + 1}-${10 + (i % 20)}`;
 
-      const directionalLight = new THREE.DirectionalLight(0xffd700, 0.6);
-      directionalLight.position.set(5, 10, 7);
-      scene.add(directionalLight);
+      ctx.fillText(line1, canvas.width / 2, 60);
+      ctx.fillText(line2, canvas.width / 2, 120);
+      ctx.fillText(line3, canvas.width / 2, 180);
 
-      // Create book
-      createBook();
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.wrapS = THREE.ClampToEdgeWrapping;
+      texture.wrapT = THREE.ClampToEdgeWrapping;
+      textures.push(texture);
+    }
+    setPageTextures(textures);
+  }, []);
 
-      // Add controls
-      controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-      controls.enablePan = false;
-      controls.enableZoom = false;
-      controls.autoRotate = true;
-      controls.autoRotateSpeed = 0.5;
-
-      window.addEventListener('resize', onWindowResize);
-
-      animate();
-    };
-
-    const createBook = () => {
-      bookGroup = new THREE.Group();
-      
-      const width = 4;
-      const height = 6;
-      const depth = 0.5;
-      const pageCount = 40;
-      const pageThickness = depth / pageCount;
-
-      // Book cover with gold border
-      const coverGeometry = new THREE.BoxGeometry(width, height, depth * 0.1);
-      const coverMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x13131a,
-        metalness: 0.3,
-        roughness: 0.7
-      });
-      const cover = new THREE.Mesh(coverGeometry, coverMaterial);
-      cover.position.z = depth * 0.45;
-      bookGroup.add(cover);
-
-      // Animated pages
-      for (let i = 0; i < pageCount; i++) {
-        const pageGeometry = new THREE.PlaneGeometry(width - 0.1, height - 0.1);
-        const pageMaterial = new THREE.MeshStandardMaterial({ 
-          color: 0xf8f4e3,
-          side: THREE.DoubleSide,
-          opacity: 0.8,
-          transparent: true
-        });
-        const page = new THREE.Mesh(pageGeometry, pageMaterial);
-        page.position.z = -depth * 0.5 + i * pageThickness + pageThickness / 2;
-        page.position.y = 0;
-        bookGroup.add(page);
-      }
-
-      // Add title text on cover
-      const loader = new FontLoader();
-      loader.load(
-        'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json',
-        (font) => {
-          const textGeometry = new TextGeometry('Uni UI', {
-            font: font,
-            size: 0.5,
-            depth: 0.02,
-          });
-          const textMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0xd4af37,
-            metalness: 0.8,
-            roughness: 0.2
-          });
-          const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-          textGeometry.computeBoundingBox();
-          const textWidth = textGeometry.boundingBox ? textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x : 0;
-          textMesh.position.set(-textWidth / 2, 0, depth * 0.5 + 0.01);
-          bookGroup.add(textMesh);
-        }
-      );
-
-      scene.add(bookGroup);
-    };
-
-    const onWindowResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-
-    const animate = () => {
-      requestAnimationFrame(animate);
-
-      controls.update();
-
-      if (bookGroup) {
-        bookGroup.rotation.y = scrollY * 0.001;
-        const time = clock.getElapsedTime();
-        bookGroup.position.y = Math.sin(time * 0.5) * 0.1;
-        // Page flutter animation
-        bookGroup.children.forEach((child, index) => {
-          if (index > 0 && index < 10) {
-            (child as THREE.Mesh).rotation.z = Math.sin(time + index * 0.1) * 0.02;
-          }
-        });
-      }
-
-      renderer.render(scene, camera);
-    };
-
-    initThree();
-
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-      setIsScrolling(true);
-      setTimeout(() => setIsScrolling(false), 100);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-
-    return () => {
-      window.removeEventListener('resize', onWindowResize);
-      window.removeEventListener('scroll', handleScroll);
-      if (renderer) {
-        renderer.dispose();
-        if (containerRef.current) {
-          containerRef.current.innerHTML = '';
-        }
-      }
-    };
-  }, [scrollY, isScrolling]);
+  const width = 4;
+  const height = 6;
+  const depth = 0.5;
 
   return (
-    <div className="relative h-screen overflow-hidden">
-      <div 
-        ref={containerRef} 
-        className="absolute inset-0 w-full h-full"
-      />
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="h-full flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-5xl md:text-7xl font-heading text-[#D4AF37] mb-6 animate-fade-in">
-              Uni UI
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto mb-8 animate-fade-in">
-              A study organization platform built by an engineering student, for engineering students
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <a href="/join" className="px-8 py-3 bg-[#D4AF37] text-black font-bold rounded-lg hover:bg-[#FFD700] transition-all duration-300 hover:scale-105">
-                Join Waitlist
-              </a>
-              <a href="/about" className="px-8 py-3 border border-[#D4AF37]/30 text-[#D4AF37] font-medium rounded-lg hover:bg-[#D4AF37]/10 transition-all duration-300">
-                Learn More
-              </a>
-            </div>
-          </div>
+    <>
+      {/* 3D Canvas */}
+      <div className="fixed inset-0 pointer-events-none">
+        <Canvas
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+          camera={{ position: [0, 2, 8], fov: 45 }}
+        >
+          {/* Lights */}
+          <ambientLight intensity={0.8} />
+          <pointLight position={[5, 10, 7]} intensity={0.6} color={0xffd700} />
+
+          {/* Book Group */}
+          <group>
+            {/* Left Cover */}
+            <mesh position={[-2.2, 0, 0]}>
+              <boxGeometry args={[width * 0.9, height, depth * 0.2]} />
+              <meshStandardMaterial
+                color={0x13131a}
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
+
+            {/* Right Cover */}
+            <mesh position={[2.2, 0, 0]}>
+              <boxGeometry args={[width * 0.9, height, depth * 0.2]} />
+              <meshStandardMaterial
+                color={0x13131a}
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
+
+            {/* Spine */}
+            <mesh position={[0, 0, 0]}>
+              <boxGeometry args={[depth * 0.2, height * 0.9, depth]} />
+              <meshStandardMaterial
+                color={0x13131a}
+                metalness={0.4}
+                roughness={0.5}
+              />
+            </mesh>
+
+            {/* Pages */}
+            {pageTextures.map((texture, i) => (
+              <mesh
+                key={i}
+                position={[(i - 15) * 0.02, 0, -depth / 2 + i * (depth / 30)]}
+              >
+                <planeGeometry args={[width * 0.85, height * 0.85]} />
+                <meshStandardMaterial
+                  map={texture}
+                  side={THREE.DoubleSide}
+                  transparent
+                  opacity={0.9}
+                  metalness={0.1}
+                  roughness={0.8}
+                />
+              </mesh>
+            ))}
+          </group>
+        </Canvas>
+      </div>
+
+      {/* Torn paper quote cards */}
+      <div className="absolute inset-0 flex items-start justify-start p-8">
+        <div className="space-y-6">
+          {[
+            {
+              text: "The beautiful thing about learning is that nobody can take it away from you.",
+              author: "B.B. King",
+            },
+            {
+              text: "Education is the most powerful weapon which you can use to change the world.",
+              author: "Nelson Mandela",
+            },
+            {
+              text: "The more that you read, the more things you will know. The more that you learn, the more places you'll go.",
+              author: "Dr. Seuss",
+            },
+            {
+              text: "Develop a passion for learning. If you do, you will never cease to grow.",
+              author: "Anthony J. D'Angelo",
+            },
+          ].map((quote, i) => (
+            <motion.div
+              key={i}
+              initial={{ x: -100, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 0.5 + i * 0.1, duration: 0.8 }}
+              className={`w-[240px] max-w-xs rotate-${-3 + i * 2}`}
+            >
+              <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5 relative group hover:scale-[1.05] hover:shadow-[0_0_30px_rgba(212,175,55,0.25)] hover:border-[#D4AF37]/40 transition-all duration-500 overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-[#D4AF37]/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <p className="text-gray-300 text-sm leading-relaxed italic">
+                  "{quote.text}"
+                </p>
+                <p className="text-xs text-[#D4AF37] mt-3 font-medium">
+                  — {quote.author}
+                </p>
+
+                {/* Subtle gold accent in corner */}
+                <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#D4AF37]/10 rounded-full blur-xl group-hover:bg-[#D4AF37]/30 transition-all" />
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
-    </div>
+    </>
   );
 }

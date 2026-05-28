@@ -1,256 +1,201 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { supabaseClient } from '@/lib/supabase';
-import { normalizeWhatsApp, isValidNigerianPhone } from '@/lib/validation';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import WhatsAppBubble from '@/components/WhatsAppBubble';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { supabaseClient } from "@/lib/supabase";
+import { normalizeWhatsApp, isValidNigerianPhone } from "@/lib/validation";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatCardSkeleton } from "@/components/ui/stat-card-skeleton";
+import { TableSkeleton } from "@/components/ui/table-skeleton";
+import {
+  Search,
+  Link as LinkIcon,
+  Copy,
+  ArrowRight,
+  RefreshCcw,
+} from "lucide-react";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://waitlist.uniui.com.ng';
+export default function RetrievePage() {
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [result, setResult] = useState<any>(null);
 
-function RetrieveForm({ whatsappNumberParam }: { whatsappNumberParam: string }) {
-  const [whatsappNumber, setWhatsAppNumber] = useState(whatsappNumberParam);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [result, setResult] = useState<{ referralCode: string; position: number } | null>(null);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [attempts, setAttempts] = useState(0);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!whatsappNumber.trim()) {
-      setErrorMessage('Please enter your WhatsApp number');
-      return;
-    }
-
     if (!isValidNigerianPhone(whatsappNumber)) {
-      setErrorMessage('Please enter a valid Nigerian WhatsApp number');
+      toast.error("Please enter a valid Nigerian WhatsApp number");
       return;
     }
 
-    setIsSubmitting(true);
-    setErrorMessage('');
+    setIsSearching(true);
+    setResult(null);
 
     try {
       const normalized = normalizeWhatsApp(whatsappNumber);
-
-      if (attempts >= 3) {
-        throw new Error('RATE_LIMIT');
-      }
-
-      const { data, error: dbErr } = await supabaseClient
-        .from('waitlist')
-        .select('referral_code, position')
-        .eq('whatsapp_number', normalized)
+      const { data, error } = await supabaseClient
+        .from("waitlist")
+        .select("*")
+        .eq("whatsapp_number", normalized)
         .single();
 
-      if (dbErr) {
-        if (dbErr.code === 'PGRST116') {
-          throw new Error('NOT_FOUND');
-        }
-        throw dbErr;
-      }
-
-      if (data) {
-        setResult({
-          referralCode: data.referral_code,
-          position: data.position
-        });
-        setErrorMessage('');
+      if (error || !data) {
+        toast.error("No registration found for this number");
       } else {
-        throw new Error('NOT_FOUND');
+        setResult(data);
+        toast.success("Registration found!");
       }
-    } catch (err: unknown) {
-      const error = err as Error;
-      if (error.message === 'NOT_FOUND') {
-        setErrorMessage('No record found for this WhatsApp number. Please check the number and try again.');
-      } else if (error.message === 'RATE_LIMIT') {
-        setErrorMessage('Too many attempts. Please try again later or contact support.');
-        setTimeout(() => {
-          setAttempts(0);
-        }, 60000);
-      } else {
-        setErrorMessage('An error occurred. Please try again.');
-      }
-      console.error('Retrieve error:', error);
+    } catch (err) {
+      toast.error("An error occurred. Please try again.");
     } finally {
-      setIsSubmitting(false);
-      if (!errorMessage) {
-        setAttempts(prev => prev + 1);
-      }
+      setIsSearching(false);
     }
   };
 
-  const handleReset = () => {
-    setWhatsAppNumber('');
-    setResult(null);
-    setErrorMessage('');
-    setAttempts(0);
-  };
-
-  const copyReferralCode = () => {
-    if (result) {
-      navigator.clipboard.writeText(result.referralCode);
-    }
-  };
-
-  const copyReferralLink = () => {
-    if (result) {
-      navigator.clipboard.writeText(`${SITE_URL}/join?ref=${result.referralCode}`);
-    }
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!");
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4">
-        <div className="w-full max-w-md space-y-8">
-          <div className="text-center">
-            <div className="h-16 w-16 mx-auto mb-4 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
-              <span className="text-[#D4AF37] font-bold text-xl">Search</span>
-            </div>
-            <h2 className="text-3xl font-heading text-[#D4AF37] mb-4">Retrieve Your Uni UI Link</h2>
-            <p className="text-lg text-gray-300 mb-6">Enter your WhatsApp number to get your referral link and current position</p>
-          </div>
+    <div className="min-h-screen pt-32 pb-20 px-4">
+      <div className="max-w-xl mx-auto">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-heading text-white mb-4">
+            Retrieve Your Link
+          </h1>
+          <p className="text-gray-400">
+            Lost your referral code or want to check your position?
+          </p>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-              <label className="block text-sm font-medium text-gray-300 mb-2">WhatsApp Number</label>
-              <input
-                type="tel"
-                value={whatsappNumber}
-                onChange={(e) => setWhatsAppNumber(e.target.value)}
-                placeholder="+234 XXX XXX XXXX"
-                className="w-full px-4 py-3 bg-[#13131A] border border-[#D4AF37]/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
-                disabled={isSubmitting}
-              />
-              {errorMessage && <p className="text-xs text-red-500 mt-1">{errorMessage}</p>}
-              {!isValidNigerianPhone(whatsappNumber) && whatsappNumber && <p className="text-xs text-red-500 mt-1">Please enter a valid Nigerian WhatsApp number (e.g., +234 803 123 4567)</p>}
-              <p className="text-xs text-gray-500 mt-2">This is the same number you used when joining the waitlist</p>
-            </div>
+        <AnimatePresence mode="wait">
+          {!result && !isSearching ? (
+            <motion.div
+              key="form"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl"
+            >
+              <form onSubmit={handleSearch} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-300 ml-1">
+                    WhatsApp Number
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      value={whatsappNumber}
+                      onChange={(e) => setWhatsappNumber(e.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-white focus:outline-none focus:border-[#D4AF37]/50 focus:ring-1 focus:ring-[#D4AF37]/50 transition-all pl-12"
+                      placeholder="+234 XXX XXX XXXX"
+                    />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+                  </div>
+                </div>
 
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={handleReset}
-                disabled={isSubmitting}
-                className="px-4 py-2 bg-[#13131A] text-[#D4AF37] font-medium rounded-lg hover:bg-[#13131A]/50 transition-colors"
-              >
-                Clear
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting || !whatsappNumber.trim()}
-                className="px-6 py-3 bg-[#D4AF37] text-black font-bold rounded-lg hover:bg-[#FFD700] transition-colors disabled:opacity-50"
-              >
-                {isSubmitting ? 'Searching...' : 'Retrieve Link'}
-              </button>
-            </div>
-          </form>
-
-          {result && (
-            <div className="mt-8 p-6 bg-[#13131A] rounded-xl border border-[#D4AF37]/20 space-y-5">
-              <div className="text-center">
-                <h3 className="font-heading text-lg text-[#D4AF37] mb-4">Here's Your Uni UI Information</h3>
-                <p className="text-gray-400">Use this information to access the waitlist and share with friends</p>
+                <button
+                  type="submit"
+                  className="w-full py-4 bg-[#D4AF37] text-black font-bold rounded-2xl hover:bg-[#FFD700] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all flex items-center justify-center space-x-2"
+                >
+                  <span>Retrieve My Details</span>
+                  <ArrowRight size={18} />
+                </button>
+              </form>
+            </motion.div>
+          ) : isSearching ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 space-y-6"
+            >
+              <div className="flex items-center space-x-4">
+                <Skeleton className="h-12 w-12 rounded-full" />
+                <div className="space-y-2 flex-1">
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-3 w-1/3" />
+                </div>
+              </div>
+              <StatCardSkeleton className="w-full" />
+              <TableSkeleton rows={2} cols={2} className="w-full" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="result"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              className="bg-white/5 backdrop-blur-xl border border-[#D4AF37]/30 rounded-3xl p-8 shadow-2xl space-y-6"
+            >
+              <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                <div>
+                  <h3 className="text-xl font-heading text-white">
+                    {result.full_name}
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    {result.institution} • {result.department_code || "Student"}
+                  </p>
+                </div>
+                <div className="h-12 w-12 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
+                  <span className="text-[#D4AF37] font-bold">
+                    #{result.position}
+                  </span>
+                </div>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  <div className="h-10 w-10 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
-                    <span className="text-[#D4AF37] font-bold">#{result.position}</span>
-                  </div>
-                  <div>
-                    <h3 className="font-heading text-lg">Your Position</h3>
-                    <p className="text-gray-400">You are currently position #{result.position} on the waitlist</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-4">
-                  <div className="h-10 w-10 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
-                    <span className="text-[#D4AF37] font-bold">Key</span>
-                  </div>
-                  <div>
-                    <h3 className="font-heading text-lg">Your Referral Code</h3>
-                    <p className="text-gray-400">Share this code with friends to move up the waitlist</p>
-                    <div className="mt-2 flex items-center space-x-3">
-                      <input
-                        type="text"
-                        value={result.referralCode}
-                        readOnly
-                        className="flex-1 px-3 py-2 bg-[#13131A] border border-[#D4AF37]/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37]"
-                      />
-                      <button
-                        onClick={copyReferralCode}
-                        className="px-3 py-2 bg-[#D4AF37] text-black rounded-lg hover:bg-[#FFD700] transition-colors"
-                      >
-                        Copy
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <div className="space-y-3">
+                <div className="bg-black/40 border border-white/10 rounded-2xl p-5">
+                  <p className="text-xs uppercase tracking-widest text-gray-500 font-bold mb-3">
+                    Your Referral Link
+                  </p>
                   <div className="flex items-center space-x-3">
-                    <div className="h-3 w-3 bg-[#D4AF37] rounded-full"></div>
-                    <span className="text-white font-medium">Your referral link:</span>
-                    <div className="flex-1 px-3 py-2 bg-[#13131A] border border-[#D4AF37]/20 rounded-lg text-center font-mono">
-                      {SITE_URL}/join?ref={result.referralCode}
+                    <div className="flex-1 overflow-hidden">
+                      <p className="text-[#D4AF37] font-mono truncate">
+                        {`https://waitlist.uniui.com.ng/join?ref=${result.referral_code}`}
+                      </p>
                     </div>
-                  </div>
-                  <div className="mt-4">
                     <button
-                      onClick={copyReferralLink}
-                      className="w-full flex items-center justify-center px-4 py-2 bg-[#D4AF37] text-black rounded-lg hover:bg-[#FFD700] transition-colors"
+                      onClick={() =>
+                        copyToClipboard(
+                          `https://waitlist.uniui.com.ng/join?ref=${result.referral_code}`,
+                        )
+                      }
+                      className="p-2 text-gray-400 hover:text-[#D4AF37] transition-colors"
                     >
-                      Share Referral Link
+                      <Copy size={20} />
                     </button>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
+                    <p className="text-[10px] uppercase text-gray-500 mb-1">
+                      Level
+                    </p>
+                    <p className="text-white font-bold">{result.level}L</p>
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
+                    <p className="text-[10px] uppercase text-gray-500 mb-1">
+                      Semester
+                    </p>
+                    <p className="text-white font-bold">{result.semester}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
 
-          {attempts >= 2 && (
-            <div className="mt-6 p-4 bg-[#EF4444]/20 rounded-lg border border-[#EF4444]/30">
-              <p className="text-sm text-red-400">Warning: You have {attempts}/3 attempts remaining before temporary lockout</p>
-            </div>
+              <button
+                onClick={() => setResult(null)}
+                className="w-full py-4 bg-white/5 text-gray-400 font-bold rounded-2xl border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center space-x-2"
+              >
+                <RefreshCcw size={18} />
+                <span>Search Again</span>
+              </button>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </div>
-      <Footer />
-      <WhatsAppBubble />
-    </>
-  );
-}
-
-function SearchParamsWrapper() {
-  const searchParams = useSearchParams();
-  const whatsappNumberParam = searchParams.get('whatsapp_number') || '';
-  return <RetrieveForm whatsappNumberParam={whatsappNumberParam} />;
-}
-
-export default function RetrievePage() {
-  return (
-    <React.Suspense fallback={
-      <>
-        <Navbar />
-        <div className="min-h-[calc(100vh-140px)] flex items-center justify-center">
-          <div className="text-center">
-            <div className="h-12 w-12 mx-auto mb-4 animate-spin rounded-full border-4 border-[#D4AF37]/50 border-t-[#D4AF37]"></div>
-            <p className="text-[#D4AF37]">Loading...</p>
-          </div>
-        </div>
-        <Footer />
-        <WhatsAppBubble />
-      </>
-    }>
-      <SearchParamsWrapper />
-    </React.Suspense>
+    </div>
   );
 }

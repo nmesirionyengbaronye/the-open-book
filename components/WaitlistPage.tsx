@@ -38,12 +38,19 @@ const PAGE_CONTENT: string[][] = [
   ["E = mc²", "", "Mass–energy", "equivalence.", "Einstein, 1905"],
   ["History — 1914", "", "Sarajevo.", "Archduke shot.", "Europe ignites."],
   ["DNA Replication", "", "Helicase unwinds.", "Polymerase builds.", "5' → 3'"],
-  ["∫ x dx", "  = x²/2 + C", "", "Integration", "by parts:", "∫u dv = uv − ∫v du"],
+  [
+    "∫ x dx",
+    "  = x²/2 + C",
+    "",
+    "Integration",
+    "by parts:",
+    "∫u dv = uv − ∫v du",
+  ],
   ["Photosynthesis", "", "6CO₂ + 6H₂O", "  → C₆H₁₂O₆", "  + 6O₂"],
   ["Pythagoras", "", "a² + b² = c²", "Right triangles.", "Greek, ~500 BC"],
   ["Newton II", "", "F = m · a", "", "Force = mass", "× acceleration"],
   ["Periodic Table", "", "H  He", "Li Be B C N O", "F Ne Na Mg"],
-  ["Macbeth", "", "\"Out, out,", "brief candle.\"", "— Act V, Sc. V"],
+  ["Macbeth", "", '"Out, out,', 'brief candle."', "— Act V, Sc. V"],
   ["for i in range(n):", "    total += i", "", "# O(n) time", "# O(1) space"],
   ["Supply & Demand", "", "Price ↑ → Qty ↓", "Price ↓ → Qty ↑", "Equilibrium."],
   ["Cell Mitosis", "", "Prophase", "Metaphase", "Anaphase", "Telophase"],
@@ -159,7 +166,8 @@ function Page({
 
   useFrame((state) => {
     const t = openness.get();
-    const breath = Math.sin(state.clock.elapsedTime * 0.7 + index * 0.4) * 0.04 * (1 - t);
+    const breath =
+      Math.sin(state.clock.elapsedTime * 0.7 + index * 0.4) * 0.04 * (1 - t);
 
     ref.current.position.x = scatter.pos[0] * t;
     ref.current.position.y = closedY + scatter.pos[1] * t + breath;
@@ -196,7 +204,13 @@ function GoldFoilEdge({
       ].map((p, i) => (
         <mesh key={`h${i}`} position={p}>
           <boxGeometry args={[w - off, 0.012, t]} />
-          <meshStandardMaterial color={GOLD} metalness={0.9} roughness={0.25} emissive={GOLD} emissiveIntensity={0.05} />
+          <meshStandardMaterial
+            color={GOLD}
+            metalness={0.9}
+            roughness={0.25}
+            emissive={GOLD}
+            emissiveIntensity={0.05}
+          />
         </mesh>
       ))}
       {[
@@ -205,7 +219,13 @@ function GoldFoilEdge({
       ].map((p, i) => (
         <mesh key={`v${i}`} position={p}>
           <boxGeometry args={[t, 0.012, d - off]} />
-          <meshStandardMaterial color={GOLD} metalness={0.9} roughness={0.25} emissive={GOLD} emissiveIntensity={0.05} />
+          <meshStandardMaterial
+            color={GOLD}
+            metalness={0.9}
+            roughness={0.25}
+            emissive={GOLD}
+            emissiveIntensity={0.05}
+          />
         </mesh>
       ))}
     </group>
@@ -240,7 +260,13 @@ function Cover({
       {/* Central gold emblem */}
       <mesh position={[0, 0.05, 0]}>
         <cylinderGeometry args={[0.18, 0.18, 0.012, 32]} />
-        <meshStandardMaterial color={GOLD} metalness={0.9} roughness={0.2} emissive={GOLD} emissiveIntensity={0.08} />
+        <meshStandardMaterial
+          color={GOLD}
+          metalness={0.9}
+          roughness={0.2}
+          emissive={GOLD}
+          emissiveIntensity={0.08}
+        />
       </mesh>
     </group>
   );
@@ -272,7 +298,13 @@ function Spine({ openness }: { openness: MotionValue<number> }) {
       {[0.18, 0, -0.18].map((y, i) => (
         <mesh key={i} position={[0, y, 0.051]}>
           <boxGeometry args={[1.55, 0.02, 0.005]} />
-          <meshStandardMaterial color={GOLD} metalness={0.9} roughness={0.2} emissive={GOLD} emissiveIntensity={0.1} />
+          <meshStandardMaterial
+            color={GOLD}
+            metalness={0.9}
+            roughness={0.2}
+            emissive={GOLD}
+            emissiveIntensity={0.1}
+          />
         </mesh>
       ))}
     </group>
@@ -290,7 +322,10 @@ function BookGroup({
   const scatter = useScatterTargets(scatterRadius);
 
   const textures = useMemo(
-    () => Array.from({ length: PAGE_COUNT }, (_, i) => makePageTexture(PAGE_CONTENT[i % PAGE_CONTENT.length])),
+    () =>
+      Array.from({ length: PAGE_COUNT }, (_, i) =>
+        makePageTexture(PAGE_CONTENT[i % PAGE_CONTENT.length]),
+      ),
     [],
   );
   useEffect(() => () => textures.forEach((t) => t.dispose()), [textures]);
@@ -309,7 +344,13 @@ function BookGroup({
       <Cover side="right" openness={openness} />
       <Spine openness={openness} />
       {scatter.map((s, i) => (
-        <Page key={i} index={i} openness={openness} scatter={s} texture={textures[i]} />
+        <Page
+          key={i}
+          index={i}
+          openness={openness}
+          scatter={s}
+          texture={textures[i]}
+        />
       ))}
     </group>
   );
@@ -333,7 +374,8 @@ function GoldDust() {
   useFrame((state) => {
     const t = state.clock.elapsedTime;
     ref.current.rotation.y = t * 0.02;
-    const pos = ref.current.geometry.attributes.position as THREE.BufferAttribute;
+    const pos = ref.current.geometry.attributes
+      .position as THREE.BufferAttribute;
     for (let i = 0; i < count; i++) {
       const yi = i * 3 + 1;
       pos.array[yi] = (pos.array[yi] as number) + Math.sin(t + i) * 0.0008;
@@ -400,7 +442,8 @@ function TornCard({
         WebkitBackdropFilter: "blur(18px)",
         border: "1px solid rgba(255,255,255,0.18)",
         clipPath: TORN_CLIP,
-        boxShadow: "0 20px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(212,175,55,0.15)",
+        boxShadow:
+          "0 20px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(212,175,55,0.15)",
         ...style,
       }}
     >
@@ -509,15 +552,55 @@ export default function HomePage() {
             style={{ opacity: sceneReady ? 0 : 1, pointerEvents: "none" }}
           >
             <div className="text-center">
-              <svg width="120" height="160" viewBox="0 0 120 160" className="mx-auto drop-shadow-[0_10px_40px_rgba(212,175,55,0.25)]">
-                <rect x="6" y="6" width="108" height="148" rx="4" fill={LEATHER} stroke={GOLD} strokeWidth="1.5" />
-                <rect x="14" y="14" width="92" height="132" rx="2" fill="none" stroke={GOLD} strokeWidth="1" opacity="0.7" />
-                <circle cx="60" cy="80" r="14" fill="none" stroke={GOLD} strokeWidth="1.5" />
-                <path d="M60 70 L60 90 M50 80 L70 80" stroke={GOLD} strokeWidth="1.2" />
+              <svg
+                width="120"
+                height="160"
+                viewBox="0 0 120 160"
+                className="mx-auto drop-shadow-[0_10px_40px_rgba(212,175,55,0.25)]"
+              >
+                <rect
+                  x="6"
+                  y="6"
+                  width="108"
+                  height="148"
+                  rx="4"
+                  fill={LEATHER}
+                  stroke={GOLD}
+                  strokeWidth="1.5"
+                />
+                <rect
+                  x="14"
+                  y="14"
+                  width="92"
+                  height="132"
+                  rx="2"
+                  fill="none"
+                  stroke={GOLD}
+                  strokeWidth="1"
+                  opacity="0.7"
+                />
+                <circle
+                  cx="60"
+                  cy="80"
+                  r="14"
+                  fill="none"
+                  stroke={GOLD}
+                  strokeWidth="1.5"
+                />
+                <path
+                  d="M60 70 L60 90 M50 80 L70 80"
+                  stroke={GOLD}
+                  strokeWidth="1.2"
+                />
               </svg>
-              <div className="mt-5 flex items-center justify-center gap-2 text-[color:var(--gold)]" style={{ color: GOLD }}>
+              <div
+                className="mt-5 flex items-center justify-center gap-2 text-[color:var(--gold)]"
+                style={{ color: GOLD }}
+              >
                 <Bookmark size={16} className="animate-pulse" />
-                <span className="text-xs tracking-[0.3em] uppercase">Loading</span>
+                <span className="text-xs tracking-[0.3em] uppercase">
+                  Loading
+                </span>
               </div>
             </div>
           </div>
@@ -599,15 +682,24 @@ export default function HomePage() {
       </section>
 
       {/* =================== HOW IT WORKS =================== */}
-      <Section
-        eyebrow="The Method"
-        title="How it works"
-      >
+      <Section eyebrow="The Method" title="How it works">
         <div className="grid md:grid-cols-3 gap-6 mt-12">
           {[
-            { icon: Upload, title: "Upload your notes", body: "Drop in messy lecture notes, slides, or screenshots. We meet you where you are." },
-            { icon: Wand2, title: "AI deconstructs it", body: "We tear the page apart — concepts, prerequisites, examples — and rebuild it for the way your mind learns." },
-            { icon: GraduationCap, title: "Study smarter", body: "Get crystal-clear answers, custom drills, and quiet confidence walking into the exam." },
+            {
+              icon: Upload,
+              title: "Upload your notes",
+              body: "Drop in messy lecture notes, slides, or screenshots. We meet you where you are.",
+            },
+            {
+              icon: Wand2,
+              title: "AI deconstructs it",
+              body: "We tear the page apart — concepts, prerequisites, examples — and rebuild it for the way your mind learns.",
+            },
+            {
+              icon: GraduationCap,
+              title: "Study smarter",
+              body: "Get crystal-clear answers, custom drills, and quiet confidence walking into the exam.",
+            },
           ].map(({ icon: Icon, title, body }, i) => (
             <motion.div
               key={i}
@@ -620,11 +712,17 @@ export default function HomePage() {
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                style={{ background: `${GOLD}1a`, border: `1px solid ${GOLD}55` }}
+                style={{
+                  background: `${GOLD}1a`,
+                  border: `1px solid ${GOLD}55`,
+                }}
               >
                 <Icon size={22} color={GOLD} />
               </div>
-              <h3 className="text-lg font-semibold mb-2" style={{ color: GOLD }}>
+              <h3
+                className="text-lg font-semibold mb-2"
+                style={{ color: GOLD }}
+              >
                 {title}
               </h3>
               <p className="text-white/65 leading-relaxed text-sm">{body}</p>
@@ -637,9 +735,21 @@ export default function HomePage() {
       <Section eyebrow="The Promise" title="Why join?">
         <div className="grid md:grid-cols-3 gap-10 mt-12">
           {[
-            { icon: BrainCircuit, title: "Built for confusion", body: "Designed for the moment after the lecture ended — when nothing made sense and the deadline is tomorrow." },
-            { icon: Lightbulb, title: "Clarity, not noise", body: "No 40-tab YouTube spirals. One quiet guide, focused on you." },
-            { icon: Sparkles, title: "You, but unstuck", body: "A version of you that walks into the room knowing it cold. We're building toward that." },
+            {
+              icon: BrainCircuit,
+              title: "Built for confusion",
+              body: "Designed for the moment after the lecture ended — when nothing made sense and the deadline is tomorrow.",
+            },
+            {
+              icon: Lightbulb,
+              title: "Clarity, not noise",
+              body: "No 40-tab YouTube spirals. One quiet guide, focused on you.",
+            },
+            {
+              icon: Sparkles,
+              title: "You, but unstuck",
+              body: "A version of you that walks into the room knowing it cold. We're building toward that.",
+            },
           ].map(({ icon: Icon, title, body }, i) => (
             <motion.div
               key={i}
@@ -651,12 +761,17 @@ export default function HomePage() {
             >
               <div
                 className="w-14 h-14 mx-auto rounded-full flex items-center justify-center mb-5"
-                style={{ background: `${GOLD}14`, border: `1px solid ${GOLD}55` }}
+                style={{
+                  background: `${GOLD}14`,
+                  border: `1px solid ${GOLD}55`,
+                }}
               >
                 <Icon size={26} color={GOLD} />
               </div>
               <h3 className="text-lg font-semibold mb-2 text-white">{title}</h3>
-              <p className="text-white/60 leading-relaxed text-sm max-w-xs mx-auto">{body}</p>
+              <p className="text-white/60 leading-relaxed text-sm max-w-xs mx-auto">
+                {body}
+              </p>
             </motion.div>
           ))}
         </div>
@@ -766,7 +881,8 @@ function WaitlistSection() {
           Join the Waitlist
         </h2>
         <p className="mt-5 text-white/60">
-          Learning shouldn't feel like drowning. Be first when we open the doors.
+          Learning shouldn't feel like drowning. Be first when we open the
+          doors.
         </p>
 
         <div className="mt-10">

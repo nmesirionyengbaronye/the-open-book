@@ -1,23 +1,24 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Check if already logged in
     const checkAuth = async () => {
-      const res = await fetch('/api/admin/check');
+      const res = await fetch("/api/admin/check");
       const data = await res.json();
       if (data.authenticated) {
-        router.push('/admin');
+        router.push("/admin");
       }
     };
     checkAuth();
@@ -25,14 +26,14 @@ export default function AdminLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ username, password }),
       });
@@ -40,12 +41,12 @@ export default function AdminLoginPage() {
       const data = await res.json();
 
       if (res.ok && data.success) {
-        router.push('/admin');
+        router.push("/admin");
       } else {
-        setError(data.error || 'Invalid credentials');
+        setError(data.error || "Invalid credentials");
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +54,11 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-140px)] flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-8">
+      <motion.div
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="w-full max-w-md space-y-8 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6"
+      >
         <div className="text-center">
           <div className="h-16 w-16 mx-auto mb-4 bg-[#D4AF37]/20 rounded-full flex items-center justify-center">
             <span className="text-[#D4AF37] font-bold text-xl">🔐</span>
@@ -65,7 +70,7 @@ export default function AdminLoginPage() {
             Access the Uni UI administrative dashboard
           </p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">
@@ -77,7 +82,7 @@ export default function AdminLoginPage() {
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Enter admin username"
               className={`w-full px-4 py-3 bg-[#13131A] border border-[#D4AF37]/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37] ${
-                error && !username ? 'border-[#EF4444]' : ''
+                error && !username ? "border-[#EF4444]" : ""
               }`}
               disabled={isLoading}
             />
@@ -85,7 +90,7 @@ export default function AdminLoginPage() {
               <p className="text-xs text-red-500 mt-1">Username is required</p>
             )}
           </div>
-          
+
           <div className="space-y-4">
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Password
@@ -96,7 +101,7 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Enter admin password"
               className={`w-full px-4 py-3 bg-[#13131A] border border-[#D4AF37]/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#D4AF37] ${
-                error && !password ? 'border-[#EF4444]' : ''
+                error && !password ? "border-[#EF4444]" : ""
               }`}
               disabled={isLoading}
             />
@@ -104,7 +109,7 @@ export default function AdminLoginPage() {
               <p className="text-xs text-red-500 mt-1">Password is required</p>
             )}
           </div>
-          
+
           {error && (
             <div className="bg-[#EF4444]/20 rounded-lg border border-[#EF4444]/30 p-4 mb-4">
               <div className="flex items-center space-x-3">
@@ -113,40 +118,42 @@ export default function AdminLoginPage() {
               </div>
             </div>
           )}
-          
+
           <div className="flex justify-between">
             <button
               type="button"
               onClick={() => {
-                setUsername('');
-                setPassword('');
-                setError('');
+                setUsername("");
+                setPassword("");
+                setError("");
               }}
               disabled={isLoading}
               className="px-4 py-2 bg-[#13131A] text-[#D4AF37] font-medium rounded-lg hover:bg-[#13131A]/50 transition-colors"
             >
               Clear
             </button>
-            
+
             <button
               type="submit"
               disabled={isLoading}
               className={`w-1/2 px-6 py-3 bg-[#D4AF37] text-black font-bold rounded-lg hover:bg-[#FFD700] transition-colors disabled:opacity-50`}
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? "Logging in..." : "Login"}
             </button>
           </div>
         </form>
-        
+
         <div className="mt-6 text-center text-xs text-gray-500">
           <p>
-            Demo credentials: <span className="text-[#D4AF37]">admin</span> / <span className="text-[#D4AF37]">password123</span>
+            Demo credentials: <span className="text-[#D4AF37]">admin</span> /{" "}
+            <span className="text-[#D4AF37]">password123</span>
           </p>
           <p>
-            Note: In production, set ADMIN_USERNAME and ADMIN_PASSWORD in .env.local
+            Note: In production, set ADMIN_USERNAME and ADMIN_PASSWORD in
+            .env.local
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
