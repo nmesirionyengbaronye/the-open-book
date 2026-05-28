@@ -1,0 +1,16 @@
+{
+  "name": "Uni UI - University Uploaded Intelligence",
+  "short_name": "Uni UI",
+  "description": "A study organization platform built by students, for students across West Africa",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0F",
+  "theme_color": "#D4AF37",
+  "icons": [
+    {
+      "src": "/favicon.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    }
+  ]
+}
