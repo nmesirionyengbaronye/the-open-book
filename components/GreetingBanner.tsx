@@ -14,7 +14,7 @@ export default function GreetingBanner() {
       } else if (hour >= 11 && hour < 16) {
         msg = "Good afternoon. Don't let the lecture notes pile up.";
       } else if (hour >= 16 && hour < 22) {
-        msg = "Good evening. Review your materials before tomorrow's class.";
+        msg = "Good evening. Time to upload your materials and study smarter.";
       } else {
         msg = "Still awake? The best study happens in the quiet hours. Welcome.";
       }

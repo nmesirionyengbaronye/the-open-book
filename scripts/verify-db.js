@@ -1,12 +1,14 @@
-require("dotenv").config({ path: ".env.local" });
-const { createClient } = require("@supabase/supabase-js");
+import dotenv from 'dotenv';
+import { createClient } from '@supabase/supabase-js';
+
+dotenv.config({ path: '.env.local' });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseServiceRoleKey || !supabaseAnonKey) {
-  console.error("Missing Supabase environment variables");
+  console.error('Missing Supabase environment variables');
   process.exit(1);
 }
 
@@ -14,17 +16,16 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey);
 const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
 async function checkTableExists() {
-  const { data, error } = await supabaseAdmin
-    .from("waitlist")
-    .select("1")
-    .limit(1);
+  const { count, error } = await supabaseAdmin
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true });
 
   if (error) {
-    if (error.message && error.message.includes("relation does not exist")) {
-      console.log("❌ Table waitlist missing");
+    if (error.message && error.message.includes('relation does not exist')) {
+      console.log('❌ Table waitlist missing');
       return false;
     } else {
-      console.error("Error checking table:", error);
+      console.error('Error checking table:', error);
       process.exit(1);
     }
   }
@@ -32,69 +33,66 @@ async function checkTableExists() {
 }
 
 async function checkColumnsExist() {
-  const requiredColumns = [
-    "whatsapp_number",
-    "full_name",
-    "institution",
-    "school_code",
-    "department_code",
-    "level",
-    "semester",
-    "referral_code",
-    "referred_by",
-    "position",
-    "hardest_course",
-    "recommendation",
-    "created_at"
-  ];
+  const testPhone = `+234800000${Date.now() % 10000}`;
+  const testRow = {
+    whatsapp_number: testPhone,
+    full_name: 'Test User',
+    institution: 'FUTO',
+    school_code: 'SEET',
+    department_code: 'Electrical/Electronic Engineering (EEE)',
+    level: '200',
+    semester: '1st',
+    referral_code: 'TEST123',
+    referred_by: null,
+    position: 999,
+    hardest_course: null,
+    recommendation: null,
+  };
 
-  // Method: Query information_schema.columns
-  const { data, error } = await supabaseAdmin
-    .from("information_schema.columns")
-    .select("column_name")
-    .eq("table_name", "waitlist")
-    .eq("table_schema", "public");
+  console.log('Test row for column check:', testRow);
 
-  if (error) {
-    console.error("Error checking columns:", error);
-    process.exit(1);
-  }
+  try {
+    // Insert the test row
+    const { data, error } = await supabaseAdmin.from('waitlist').insert(testRow).select();
 
-  const existingColumns = data.map(col => col.column_name);
-  const missingColumns = requiredColumns.filter(col => !existingColumns.includes(col));
+    if (error) {
+      console.error('Error inserting test row for column check:', error);
+      return false;
+    }
 
-  if (missingColumns.length > 0) {
-    console.log(`❌ Missing columns: ${missingColumns.join(", ")}`);
+    // If we get here, the insert succeeded. Now delete the test row.
+    await supabaseAdmin.from('waitlist').delete().eq('whatsapp_number', testPhone);
+
+    return true;
+  } catch (err) {
+    console.error('Error in column check:', err);
     return false;
   }
-
-  console.log("✅ All required columns exist");
-  return true;
 }
 
 async function testRLSPolicies() {
-  const testPhone = "+2348000000000";
+  const testPhone = `+234800000${(Date.now() + 1) % 10000}`;
   const testData = {
     whatsapp_number: testPhone,
-    full_name: "Test User",
-    institution: "FUTO",
-    school_code: "SEET",
-    department_code: "Electrical/Electronic Engineering (EEE)",
-    level: "200",
-    semester: "1st",
+    full_name: 'Test User',
+    institution: 'FUTO',
+    school_code: 'SEET',
+    department_code: 'Electrical/Electronic Engineering (EEE)',
+    level: '200',
+    semester: '1st',
   };
 
   // Insert using admin client (bypasses RLS)
   const { data: insertData, error: insertError } = await supabaseAdmin
-    .from("waitlist")
+    .from('waitlist')
     .insert(testData)
     .select()
     .single();
 
   if (insertError) {
-    console.error("Error inserting test row:", insertError);
+    console.error('Error inserting test row:', insertError);
     // Try to clean up if possible
-    await supabaseAdmin.from("waitlist").delete().eq("whatsapp_number", testPhone);
+    await supabaseAdmin.from('waitlist').delete().eq('whatsapp_number', testPhone);
     return false;
   }
 
@@ -102,42 +100,42 @@ async function testRLSPolicies() {
 
   // Select using anon client (tests RLS policy)
   const { data: selectData, error: selectError } = await supabaseClient
-    .from("waitlist")
+    .from('waitlist')
     .select()
-    .eq("whatsapp_number", testPhone)
+    .eq('whatsapp_number', testPhone)
     .single();
 
   if (selectError) {
-    console.error("Error selecting test row:", selectError);
+    console.error('Error selecting test row:', selectError);
     // Clean up
-    await supabaseAdmin.from("waitlist").delete().eq("whatsapp_number", testPhone);
-    console.log("❌ RLS policy error (select failed)");
+    await supabaseAdmin.from('waitlist').delete().eq('whatsapp_number', testPhone);
+    console.log('❌ RLS policy error (select failed)');
     return false;
   }
 
   if (!selectData) {
-    console.log("❌ RLS policy error (no row returned)");
-    await supabaseAdmin.from("waitlist").delete().eq("whatsapp_number", testPhone);
+    console.log('❌ RLS policy error (no row returned)');
+    await supabaseAdmin.from('waitlist').delete().eq('whatsapp_number', testPhone);
     return false;
   }
 
   // Clean up
   const { error: deleteError } = await supabaseAdmin
-    .from("waitlist")
+    .from('waitlist')
     .delete()
-    .eq("whatsapp_number", testPhone);
+    .eq('whatsapp_number', testPhone);
 
   if (deleteError) {
-    console.error("Error deleting test row:", deleteError);
+    console.error('Error deleting test row:', deleteError);
     // Not critical, but we tried
   }
 
-  console.log("✅ RLS policies allow public insert/select");
+  console.log('✅ RLS policies allow public insert/select');
   return true;
 }
 
 async function main() {
-  console.log("🔍 Verifying Supabase setup...");
+  console.log('🔍 Verifying Supabase setup...');
 
   const tableExists = await checkTableExists();
   if (!tableExists) {
@@ -154,7 +152,7 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("🎉 All checks passed!");
+  console.log('🎉 All checks passed!');
 }
 
 main();

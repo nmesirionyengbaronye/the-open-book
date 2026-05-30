@@ -36,9 +36,17 @@ function generateReferralCode(phone: string, timestamp: number): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    console.log('Received body:', body);
+    
     const parsed = schema.safeParse(body);
-
+    
     if (!parsed.success) {
+      // Log detailed validation errors
+      console.log('Validation errors:', parsed.error.errors);
+      parsed.error.errors.forEach(err => {
+        console.log(`Field "${err.path.join('.')}": ${err.message}`);
+      });
+      
       return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
     }
 
