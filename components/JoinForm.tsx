@@ -24,14 +24,15 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const [total, setTotal] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const confettiFired = useRef(false);
-
-  const [fullName, setFullName] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
-  const [institution, setInstitution] = useState("");
-  const [school, setSchool] = useState("");
-  const [department, setDepartment] = useState("");
-  const [level, setLevel] = useState("");
-  const [semester, setSemester] = useState("");
+  const [form, setForm] = useState({
+    fullName: "",
+    whatsapp: "",
+    institution: "",
+    school: "",
+    department: "",
+    level: "",
+    semester: "",
+  });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -47,12 +48,12 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
     }
   }, [konamiUnlocked]);
 
-  const normalized = useMemo(() => normalizeNG(whatsapp), [whatsapp]);
-  const institutionObj = useMemo(() => INSTITUTIONS.find((i) => i.code === institution), [institution]);
-  const schoolObj = useMemo(() => institutionObj?.schools.find((s) => s.name === school), [institutionObj, school]);
+  const normalized = useMemo(() => normalizeNG(form.whatsapp), [form.whatsapp]);
+  const institutionObj = useMemo(() => INSTITUTIONS.find((i) => i.code === form.institution), [form.institution]);
+  const schoolObj = useMemo(() => institutionObj?.schools.find((s) => s.name === form.school), [institutionObj, form.school]);
 
-  const step1Valid = fullName.trim().length >= 2 && !!normalized;
-  const step2Valid = !!institution && !!school && !!department && !!level && !!semester;
+  const step1Valid = form.fullName.trim().length >= 2 && !!normalized;
+  const step2Valid = !!form.institution && !!form.school && !!form.department && !!form.level && !!form.semester;
 
   const next = () => { setDirection(1); setStep((s) => s + 1); };
   const back = () => { setDirection(-1); setStep((s) => s - 1); };
@@ -66,13 +67,13 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        full_name: fullName.trim(),
+        full_name: form.fullName.trim(),
         whatsapp_number: normalized,
-        institution,
-        school,
-        department,
-        level,
-        semester,
+        institution: form.institution,
+        school: form.school,
+        department: form.department,
+        level: form.level,
+        semester: form.semester,
         referred_by: refCode,
       }),
     });
@@ -83,16 +84,25 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
       const err = await res.json();
       if (res.status === 409) {
         setError(`This number is already on the waitlist! ${err.code ? `Your code: ${err.code}` : ''}`);
-        toast.error("Already joined", { description: "This number is already on the waitlist.", id: "duplicate" });
+        toast.error("", {
+          description: (
+            <>
+              This WhatsApp number is already on the waitlist!{' '}
+              <a href="/retrieve" className="underline cursor-pointer text-gold">
+                Retrieve your referral link here
+              </a>
+            </>
+          ),
+          id: "duplicate"
+        });
       } else {
-        setError(err.error || "Submission failed");
-        toast.error("Error", { description: err.error, id: "join-error" });
+        toast.error("Network error. Please try again.", { id: "network-error" });
       }
       return;
     }
 
     const data = await res.json();
-    setResult({ fullName: fullName.trim(), position: data.position, referralCode: data.referral_code });
+    setResult({ fullName: form.fullName.trim(), position: data.position, referralCode: data.referral_code });
     setTotal(data.position + 10);
     if (!confettiFired.current) {
       confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 }, colors: ["#D4AF37", "#FFD700", "#fff"] });
@@ -147,91 +157,94 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                 {step === 0 && (
                   <div className="space-y-5">
                     <Field label="Full name">
-                      <input
-                        value={fullName} onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Chisom Okeke" className={inputCls}
-                      />
-                    </Field>
+                       <input
+                         value={form.fullName} onChange={(e) => setForm(prev => ({ ...prev, fullName: e.target.value }))}
+                         placeholder="Chisom Okeke" className={inputCls}
+                       />
+                     </Field>
                     <Field label="WhatsApp number" hint="We'll only use this to send your invite.">
-                      <div className="relative">
-                        <input
-                          value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)}
-                          placeholder="080 1234 5678" inputMode="tel" className={inputCls}
-                        />
-                        {whatsapp && (
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                            {normalized ? (
-                              <Check className="w-5 h-5 text-emerald-400" />
-                            ) : (
-                              <AlertCircle className="w-5 h-5 text-destructive" />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      {whatsapp && !normalized && (
-                        <p className="mt-2 text-xs text-destructive">Use a valid Nigerian number (e.g. 0801 234 5678).</p>
-                      )}
-                      {normalized && (
-                        <p className="mt-2 text-xs text-emerald-400">Looks good — {normalized}</p>
-                      )}
-                    </Field>
+                       <div className="relative">
+                         <input
+                           value={form.whatsapp} onChange={(e) => setForm(prev => ({ ...prev, whatsapp: e.target.value }))}
+                           placeholder="080 1234 5678" inputMode="tel" className={inputCls}
+                         />
+                         {form.whatsapp && (
+                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                             {normalized ? (
+                               <Check className="w-5 h-5 text-emerald-400" />
+                             ) : (
+                               <AlertCircle className="w-5 h-5 text-destructive" />
+                             )}
+                           </div>
+                         )}
+                       </div>
+                       {form.whatsapp && !normalized && (
+                         <p className="mt-2 text-xs text-destructive">Use a valid Nigerian number (e.g. 0801 234 5678).</p>
+                       )}
+                       {normalized && (
+                         <p className="mt-2 text-xs text-emerald-400">Looks good — {normalized}</p>
+                       )}
+                     </Field>
                   </div>
                 )}
 
                 {step === 1 && (
                   <div className="space-y-4">
-                    <Field label="Institution">
-                      <select value={institution} onChange={(e) => { setInstitution(e.target.value); setSchool(""); setDepartment(""); }} className={inputCls}>
-                        <option value="">Select your school</option>
-                        {INSTITUTIONS.map((i) => <option key={i.code} value={i.code}>{i.name}</option>)}
-                      </select>
-                    </Field>
-                    <Field label="School / Faculty">
-                      <select value={school} onChange={(e) => { setSchool(e.target.value); setDepartment(""); }} disabled={!institutionObj} className={inputCls}>
-                        <option value="">{institutionObj ? "Select faculty" : "Pick an institution first"}</option>
-                        {institutionObj?.schools.map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
-                      </select>
-                    </Field>
-                    <Field label="Department">
-                      <select value={department} onChange={(e) => setDepartment(e.target.value)} disabled={!schoolObj} className={inputCls}>
-                        <option value="">{schoolObj ? "Select department" : "Pick a faculty first"}</option>
-                        {schoolObj?.departments.map((d) => <option key={d} value={d}>{d}</option>)}
-                      </select>
-                    </Field>
-                    <div className="grid grid-cols-2 gap-3">
-                      <Field label="Level">
-                        <select value={level} onChange={(e) => setLevel(e.target.value)} className={inputCls}>
-                          <option value="">Pick</option>
-                          <option>100</option><option>200</option><option>300</option><option>400</option><option>500</option>
-                        </select>
-                      </Field>
-                      <Field label="Semester">
-                        <select value={semester} onChange={(e) => setSemester(e.target.value)} className={inputCls}>
-                          <option value="">Pick</option>
-                          <option>1st</option><option>2nd</option>
-                        </select>
-                      </Field>
-                    </div>
+                     <Field label="Institution">
+                       <select value={form.institution} onChange={(e) => { setForm(prev => ({ ...prev, institution: e.target.value, school: "", department: "" })); }} className={inputCls}>
+                         <option value="">Select your school</option>
+                         {INSTITUTIONS.map((i) => <option key={i.code} value={i.code}>{i.name}</option>)}
+                       </select>
+                     </Field>
+
+                     <Field label="School / Faculty">
+                       <select value={form.school} onChange={(e) => { setForm(prev => ({ ...prev, school: e.target.value, department: "" })); }} disabled={!institutionObj} className={inputCls}>
+                         <option value="">{institutionObj ? "Select faculty" : "Pick an institution first"}</option>
+                         {institutionObj?.schools.map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
+                       </select>
+                     </Field>
+                     <Field label="Department">
+                       <select value={form.department} onChange={(e) => setForm(prev => ({ ...prev, department: e.target.value }))} disabled={!schoolObj} className={inputCls}>
+                         <option value="">{schoolObj ? "Select department" : "Pick a faculty first"}</option>
+                         {schoolObj?.departments.map((d) => <option key={d} value={d}>{d}</option>)}
+                       </select>
+                     </Field>
+                     <div className="grid grid-cols-2 gap-3">
+                       <Field label="Level">
+                         <select value={form.level} onChange={(e) => setForm(prev => ({ ...prev, level: e.target.value }))} className={inputCls}>
+                           <option value="">Pick</option>
+                           <option>200</option>
+                           <option>300</option>
+                         </select>
+                       </Field>
+                       <Field label="Semester">
+                         <select value={form.semester} onChange={(e) => setForm(prev => ({ ...prev, semester: e.target.value }))} className={inputCls}>
+                           <option value="">Pick</option>
+                           <option>1st</option>
+                           <option>2nd</option>
+                         </select>
+                       </Field>
+                     </div>
                   </div>
                 )}
 
-                {step === 2 && (
-                  <div className="space-y-3 text-sm">
-                    <ReviewRow k="Name" v={fullName} />
-                    <ReviewRow k="WhatsApp" v={normalized!} />
-                    <ReviewRow k="Institution" v={institutionObj?.name || institution} />
-                    <ReviewRow k="School" v={school} />
-                    <ReviewRow k="Department" v={department} />
-                    <ReviewRow k="Level / Semester" v={`${level} · ${semester}`} />
-                    {refCode && <ReviewRow k="Referred by" v={refCode} accent />}
-                    {error && (
-                      <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                        <div className="text-xs leading-relaxed">{error}</div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                 {step === 2 && (
+                   <div className="space-y-3 text-sm">
+                     <ReviewRow k="Name" v={form.fullName} />
+                     <ReviewRow k="WhatsApp" v={normalized!} />
+                     <ReviewRow k="Institution" v={institutionObj?.name || form.institution} />
+                     <ReviewRow k="School" v={form.school} />
+                     <ReviewRow k="Department" v={form.department} />
+                     <ReviewRow k="Level / Semester" v={`${form.level} · ${form.semester}`} />
+                     {refCode && <ReviewRow k="Referred by" v={refCode} accent />}
+                       {error && (
+                         <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
+                           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                           <div className="text-xs leading-relaxed">{error}</div>
+                         </div>
+                       )}
+                   </div>
+                 )}
               </motion.div>
             </AnimatePresence>
           </div>
