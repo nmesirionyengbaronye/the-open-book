@@ -22,10 +22,12 @@ export async function GET() {
       .select('*', { count: 'exact', head: true })
       .gte('created_at', startOfWeek);
 
-    const recent = [...(entries || [])]
-      .sort((a: any, b: any) => +new Date(b.created_at) - +new Date(a.created_at))
-      .slice(0, 7)
-      .map((e: any) => e.full_name.split(' ')[0]);
+    const recent = entries && entries.length > 0
+      ? [...(entries || [])]
+          .sort((a: any, b: any) => +new Date(b.created_at) - +new Date(a.created_at))
+          .slice(0, 7)
+          .map((e: any) => e.full_name.split(' ')[0])
+      : [] as string[];
 
     const { data: all } = await supabaseAdmin.from('waitlist').select('referral_code, referred_by');
     const refCounts = new Map<string, number>();

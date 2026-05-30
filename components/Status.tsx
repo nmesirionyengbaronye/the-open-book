@@ -86,6 +86,10 @@ export function Status() {
               <ul className="space-y-3">
                 {Array.from({ length: 7 }).map((_, i) => <li key={i} className="h-8 shimmer rounded" />)}
               </ul>
+            ) : stats.recentNames.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">
+                Be one of the first to join! The latest names will appear here.
+              </p>
             ) : (
               <motion.ul
                 initial="h" animate="s" variants={{ s: { transition: { staggerChildren: 0.07 } } }}

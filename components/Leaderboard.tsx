@@ -30,7 +30,7 @@ export function Leaderboard() {
           </h2>
         </div>
         <div className="glass-strong rounded-2xl overflow-hidden">
-          {loading ? (
+        {loading ? (
             <div className="p-2">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4 p-4 border-b border-white/5">
@@ -47,9 +47,9 @@ export function Leaderboard() {
             <div className="p-10 text-center">
               <Medal className="w-10 h-10 mx-auto text-gold/60" />
               <p className="mt-3 text-muted-foreground font-hand">
-                I'm building this alone right now. Be the first to share your link and earn the top spot before the rush begins.
+                No referrers yet. Share your link with coursemates and be the first to climb the queue!
               </p>
-              <a href="/join" className="mt-4 inline-block text-gold text-sm underline">Get your referral link →</a>
+              <a href="/join" className="mt-4 inline-block text-gold text-sm underline">Get your referral link</a>
             </div>
           ) : (
             <motion.ul

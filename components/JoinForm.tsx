@@ -131,7 +131,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
           </motion.div>
         )}
 
-        <div className="glass-strong rounded-2xl p-6 sm:p-8 animate-gold-border">
+        <div className="rounded-2xl p-8 sm:p-10 glass border border-[#D4AF37]/30 shadow-[0_0_15px_0_rgba(212,175,55,0.2)]">
           <Progress step={step} />
 
           <div className="relative mt-8 overflow-hidden" style={{ minHeight: 340 }}>
@@ -305,8 +305,8 @@ function SuccessCard({ entry, total }: { entry: { fullName: string; position: nu
   return (
     <section id="join" className="py-24 px-5">
       <div className="max-w-xl mx-auto">
-        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
-          className="glass-strong rounded-2xl p-8 text-center gold-glow">
+          <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
+            className="rounded-2xl p-8 text-center glass border border-[#D4AF37]/30 shadow-[0_0_15px_0_rgba(212,175,55,0.2)]">
           <div className="w-16 h-16 mx-auto rounded-full bg-gold/20 grid place-items-center">
             <Check className="w-8 h-8 text-gold" />
           </div>

@@ -29,7 +29,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/5 py-4 text-center text-[11px] text-muted-foreground">
-        © {new Date().getFullYear()} Uni UI · Made with ☕ in Owerri
+        © {new Date().getFullYear()} Uni UI — Made with 💛 in Owerri
       </div>
     </footer>
   );

@@ -3,19 +3,22 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Shield, Menu, X } from "lucide-react";
+import { usePathname, useRouter } from 'next/navigation';
 
 const LINKS = [
-  { id: "hero", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "join", label: "Join" },
-  { id: "leaderboard", label: "Leaderboard" },
-  { id: "status", label: "Status" },
-  { id: "milestones", label: "Milestones" },
+  { id: "hero", label: "Home", path: "/" },
+  { id: "about", label: "About", path: "/about" },
+  { id: "join", label: "Join", path: "/join" },
+  { id: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
+  { id: "status", label: "Status", path: "/status" },
+  { id: "milestones", label: "Milestones", path: "/milestones" },
 ];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -30,14 +33,23 @@ export function Navbar() {
     setOpen(false);
   };
 
+  const handleLinkClick = (path: string, id?: string) => {
+    if (path === pathname && id) {
+      // Already on the page, scroll to section
+      scrollTo(id);
+    } else {
+      // Navigate to the page
+      router.push(path);
+      setOpen(false);
+    }
+  };
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all ${
-        scrolled ? "glass-strong border-b border-gold/20" : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled ? "glass-strong border-b border-gold/20" : "bg-transparent"}`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-        <button onClick={() => scrollTo("hero")} className="flex items-center gap-2 group">
+        <button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2 group">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow">
             <Shield className="w-5 h-5 text-background" strokeWidth={2.5} />
           </div>
@@ -50,14 +62,14 @@ export function Navbar() {
           {LINKS.map((l) => (
             <button
               key={l.id}
-              onClick={() => scrollTo(l.id)}
-              className="px-3 py-2 text-sm text-muted-foreground hover:text-gold transition-colors rounded-md"
+              onClick={() => handleLinkClick(l.path, l.id)}
+              className={`px-3 py-2 text-sm text-muted-foreground hover:text-gold transition-colors rounded-md ${pathname === l.path ? 'text-gold bg-gold/10' : ''}`}
             >
               {l.label}
             </button>
           ))}
           <button
-            onClick={() => scrollTo("join")}
+            onClick={() => handleLinkClick("/join")}
             className="ml-3 px-4 py-2 rounded-lg bg-gold text-background text-sm font-semibold gold-glow-hover"
           >
             Join Waitlist
@@ -81,14 +93,14 @@ export function Navbar() {
               {LINKS.map((l) => (
                 <button
                   key={l.id}
-                  onClick={() => scrollTo(l.id)}
-                  className="text-left px-3 py-3 text-foreground/80 hover:text-gold border-b border-white/5"
+                  onClick={() => handleLinkClick(l.path, l.id)}
+                  className={`px-3 py-2 text-sm text-muted-foreground hover:text-gold transition-colors rounded-md ${pathname === l.path ? 'text-gold bg-gold/10' : ''}`}
                 >
                   {l.label}
                 </button>
               ))}
               <button
-                onClick={() => scrollTo("join")}
+                onClick={() => handleLinkClick("/join")}
                 className="mt-3 px-4 py-3 rounded-lg bg-gold text-background font-semibold"
               >
                 Join Waitlist
