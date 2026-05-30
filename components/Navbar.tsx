@@ -1,74 +1,102 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { motion } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Shield, Menu, X } from "lucide-react";
 
-const PANTERO_URL =
-  process.env.NEXT_PUBLIC_PANTERO_URL || "https://pantero.vercel.app";
+const LINKS = [
+  { id: "hero", label: "Home" },
+  { id: "about", label: "About" },
+  { id: "join", label: "Join" },
+  { id: "leaderboard", label: "Leaderboard" },
+  { id: "status", label: "Status" },
+  { id: "milestones", label: "Milestones" },
+];
 
-export default function Navbar() {
-  const pathname = usePathname();
+export function Navbar() {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/join", label: "Join" },
-    { href: "/retrieve", label: "Retrieve" },
-    { href: "/leaderboard", label: "Leaderboard" },
-    { href: "/status", label: "Status" },
-    { href: "/milestones", label: "Milestones" },
-  ];
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setOpen(false);
+  };
 
   return (
-    <nav className="bg-[#13131A]/60 backdrop-blur-xl border-b border-white/10 fixed w-full z-50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <motion.span
-                whileHover={{ scale: 1.05 }}
-                className="text-xl font-heading text-[#D4AF37] tracking-tight"
-              >
-                Uni UI
-              </motion.span>
-            </Link>
-
-            <div className="hidden md:ml-10 md:flex md:space-x-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="relative px-3 py-2 text-sm font-medium text-gray-400 hover:text-[#D4AF37] transition-colors group"
-                >
-                  {link.label}
-                  {pathname === link.href ? (
-                    <motion.span
-                      layoutId="nav-underline"
-                      className="absolute bottom-0 left-0 h-0.5 w-full bg-[#D4AF37]"
-                    />
-                  ) : (
-                    <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-[#D4AF37] group-hover:w-full transition-all duration-300" />
-                  )}
-                </Link>
-              ))}
-            </div>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 transition-all ${
+        scrolled ? "glass-strong border-b border-gold/20" : "bg-transparent"
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+        <button onClick={() => scrollTo("hero")} className="flex items-center gap-2 group">
+          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow">
+            <Shield className="w-5 h-5 text-background" strokeWidth={2.5} />
           </div>
+          <span className="font-display text-lg tracking-tight">
+            uni <span className="text-gold">ui</span>
+          </span>
+        </button>
 
-          <div className="flex items-center">
-            <motion.a
-              href={PANTERO_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05, y: -2 }}
-              className="px-4 py-2 text-sm font-medium text-[#D4AF37] border border-[#D4AF37]/30 rounded-lg hover:bg-[#D4AF37]/10 transition-all flex items-center space-x-1"
+        <nav className="hidden md:flex items-center gap-1">
+          {LINKS.map((l) => (
+            <button
+              key={l.id}
+              onClick={() => scrollTo(l.id)}
+              className="px-3 py-2 text-sm text-muted-foreground hover:text-gold transition-colors rounded-md"
             >
-              <span>Pantero</span>
-              <span className="text-xs">↗</span>
-            </motion.a>
-          </div>
-        </div>
+              {l.label}
+            </button>
+          ))}
+          <button
+            onClick={() => scrollTo("join")}
+            className="ml-3 px-4 py-2 rounded-lg bg-gold text-background text-sm font-semibold gold-glow-hover"
+          >
+            Join Waitlist
+          </button>
+        </nav>
+
+        <button className="md:hidden p-2 text-gold" onClick={() => setOpen((v) => !v)} aria-label="Menu">
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
       </div>
-    </nav>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="md:hidden overflow-hidden glass-strong border-t border-gold/15"
+          >
+            <div className="px-5 py-4 flex flex-col gap-1">
+              {LINKS.map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => scrollTo(l.id)}
+                  className="text-left px-3 py-3 text-foreground/80 hover:text-gold border-b border-white/5"
+                >
+                  {l.label}
+                </button>
+              ))}
+              <button
+                onClick={() => scrollTo("join")}
+                className="mt-3 px-4 py-3 rounded-lg bg-gold text-background font-semibold"
+              >
+                Join Waitlist
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 }

@@ -1,190 +1,103 @@
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
-import * as z from "zod";
-import { normalizeWhatsApp, isValidNigerianPhone } from "@/lib/validation";
-import crypto from "crypto";
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+import { supabaseAdmin } from '@/lib/supabase';
 
-// Validation schema
-const waitlistJoinSchema = z.object({
-  fullName: z.string().min(2, "Full name must be at least 2 characters"),
-  whatsappNumber: z.string().refine(isValidNigerianPhone, {
-    message: "Please enter a valid Nigerian WhatsApp number",
-  }),
-  institution: z.string().min(1, "Please select your institution"),
-  schoolCode: z.string().optional(),
-  departmentCode: z.string().optional(),
-  level: z.enum(["200", "300"], {
-    errorMap: () => ({ message: "Please select your level (200 or 300)" }),
-  }),
-  semester: z.enum(["1st", "2nd"], {
-    errorMap: () => ({ message: "Please select your semester" }),
-  }),
-  referredBy: z
-    .string()
-    .optional()
-    .refine((val) => !val || isValidNigerianPhone(val), {
-      message: "Please enter a valid Nigerian WhatsApp number for referral",
-    }),
+const schema = z.object({
+  full_name: z.string().trim().min(2, "Name is required").max(100).transform((s) => s.replace(/<[^>]*>/g, '')),
+  whatsapp_number: z.string().transform((v) => {
+    const digits = v.replace(/\D/g, '');
+    if (digits.length === 10) return `+234${digits}`;
+    if (digits.length === 13 && digits.startsWith('234')) return `+${digits}`;
+    if (digits.length === 11 && digits.startsWith('0')) return `+234${digits.slice(1)}`;
+    return v;
+  }).refine((v) => /^\+234\d{10}$/.test(v), { message: "Invalid Nigerian WhatsApp number" }),
+  institution: z.string().trim().min(1, "Institution is required"),
+  school: z.string().trim().min(1, "School/Faculty required"),
+  department: z.string().trim().min(1, "Department required"),
+  level: z.string().refine((v) => v === '200' || v === '300', { message: "Level must be 200 or 300" }),
+  semester: z.string().trim().min(1, "Semester required"),
+  referred_by: z.string().trim().optional().or(z.literal('')),
+  hardest_course: z.string().trim().optional().or(z.literal('')),
+  recommendation: z.string().trim().optional().or(z.literal('')),
 });
 
-export async function POST(request: Request) {
+function generateReferralCode(phone: string, timestamp: number): string {
+  const combined = phone + timestamp;
+  let hash = 0;
+  for (let i = 0; i < combined.length; i++) {
+    const char = combined.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  const hex = Math.abs(hash).toString(16).slice(0, 6).toUpperCase().padStart(6, '0');
+  return `UNI-${hex}`;
+}
+
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const parsed = schema.safeParse(body);
 
-    // Validate input
-    const validationResult = waitlistJoinSchema.safeParse(body);
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          error: "Validation failed",
-          details: validationResult.error.format(),
-        },
-        { status: 400 },
-      );
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
     }
 
-    const {
-      fullName,
-      whatsappNumber,
-      institution,
-      schoolCode,
-      departmentCode,
-      level,
-      semester,
-      referredBy,
-    } = validationResult.data;
+    const { full_name, whatsapp_number, institution, school, department, level, semester, referred_by, hardest_course, recommendation } = parsed.data;
 
-    // Normalize WhatsApp number
-    const normalizedWhatsApp = normalizeWhatsApp(whatsappNumber);
-    const normalizedReferral = referredBy
-      ? normalizeWhatsApp(referredBy)
-      : null;
-
-    // Check for duplicate WhatsApp number
-    const { data: existingUser, error: duplicateError } = await supabaseAdmin
-      .from("waitlist")
-      .select("id")
-      .eq("whatsapp_number", normalizedWhatsApp)
+    const { data: existing } = await supabaseAdmin
+      .from('waitlist')
+      .select('referral_code, position')
+      .eq('whatsapp_number', whatsapp_number)
       .single();
 
-    if (duplicateError && duplicateError.code !== "PGRST116") {
-      throw duplicateError;
+    if (existing) {
+      return NextResponse.json({
+        error: "This number is already on the waitlist",
+        code: existing.referral_code,
+        position: existing.position
+      }, { status: 409 });
     }
 
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "This WhatsApp number is already registered" },
-        { status: 409 },
-      );
-    }
-
-    // Validate referral if provided
-    if (normalizedReferral) {
-      const { data: referrerData, error: referrerError } = await supabaseAdmin
-        .from("waitlist")
-        .select("id, referral_code, position")
-        .eq("whatsapp_number", normalizedReferral)
-        .single();
-
-      if (referrerError && referrerError.code !== "PGRST116") {
-        throw referrerError;
-      }
-
-      if (!referrerData) {
-        return NextResponse.json(
-          { error: "Invalid referral code" },
-          { status: 400 },
-        );
-      }
-    }
-
-    // Generate referral code: UNI-XXXXXX
-    const hash = crypto
-      .createHash("sha256")
-      .update(normalizedWhatsApp + Date.now().toString())
-      .digest("hex");
-    const referralCode = `UNI-${hash.substring(0, 6).toUpperCase()}`;
-
-    // Calculate position: COUNT(*) + 1
     const { count } = await supabaseAdmin
-      .from("waitlist")
-      .select("*", { count: "exact", head: true });
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true });
 
     const position = (count || 0) + 1;
+    const referral_code = generateReferralCode(whatsapp_number, Date.now());
 
-    // Insert new waitlist entry
-    const { data: insertedData, error: insertError } = await supabaseAdmin
-      .from("waitlist")
-      .insert({
-        full_name: fullName,
-        whatsapp_number: normalizedWhatsApp,
-        institution: institution,
-        school_code: schoolCode || null,
-        department_code: departmentCode || null,
-        level: parseInt(level),
-        semester: semester,
-        referral_code: referralCode,
-        referred_by: normalizedReferral || null,
-        position: position,
-      })
-      .select();
-
-    if (insertError) {
-      if (insertError.code === "23505") {
-        // Unique violation
-        return NextResponse.json(
-          { error: "This WhatsApp number is already registered" },
-          { status: 409 },
-        );
-      }
-      throw insertError;
+    let verifiedReferredBy = null;
+    if (referred_by && referred_by.length > 0) {
+      const { data: referrer } = await supabaseAdmin
+        .from('waitlist')
+        .select('referral_code')
+        .eq('referral_code', referred_by)
+        .single();
+      if (referrer) verifiedReferredBy = referred_by;
     }
 
-    // Update referrer's position if applicable
-    if (normalizedReferral) {
-      try {
-        const { data: referrerData, error: referrerFetchError } =
-          await supabaseAdmin
-            .from("waitlist")
-            .select("position")
-            .eq("whatsapp_number", normalizedReferral)
-            .single();
+    const { error } = await supabaseAdmin.from('waitlist').insert({
+      full_name: full_name.trim(),
+      whatsapp_number: whatsapp_number.trim(),
+      institution: institution.trim(),
+      school_code: school.trim(),
+      department_code: department.trim(),
+      level,
+      semester,
+      referral_code,
+      referred_by: verifiedReferredBy,
+      position,
+      hardest_course: hardest_course || null,
+      recommendation: recommendation || null,
+    });
 
-        if (!referrerFetchError && referrerData) {
-          const newPosition = Math.max(0, referrerData.position - 3);
-          await supabaseAdmin
-            .from("waitlist")
-            .update({ position: newPosition })
-            .eq("whatsapp_number", normalizedReferral);
-        }
-      } catch (referralError) {
-        // Log error but don't fail the main operation
-        console.warn("Could not update referrer position:", referralError);
-      }
+    if (error) {
+      console.error(error);
+      return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 
-    return NextResponse.json(
-      {
-        success: true,
-        referral_code: referralCode,
-        position: position,
-      },
-      { status: 201 },
-    );
-  } catch (error: any) {
-    console.error("Waitlist join error:", error);
-
-    // Handle specific error types
-    if (error.code === "23505") {
-      return NextResponse.json(
-        { error: "This WhatsApp number is already registered" },
-        { status: 409 },
-      );
-    }
-
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ success: true, referral_code, position });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
