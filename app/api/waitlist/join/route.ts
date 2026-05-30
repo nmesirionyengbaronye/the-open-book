@@ -38,11 +38,100 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('Received body:', body);
     
-    const parsed = schema.safeParse(body);
+    // Validate each field individually to provide more specific error messages
+    const { full_name, whatsapp_number, institution, school, department, level, semester, referred_by, hardest_course, recommendation } = body;
     
+    // Validate full_name
+    if (!full_name || typeof full_name !== 'string' || full_name.trim().length < 2) {
+      console.log('Validation failed: full_name must be at least 2 characters');
+      return NextResponse.json({ error: "Name must be at least 2 characters" }, { status: 400 });
+    }
+    
+    // Validate whatsapp_number format
+    if (!whatsapp_number || typeof whatsapp_number !== 'string') {
+      console.log('Validation failed: whatsapp_number must be a string');
+      return NextResponse.json({ error: "Invalid WhatsApp number format" }, { status: 400 });
+    }
+    
+    // Normalize and validate WhatsApp number
+    const digits = whatsapp_number.replace(/\D/g, '');
+    let normalizedWhatsApp = null;
+    if (digits.length === 10) {
+      normalizedWhatsApp = `+234${digits}`;
+    } else if (digits.length === 13 && digits.startsWith('234')) {
+      normalizedWhatsApp = `+${digits}`;
+    } else if (digits.length === 11 && digits.startsWith('0')) {
+      normalizedWhatsApp = `+234${digits.slice(1)}`;
+    }
+    
+    if (!normalizedWhatsApp || !/^\+234\d{10}$/.test(normalizedWhatsApp)) {
+      console.log('Validation failed: Invalid Nigerian WhatsApp number format');
+      return NextResponse.json({ error: "Invalid Nigerian WhatsApp number format. Use format like 08012345678" }, { status: 400 });
+    }
+    
+    // Validate institution
+    if (!institution || typeof institution !== 'string' || institution.trim().length === 0) {
+      console.log('Validation failed: institution is required');
+      return NextResponse.json({ error: "Institution is required" }, { status: 400 });
+    }
+    
+    // Validate school
+    if (!school || typeof school !== 'string' || school.trim().length === 0) {
+      console.log('Validation failed: school is required');
+      return NextResponse.json({ error: "School/Faculty is required" }, { status: 400 });
+    }
+    
+    // Validate department
+    if (!department || typeof department !== 'string' || department.trim().length === 0) {
+      console.log('Validation failed: department is required');
+      return NextResponse.json({ error: "Department is required" }, { status: 400 });
+    }
+    
+    // Validate level
+    if (!level || typeof level !== 'string' || (level !== '200' && level !== '300')) {
+      console.log('Validation failed: level must be 200 or 300');
+      return NextResponse.json({ error: "Level must be 200 or 300" }, { status: 400 });
+    }
+    
+    // Validate semester
+    if (!semester || typeof semester !== 'string' || (semester !== '1st' && semester !== '2nd')) {
+      console.log('Validation failed: semester must be 1st or 2nd');
+      return NextResponse.json({ error: "Semester must be 1st or 2nd" }, { status: 400 });
+    }
+    
+    // Validate optional fields
+    if (referred_by !== undefined && referred_by !== null && typeof referred_by !== 'string') {
+      console.log('Validation failed: referred_by must be a string if provided');
+      return NextResponse.json({ error: "Referred by must be a string" }, { status: 400 });
+    }
+    
+    if (hardest_course !== undefined && hardest_course !== null && typeof hardest_course !== 'string') {
+      console.log('Validation failed: hardest_course must be a string if provided');
+      return NextResponse.json({ error: "Hardest course must be a string" }, { status: 400 });
+    }
+    
+    if (recommendation !== undefined && recommendation !== null && typeof recommendation !== 'string') {
+      console.log('Validation failed: recommendation must be a string if provided');
+      return NextResponse.json({ error: "Recommendation must be a string" }, { status: 400 });
+    }
+    
+    // If we got here, all basic validations passed, now use Zod for final validation
+    const parsed = schema.safeParse({
+      full_name: full_name.trim(),
+      whatsapp_number: normalizedWhatsApp, // Use the normalized version
+      institution: institution.trim(),
+      school: school.trim(),
+      department: department.trim(),
+      level,
+      semester,
+      referred_by: referred_by?.trim() || '',
+      hardest_course: hardest_course?.trim() || '',
+      recommendation: recommendation?.trim() || '',
+    });
+
     if (!parsed.success) {
       // Log detailed validation errors
-      console.log('Validation errors:', parsed.error.errors);
+      console.log('Zod validation errors:', parsed.error.errors);
       parsed.error.errors.forEach(err => {
         console.log(`Field "${err.path.join('.')}": ${err.message}`);
       });
@@ -50,12 +139,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
     }
 
-    const { full_name, whatsapp_number, institution, school, department, level, semester, referred_by, hardest_course, recommendation } = parsed.data;
-
+    // Use the validated data from Zod
     const { data: existing } = await supabaseAdmin
       .from('waitlist')
       .select('referral_code, position')
-      .eq('whatsapp_number', whatsapp_number)
+      .eq('whatsapp_number', parsed.data.whatsapp_number)
       .single();
 
     if (existing) {
@@ -71,31 +159,31 @@ export async function POST(request: NextRequest) {
       .select('*', { count: 'exact', head: true });
 
     const position = (count || 0) + 1;
-    const referral_code = generateReferralCode(whatsapp_number, Date.now());
+    const referral_code = generateReferralCode(parsed.data.whatsapp_number, Date.now());
 
     let verifiedReferredBy = null;
-    if (referred_by && referred_by.length > 0) {
+    if (parsed.data.referred_by && parsed.data.referred_by.length > 0) {
       const { data: referrer } = await supabaseAdmin
         .from('waitlist')
         .select('referral_code')
-        .eq('referral_code', referred_by)
+        .eq('referral_code', parsed.data.referred_by)
         .single();
-      if (referrer) verifiedReferredBy = referred_by;
+      if (referrer) verifiedReferredBy = parsed.data.referred_by;
     }
 
     const { error } = await supabaseAdmin.from('waitlist').insert({
-      full_name: full_name.trim(),
-      whatsapp_number: whatsapp_number.trim(),
-      institution: institution.trim(),
-      school_code: school.trim(),
-      department_code: department.trim(),
-      level,
-      semester,
+      full_name: parsed.data.full_name.trim(),
+      whatsapp_number: parsed.data.whatsapp_number.trim(),
+      institution: parsed.data.institution.trim(),
+      school_code: parsed.data.school.trim(),
+      department_code: parsed.data.department.trim(),
+      level: parsed.data.level,
+      semester: parsed.data.semester,
       referral_code,
       referred_by: verifiedReferredBy,
       position,
-      hardest_course: hardest_course || null,
-      recommendation: recommendation || null,
+      hardest_course: parsed.data.hardest_course || null,
+      recommendation: parsed.data.recommendation || null,
     });
 
     if (error) {
