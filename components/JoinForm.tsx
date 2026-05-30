@@ -58,27 +58,27 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const next = () => { setDirection(1); setStep((s) => s + 1); };
   const back = () => { setDirection(-1); setStep((s) => s - 1); };
 
-  const submit = async () => {
-    setError(null);
-    setSubmitting(true);
-    (document.activeElement as HTMLElement)?.blur();
+   const submit = async () => {
+     setError(null);
+     setSubmitting(true);
+     (document.activeElement as HTMLElement)?.blur();
 
-    const res = await fetch("/api/waitlist/join", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        full_name: form.fullName.trim(),
-        whatsapp_number: normalized,
-        institution: form.institution,
-        school: form.school,
-        department: form.department,
-        level: form.level,
-        semester: form.semester,
-        referred_by: refCode,
-      }),
-    });
+     const res = await fetch("/api/waitlist/join", {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+       body: JSON.stringify({
+         full_name: form.fullName.trim(),
+         whatsapp_number: normalized,
+         institution: form.institution,
+         school: form.school,
+         department: form.department,
+         level: form.level,
+         semester: form.semester,
+         referred_by: refCode,
+       }),
+     });
 
-    setSubmitting(false);
+     setSubmitting(false);
 
      if (!res.ok) {
        const err = await res.json();
@@ -104,179 +104,180 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
        }
        return;
      }
-      return;
-    }
 
-    const data = await res.json();
-    setResult({ fullName: form.fullName.trim(), position: data.position, referralCode: data.referral_code });
-    setTotal(data.position + 10);
-    if (!confettiFired.current) {
-      confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 }, colors: ["#D4AF37", "#FFD700", "#fff"] });
-      confettiFired.current = true;
-    }
-    toast.success("Welcome!", { description: "You're on the waitlist.", id: "welcome" });
-  };
+     const data = await res.json();
+     setResult({ fullName: form.fullName.trim(), position: data.position, referralCode: data.referral_code });
+     setTotal(data.position + 10);
+     if (!confettiFired.current) {
+       confetti({ particleCount: 140, spread: 80, origin: { y: 0.6 }, colors: ["#D4AF37", "#FFD700", "#fff"] });
+       confettiFired.current = true;
+     }
+     toast.success("Welcome!", { description: "You're on the waitlist.", id: "welcome" });
+   };
 
-  if (result) return <SuccessCard entry={result} total={total} />;
+   return (
+     <>
+       {result ? (
+         <SuccessCard entry={result} total={total} />
+       ) : (
+         <section id="join" className="py-24 px-5">
+           <div className="max-w-2xl mx-auto">
+             <div className="text-center mb-10">
+               <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">JOIN</div>
+               <h2 className="mt-3 text-3xl sm:text-5xl font-display font-bold">
+                 Get on the <span className="text-gold">WAITLIST</span>.
+               </h2>
+               <p className="mt-3 text-muted-foreground">
+                 We're letting students in by school. Earlier signups = earlier access.
+               </p>
+             </div>
 
-  return (
-    <section id="join" className="py-24 px-5">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-10">
-          <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">JOIN</div>
-          <h2 className="mt-3 text-3xl sm:text-5xl font-display font-bold">
-            Get on the <span className="text-gold">WAITLIST</span>.
-          </h2>
-          <p className="mt-3 text-muted-foreground">
-            We're letting students in by school. Earlier signups = earlier access.
-          </p>
-        </div>
+             {verifyingRef && (
+               <div className="mb-5 glass rounded-xl p-4 flex items-center gap-3 text-sm">
+                 <Loader2 className="w-4 h-4 animate-spin text-gold" /> Verifying your referral link…
+               </div>
+             )}
+             {refCode && !verifyingRef && (
+               <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                 className="mb-5 glass rounded-xl p-4 flex items-start gap-3 text-sm border-gold/40">
+                 <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                 <div>
+                   You were referred by <span className="text-gold font-semibold">{refCode}</span> — you'll both move up the queue.
+                 </div>
+               </motion.div>
+             )}
+             <div className="rounded-2xl p-8 sm:p-10 glass border border-[#D4AF37]/30 shadow-[0_0_15px_0_rgba(212,175,55,0.2)]">
+               <Progress step={step} />
 
-        {verifyingRef && (
-          <div className="mb-5 glass rounded-xl p-4 flex items-center gap-3 text-sm">
-            <Loader2 className="w-4 h-4 animate-spin text-gold" /> Verifying your referral link…
-          </div>
-        )}
-        {refCode && !verifyingRef && (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
-            className="mb-5 glass rounded-xl p-4 flex items-start gap-3 text-sm border-gold/40">
-            <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-            <div>
-              You were referred by <span className="text-gold font-semibold">{refCode}</span> — you'll both move up the queue.
-            </div>
-          </motion.div>
-        )}
-
-        <div className="rounded-2xl p-8 sm:p-10 glass border border-[#D4AF37]/30 shadow-[0_0_15px_0_rgba(212,175,55,0.2)]">
-          <Progress step={step} />
-
-          <div className="relative mt-8 overflow-hidden" style={{ minHeight: 340 }}>
-            <AnimatePresence mode="wait" custom={direction}>
-              <motion.div
-                key={step}
-                custom={direction}
-                initial={{ opacity: 0, x: direction * 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -direction * 40 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] as const }}
-              >
-                {step === 0 && (
-                  <div className="space-y-5">
-                    <Field label="Full name">
-                       <input
-                         value={form.fullName} onChange={(e) => setForm(prev => ({ ...prev, fullName: e.target.value }))}
-                         placeholder="Chisom Okeke" className={inputCls}
-                       />
-                     </Field>
-                    <Field label="WhatsApp number" hint="We'll only use this to send your invite.">
-                       <div className="relative">
-                         <input
-                           value={form.whatsapp} onChange={(e) => setForm(prev => ({ ...prev, whatsapp: e.target.value }))}
-                           placeholder="080 1234 5678" inputMode="tel" className={inputCls}
-                         />
-                         {form.whatsapp && (
-                           <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                             {normalized ? (
-                               <Check className="w-5 h-5 text-emerald-400" />
-                             ) : (
-                               <AlertCircle className="w-5 h-5 text-destructive" />
+               <div className="relative mt-8 overflow-hidden" style={{ minHeight: 340 }}>
+                 <AnimatePresence mode="wait" custom={direction}>
+                   <motion.div
+                     key={step}
+                     custom={direction}
+                     initial={{ opacity: 0, x: direction * 40 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     exit={{ opacity: 0, x: -direction * 40 }}
+                     transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] as const }}
+                   >
+                     {step === 0 && (
+                       <div className="space-y-5">
+                         <Field label="Full name">
+                           <input
+                             value={form.fullName} onChange={(e) => setForm(prev => ({ ...prev, fullName: e.target.value }))}
+                             placeholder="Chisom Okeke" className={inputCls}
+                           />
+                         </Field>
+                         <Field label="WhatsApp number" hint="We'll only use this to send your invite.">
+                           <div className="relative">
+                             <input
+                               value={form.whatsapp} onChange={(e) => setForm(prev => ({ ...prev, whatsapp: e.target.value }))}
+                               placeholder="080 1234 5678" inputMode="tel" className={inputCls}
+                             />
+                             {form.whatsapp && (
+                               <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                 {normalized ? (
+                                   <Check className="w-5 h-5 text-emerald-400" />
+                                 ) : (
+                                   <AlertCircle className="w-5 h-5 text-destructive" />
+                                 )}
+                               </div>
                              )}
+                             {form.whatsapp && !normalized && (
+                               <p className="mt-2 text-xs text-destructive">Use a valid Nigerian number (e.g. 0801 234 5678).</p>
+                             )}
+                             {normalized && (
+                               <p className="mt-2 text-xs text-emerald-400">Looks good — {normalized}</p>
+                             )}
+                           </div>
+                         </Field>
+                       </div>
+                     )}
+                     {step === 1 && (
+                       <div className="space-y-4">
+                         <Field label="Institution">
+                           <select value={form.institution} onChange={(e) => { setForm(prev => ({ ...prev, institution: e.target.value, school: "", department: "" })); }} className={inputCls}>
+                             <option value="">Select your school</option>
+                             {INSTITUTIONS.map((i) => <option key={i.code} value={i.code}>{i.name}</option>)}
+                           </select>
+                         </Field>
+
+                          <Field label="School / Faculty">
+                            <select value={form.school} onChange={(e) => { setForm(prev => ({ ...prev, school: e.target.value, department: "" })); }} disabled={!institutionObj} className={inputCls}>
+                              <option value="">{institutionObj ? "Select faculty" : "Pick an institution first"}</option>
+                              {institutionObj?.schools.map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
+                            </select>
+                          </Field>
+
+                          <Field label="Department">
+                            <select value={form.department} onChange={(e) => setForm(prev => ({ ...prev, department: e.target.value }))} disabled={!schoolObj} className={inputCls}>
+                              <option value="">{schoolObj ? "Select department" : "Pick a faculty first"}</option>
+                              {schoolObj?.departments.map((d) => <option key={d} value={d}>{d}</option>)}
+                            </select>
+                          </Field>
+
+                         <div className="grid grid-cols-2 gap-3">
+                           <Field label="Level">
+                             <select value={form.level} onChange={(e) => setForm(prev => ({ ...prev, level: e.target.value }))} className={inputCls}>
+                               <option value="">Pick</option>
+                               <option>200</option>
+                               <option>300</option>
+                             </select>
+                           </Field>
+                           <Field label="Semester">
+                             <select value={form.semester} onChange={(e) => setForm(prev => ({ ...prev, semester: e.target.value }))} className={inputCls}>
+                               <option value="">Pick</option>
+                               <option>1st</option>
+                               <option>2nd</option>
+                             </select>
+                           </Field>
+                         </div>
+                       </div>
+                     )}
+                     {step === 2 && (
+                       <div className="space-y-3 text-sm">
+                         <ReviewRow k="Name" v={form.fullName} />
+                         <ReviewRow k="WhatsApp" v={normalized!} />
+                         <ReviewRow k="Institution" v={institutionObj?.name || form.institution} />
+                         <ReviewRow k="School" v={form.school} />
+                         <ReviewRow k="Department" v={form.department} />
+                         <ReviewRow k="Level / Semester" v={`${form.level} · ${form.semester}`} />
+                         {refCode && <ReviewRow k="Referred by" v={refCode} accent />}
+                         {error && (
+                           <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
+                             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                             <div className="text-xs leading-relaxed">{error}</div>
                            </div>
                          )}
                        </div>
-                       {form.whatsapp && !normalized && (
-                         <p className="mt-2 text-xs text-destructive">Use a valid Nigerian number (e.g. 0801 234 5678).</p>
-                       )}
-                       {normalized && (
-                         <p className="mt-2 text-xs text-emerald-400">Looks good — {normalized}</p>
-                       )}
-                     </Field>
-                  </div>
-                )}
+                     )}
+                   </motion.div>
+                 </AnimatePresence>
+               </div>
 
-                {step === 1 && (
-                  <div className="space-y-4">
-                     <Field label="Institution">
-                       <select value={form.institution} onChange={(e) => { setForm(prev => ({ ...prev, institution: e.target.value, school: "", department: "" })); }} className={inputCls}>
-                         <option value="">Select your school</option>
-                         {INSTITUTIONS.map((i) => <option key={i.code} value={i.code}>{i.name}</option>)}
-                       </select>
-                     </Field>
-
-                     <Field label="School / Faculty">
-                       <select value={form.school} onChange={(e) => { setForm(prev => ({ ...prev, school: e.target.value, department: "" })); }} disabled={!institutionObj} className={inputCls}>
-                         <option value="">{institutionObj ? "Select faculty" : "Pick an institution first"}</option>
-                         {institutionObj?.schools.map((s) => <option key={s.name} value={s.name}>{s.name}</option>)}
-                       </select>
-                     </Field>
-                     <Field label="Department">
-                       <select value={form.department} onChange={(e) => setForm(prev => ({ ...prev, department: e.target.value }))} disabled={!schoolObj} className={inputCls}>
-                         <option value="">{schoolObj ? "Select department" : "Pick a faculty first"}</option>
-                         {schoolObj?.departments.map((d) => <option key={d} value={d}>{d}</option>)}
-                       </select>
-                     </Field>
-                     <div className="grid grid-cols-2 gap-3">
-                       <Field label="Level">
-                         <select value={form.level} onChange={(e) => setForm(prev => ({ ...prev, level: e.target.value }))} className={inputCls}>
-                           <option value="">Pick</option>
-                           <option>200</option>
-                           <option>300</option>
-                         </select>
-                       </Field>
-                       <Field label="Semester">
-                         <select value={form.semester} onChange={(e) => setForm(prev => ({ ...prev, semester: e.target.value }))} className={inputCls}>
-                           <option value="">Pick</option>
-                           <option>1st</option>
-                           <option>2nd</option>
-                         </select>
-                       </Field>
-                     </div>
-                  </div>
-                )}
-
-                 {step === 2 && (
-                   <div className="space-y-3 text-sm">
-                     <ReviewRow k="Name" v={form.fullName} />
-                     <ReviewRow k="WhatsApp" v={normalized!} />
-                     <ReviewRow k="Institution" v={institutionObj?.name || form.institution} />
-                     <ReviewRow k="School" v={form.school} />
-                     <ReviewRow k="Department" v={form.department} />
-                     <ReviewRow k="Level / Semester" v={`${form.level} · ${form.semester}`} />
-                     {refCode && <ReviewRow k="Referred by" v={refCode} accent />}
-                       {error && (
-                         <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
-                           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                           <div className="text-xs leading-relaxed">{error}</div>
-                         </div>
-                       )}
-                   </div>
+               <div className="mt-6 flex items-center justify-between gap-3">
+                 <button onClick={back} disabled={step === 0}
+                   className="px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-gold disabled:opacity-30 inline-flex items-center gap-2">
+                   <ArrowLeft className="w-4 h-4" /> Back
+                 </button>
+                 {step < 2 ? (
+                   <button onClick={next}
+                     disabled={(step === 0 && !step1Valid) || (step === 1 && !step2Valid)}
+                     className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold disabled:opacity-40 inline-flex items-center gap-2 gold-glow-hover">
+                     Continue <ArrowRight className="w-4 h-4" />
+                   </button>
+                 ) : (
+                   <button onClick={submit} disabled={submitting}
+                     className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold inline-flex items-center gap-2 gold-glow-hover disabled:opacity-60">
+                     {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : <>Claim my spot <Sparkles className="w-4 h-4" /></>}
+                   </button>
                  )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <div className="mt-6 flex items-center justify-between gap-3">
-            <button onClick={back} disabled={step === 0}
-              className="px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-gold disabled:opacity-30 inline-flex items-center gap-2">
-              <ArrowLeft className="w-4 h-4" /> Back
-            </button>
-            {step < 2 ? (
-              <button onClick={next}
-                disabled={(step === 0 && !step1Valid) || (step === 1 && !step2Valid)}
-                className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold disabled:opacity-40 inline-flex items-center gap-2 gold-glow-hover">
-                Continue <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button onClick={submit} disabled={submitting}
-                className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold inline-flex items-center gap-2 gold-glow-hover disabled:opacity-60">
-                {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : <>Claim my spot <Sparkles className="w-4 h-4" /></>}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+               </div>
+             </div>
+           </div>
+         </section>
+       )}
+     </>
+   );
 }
 
 const inputCls = "w-full bg-background/60 border border-gold/20 rounded-lg px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 transition";
