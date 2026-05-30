@@ -80,24 +80,30 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
 
     setSubmitting(false);
 
-    if (!res.ok) {
-      const err = await res.json();
-      if (res.status === 409) {
-        setError(`This number is already on the waitlist! ${err.code ? `Your code: ${err.code}` : ''}`);
-        toast.error("", {
-          description: (
-            <>
-              This WhatsApp number is already on the waitlist!{' '}
-              <a href="/retrieve" className="underline cursor-pointer text-gold">
-                Retrieve your referral link here
-              </a>
-            </>
-          ),
-          id: "duplicate"
-        });
-      } else {
-        toast.error("Network error. Please try again.", { id: "network-error" });
-      }
+     if (!res.ok) {
+       const err = await res.json();
+       console.log('Server response:', err);
+       // Show the error from the server in an alert for debugging
+       alert(`Error from server: ${JSON.stringify(err)}`);
+       if (res.status === 409) {
+         setError(`This number is already on the waitlist! ${err.code ? `Your code: ${err.code}` : ''}`);
+         toast.error("", {
+           description: (
+             <>
+               This WhatsApp number is already on the waitlist!{' '}
+               <a href="/retrieve" className="underline cursor-pointer text-gold">
+                 Retrieve your referral link here
+               </a>
+             </>
+           ),
+           id: "duplicate"
+         });
+       } else {
+         setError(err.error || "Submission failed");
+         toast.error("Error", { description: err.error, id: "join-error" });
+       }
+       return;
+     }
       return;
     }
 
