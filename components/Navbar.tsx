@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Menu, X } from "lucide-react";
+import { BookOpen, Menu, X } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 
 const LINKS = [
@@ -49,14 +49,14 @@ export function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled ? "glass-strong border-b border-gold/20" : "bg-transparent"}`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-        <button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow">
-            <Shield className="w-5 h-5 text-background" strokeWidth={2.5} />
-          </div>
-          <span className="font-display text-lg tracking-tight">
-            uni <span className="text-gold">ui</span>
-          </span>
-        </button>
+         <button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2 group">
+           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow">
+             <BookOpen className="w-5 h-5 text-background" strokeWidth={2.5} />
+           </div>
+           <span className="font-display text-lg tracking-tight">
+             UNI <span className="text-gold">UI</span>
+           </span>
+         </button>
 
         <nav className="hidden md:flex items-center gap-1">
           {LINKS.map((l) => (

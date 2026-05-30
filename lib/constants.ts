@@ -1,70 +1,83 @@
 export const FUTO_FACULTIES_AND_DEPARTMENTS = {
-  SEET: [
-    "Electrical/Electronic Engineering (EEE)",
-    "Mechanical Engineering (MCE)",
-    "Civil Engineering (CIE)",
-    "Petroleum Engineering (PET)",
-    "Chemical Engineering (CHE)",
-    "Materials & Metallurgical Engineering (MME)",
-    "Agricultural Engineering (AGE)",
-    "Mechatronics Engineering (MCT)"
+  SAAT: [
+    "Agricultural Economics",
+    "Agricultural Extension",
+    "Animal Science & Technology",
+    "Crop Science & Technology",
+    "Fisheries & Aquaculture Technology",
+    "Forestry & Wildlife Technology",
+    "Soil Science Technology"
   ],
-  SESET: [
-    "Environmental Science",
-    "Geology",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Mathematics",
-    "Statistics",
-    "Computer Science",
-    "Information Technology",
-    "Software Engineering"
-  ],
-  SOPS: [
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Microbiology",
-    "Biochemistry",
-    "Biotechnology"
+  SBMS: [
+    "Anatomy",
+    "Physiology"
   ],
   SOBS: [
-    "Accounting",
-    "Business Administration",
-    "Economics",
-    "Finance",
-    "Marketing",
-    "Management"
+    "Biochemistry",
+    "Biology",
+    "Biotechnology",
+    "Microbiology",
+    "Forensic Science"
+  ],
+  SEET: [
+    "Agricultural & Bioresources Engineering (ABE)",
+    "Biomedical Engineering (BME)",
+    "Chemical Engineering (CHE)",
+    "Civil Engineering (CIE)",
+    "Electrical & Electronics Engineering (EEE)",
+    "Food Science & Technology (FST)",
+    "Materials & Metallurgical Engineering (MME)",
+    "Mechanical Engineering (MEE)",
+    "Mechatronics Engineering (MCE)",
+    "Petroleum Engineering (PET)",
+    "Polymer & Textile Engineering (PTE)"
+  ],
+  SOES: [
+    "Architecture",
+    "Building Technology",
+    "Environmental Technology",
+    "Quantity Surveying",
+    "Surveying & Geoinformatics",
+    "Urban & Regional Planning"
+  ],
+  SOHT: [
+    "Biomedical Technology",
+    "Dental Technology",
+    "Optometry",
+    "Prosthetics & Orthotics",
+    "Public Health Technology"
+  ],
+  SMAT: [
+    "Financial Management Technology",
+    "Logistics and Transport Technology"
   ],
   SICT: [
     "Computer Science",
     "Information Technology",
-    "Software Engineering",
-    "Cyber Security"
+    "Cyber Security",
+    "Software Engineering"
+  ],
+  SOPS: [
+    "Chemistry",
+    "Physics",
+    "Mathematics",
+    "Statistics",
+    "Science Laboratory Technology",
+    "Geology"
+  ],
+  SESET: [
+    "Computer Engineering (CME)",
+    "Electrical (Power Systems) Engineering (EPE)",
+    "Electronics Engineering (ELE)",
+    "Mechatronics Engineering (MCE)",
+    "Telecommunications Engineering (TCE)",
+    "Electrical and Electronic Engineering (EEE)"
   ],
   SLIT: [
-    "Library & Information Science",
-    "Mass Communication"
-  ],
-  SOES: [
-    "Environmental Science",
-    "Geography",
-    "Urban & Regional Planning"
-  ],
-  SOHT: [
-    "Hospitality & Tourism Management"
-  ],
-  SBMS: [
-    "Anatomy",
-    "Physiology",
-    "Medical Laboratory Science"
-  ],
-  SMAT: [
-    "Mathematics",
-    "Statistics"
-  ],
-  COMED: [
-    "Medicine & Surgery"
+    "Entrepreneurship and Innovation",
+    "Logistics and Transport Technology",
+    "Maritime Technology and Logistics",
+    "Project Management Technology",
+    "Supply Chain Management"
   ]
 };

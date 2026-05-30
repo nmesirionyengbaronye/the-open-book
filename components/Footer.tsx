@@ -1,4 +1,4 @@
-import { Mail, MessageCircle, Shield } from "lucide-react";
+import { Mail, MessageCircle, Award } from "lucide-react";
 
 const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "1stuniui@gmail.com";
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || "https://chat.whatsapp.com/uniui-community";
@@ -8,9 +8,9 @@ export function Footer() {
     <footer className="mt-10 glass-strong border-t border-gold/20">
       <div className="max-w-7xl mx-auto px-5 sm:px-8 py-10 grid sm:grid-cols-2 gap-6 items-center">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center">
-            <Shield className="w-5 h-5 text-background" strokeWidth={2.5} />
-          </div>
+           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center">
+             <Award className="w-5 h-5 text-background" strokeWidth={2.5} />
+           </div>
           <div>
             <div className="font-display text-base">UNI <span className="text-gold">UI</span></div>
             <p className="text-xs text-muted-foreground max-w-md mt-1">

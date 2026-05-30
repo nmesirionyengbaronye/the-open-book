@@ -61,23 +61,23 @@ export function Status() {
         <div className="mt-8 grid lg:grid-cols-[1fr_280px] gap-6">
           <div className="glass-strong rounded-2xl p-5">
             <div className="text-sm font-medium mb-3">Signups · last 30 days</div>
-            {loading ? (
-              <div className="h-56 shimmer rounded-lg" />
-            ) : (
-              <div className="h-56">
-                <ResponsiveContainer>
-                  <BarChart data={chartData}>
-                    <XAxis dataKey="label" tick={{ fill: "oklch(0.65 0.02 90)", fontSize: 10 }} interval={4} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      cursor={{ fill: "oklch(0.78 0.13 85 / 0.08)" }}
-                      contentStyle={{ background: "oklch(0.13 0.012 270)", border: "1px solid oklch(0.78 0.13 85 / 0.3)", borderRadius: 8, fontSize: 12 }}
-                      labelStyle={{ color: "oklch(0.78 0.13 85)" }}
-                    />
-                    <Bar dataKey="signups" fill="oklch(0.78 0.13 85)" radius={[4, 4, 0, 0]} animationDuration={900} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
+             {loading ? (
+               <div className="h-56 shimmer rounded-lg" />
+             ) : (
+               <div className="h-56 w-full">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={chartData}>
+                     <XAxis dataKey="label" tick={{ fill: "oklch(0.65 0.02 90)", fontSize: 10 }} interval={4} axisLine={false} tickLine={false} />
+                     <Tooltip
+                       cursor={{ fill: "oklch(0.78 0.13 85 / 0.08)" }}
+                       contentStyle={{ background: "oklch(0.13 0.012 270)", border: "1px solid oklch(0.78 0.13 85 / 0.3)", borderRadius: 8, fontSize: 12 }}
+                       labelStyle={{ color: "oklch(0.78 0.13 85)" }}
+                     />
+                     <Bar dataKey="signups" fill="oklch(0.78 0.13 85)" radius={[4, 4, 0, 0]} animationDuration={900} />
+                   </BarChart>
+                 </ResponsiveContainer>
+               </div>
+             )}
           </div>
 
           <div className="glass-strong rounded-2xl p-5">

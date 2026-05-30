@@ -8,17 +8,17 @@ export const INSTITUTIONS: Institution[] = [
     code: "FUTO",
     name: "Federal University of Technology, Owerri",
     schools: [
-      { name: "SEET", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SEET },
-      { name: "SESET", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SESET },
-      { name: "SOPS", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SOPS },
+      { name: "SAAT", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SAAT },
+      { name: "SBMS", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SBMS },
       { name: "SOBS", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SOBS },
-      { name: "SICT", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SICT },
-      { name: "SLIT", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SLIT },
+      { name: "SEET", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SEET },
       { name: "SOES", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SOES },
       { name: "SOHT", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SOHT },
-      { name: "SBMS", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SBMS },
       { name: "SMAT", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SMAT },
-      { name: "COMED", departments: FUTO_FACULTIES_AND_DEPARTMENTS.COMED }
+      { name: "SICT", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SICT },
+      { name: "SOPS", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SOPS },
+      { name: "SESET", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SESET },
+      { name: "SLIT", departments: FUTO_FACULTIES_AND_DEPARTMENTS.SLIT }
     ]
   },
   {

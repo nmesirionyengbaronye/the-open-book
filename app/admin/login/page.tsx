@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Shield, Loader2 } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 
 export default function AdminLogin() {
   const [error, setError] = useState("");
@@ -41,12 +41,12 @@ export default function AdminLogin() {
         animate={{ opacity: 1, y: 0 }}
         className="glass-strong rounded-2xl p-8 w-full max-w-sm"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center">
-            <Shield className="w-5 h-5 text-background" />
-          </div>
-          <h1 className="font-display text-2xl">Admin Login</h1>
-        </div>
+         <div className="flex items-center gap-3 mb-6">
+           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center">
+             <Lock className="w-5 h-5 text-background" />
+           </div>
+           <h1 className="font-display text-2xl">Admin Login</h1>
+         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             name="username"
