@@ -54,14 +54,18 @@ export async function POST(request: NextRequest) {
     }
     
     // Normalize and validate WhatsApp number
-    const digits = whatsapp_number.replace(/\D/g, '');
     let normalizedWhatsApp = null;
-    if (digits.length === 10) {
-      normalizedWhatsApp = `+234${digits}`;
-    } else if (digits.length === 13 && digits.startsWith('234')) {
-      normalizedWhatsApp = `+${digits}`;
-    } else if (digits.length === 11 && digits.startsWith('0')) {
-      normalizedWhatsApp = `+234${digits.slice(1)}`;
+    // Handle the number - it might already be in +234 format from frontend
+    const cleanDigits = whatsapp_number.replace(/\D/g, '');
+    if (cleanDigits.length === 10) {
+      normalizedWhatsApp = `+234${cleanDigits}`;
+    } else if (cleanDigits.length === 13 && cleanDigits.startsWith('234')) {
+      normalizedWhatsApp = `+${cleanDigits}`;
+    } else if (cleanDigits.length === 11 && cleanDigits.startsWith('0')) {
+      normalizedWhatsApp = `+234${cleanDigits.slice(1)}`;
+    } else if (/^\+234\d{10}$/.test(whatsapp_number)) {
+      // Already properly formatted
+      normalizedWhatsApp = whatsapp_number;
     }
     
     if (!normalizedWhatsApp || !/^\+234\d{10}$/.test(normalizedWhatsApp)) {
