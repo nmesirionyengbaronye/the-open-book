@@ -195,6 +195,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Internal server error" }, { status: 500 });
     }
 
+    // Boost referrer's position by 5 places
+    if (verifiedReferredBy) {
+      const { data: referrerData, error: referrerError } = await supabaseAdmin
+        .from('waitlist')
+        .select('position')
+        .eq('referral_code', verifiedReferredBy)
+        .single();
+      
+      if (!referrerError && referrerData) {
+        const newPosition = Math.max(1, (referrerData.position || 0) - 5);
+        await supabaseAdmin
+          .from('waitlist')
+          .update({ position: newPosition })
+          .eq('referral_code', verifiedReferredBy);
+      }
+    }
+
     return NextResponse.json({ success: true, referral_code, position });
   } catch (e) {
     console.error(e);
