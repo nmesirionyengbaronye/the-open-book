@@ -33,45 +33,25 @@ async function checkTableExists() {
 }
 
 async function checkColumnsExist() {
-  const testPhone = `+234800000${Date.now() % 10000}`;
-  const testRow = {
-    whatsapp_number: testPhone,
-    full_name: 'Test User',
-    institution: 'FUTO',
-    school_code: 'SEET',
-    department_code: 'Electrical/Electronic Engineering (EEE)',
-    level: '200',
-    semester: '1st',
-    referral_code: 'TEST123',
-    referred_by: null,
-    position: 999,
-    hardest_course: null,
-    recommendation: null,
-  };
+  // Simplified check - just verify we can select from the table
+  const { data, error } = await supabaseAdmin
+    .from('waitlist')
+    .select('whatsapp_number, full_name, institution, school_code, department_code, level, semester, referral_code, referred_by, position, hardest_course, recommendation, created_at')
+    .limit(1);
 
-  console.log('Test row for column check:', testRow);
-
-  try {
-    // Insert the test row
-    const { data, error } = await supabaseAdmin.from('waitlist').insert(testRow).select();
-
-    if (error) {
-      console.error('Error inserting test row for column check:', error);
-      return false;
-    }
-
-    // If we get here, the insert succeeded. Now delete the test row.
-    await supabaseAdmin.from('waitlist').delete().eq('whatsapp_number', testPhone);
-
-    return true;
-  } catch (err) {
-    console.error('Error in column check:', err);
+  if (error) {
+    console.error('Error checking columns:', error);
     return false;
   }
+
+  console.log('✅ All required columns exist (verified via select)');
+  return true;
 }
 
 async function testRLSPolicies() {
   const testPhone = `+234800000${(Date.now() + 1) % 10000}`;
+  const timestamp = Date.now();
+  const referralCode = `TEST-${timestamp.toString(36).slice(-6).toUpperCase()}`;
   const testData = {
     whatsapp_number: testPhone,
     full_name: 'Test User',
@@ -80,6 +60,11 @@ async function testRLSPolicies() {
     department_code: 'Electrical/Electronic Engineering (EEE)',
     level: '200',
     semester: '1st',
+    referral_code: referralCode,
+    referred_by: null,
+    position: 999,
+    hardest_course: null,
+    recommendation: null,
   };
 
   // Insert using admin client (bypasses RLS)
