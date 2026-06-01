@@ -56,23 +56,23 @@ export function Leaderboard() {
               initial="hidden" whileInView="show" viewport={{ once: true }}
               variants={{ show: { transition: { staggerChildren: 0.06 } } }}
             >
-              {top.map((e: any, i: number) => (
-                <motion.li
-                  key={e.code}
-                  variants={{ hidden: { opacity: 0, x: -16 }, show: { opacity: 1, x: 0 } }}
-                  className="flex items-center gap-4 px-5 py-4 border-b border-white/5 last:border-0 hover:bg-gold/5 transition-colors"
-                >
-                  <div className={`w-9 h-9 rounded-full grid place-items-center font-display font-bold ${
-                    i === 0 ? "bg-gold text-background" :
-                    i === 1 ? "bg-zinc-300 text-background" :
-                    i === 2 ? "bg-amber-700 text-background" : "bg-white/5 text-muted-foreground"
-                  }`}>{i + 1}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-foreground truncate">{e.code}</div>
-                    <div className="text-xs text-muted-foreground">{e.count} referrals</div>
-                  </div>
-                </motion.li>
-              ))}
+{top.map((e: any, i: number) => (
+                 <motion.li
+                   key={e.code}
+                   variants={{ hidden: { opacity: 0, x: -16 }, show: { opacity: 1, x: 0 } }}
+                   className="flex items-center gap-4 px-5 py-4 border-b border-white/5 last:border-0 hover:bg-gold/5 transition-colors"
+                 >
+                   <div className={`w-9 h-9 rounded-full grid place-items-center font-display font-bold ${
+                     i === 0 ? "bg-gold text-background" :
+                     i === 1 ? "bg-zinc-300 text-background" :
+                     i === 2 ? "bg-amber-700 text-background" : "bg-white/5 text-muted-foreground"
+                   }`}>{i + 1}</div>
+                   <div className="flex-1 min-w-0">
+                     <div className="font-medium text-foreground truncate">{e.name || e.code}</div>
+                     <div className="text-xs text-muted-foreground">{e.count} referrals</div>
+                   </div>
+                 </motion.li>
+               ))}
             </motion.ul>
           )}
         </div>

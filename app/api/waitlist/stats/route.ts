@@ -29,19 +29,33 @@ export async function GET() {
       : [] as string[];
 
     const { data: all } = await supabaseAdmin.from('waitlist').select('referral_code');
-    const refCounts = new Map<string, number>();
     
-    // Get all waitlist entries that have referred_by set
-    const { data: waitlistEntries } = await supabaseAdmin.from('waitlist').select('referred_by, full_name');
+    // Get all waitlist entries that have referred_by set, including full_name
+    const { data: waitlistEntries } = await supabaseAdmin.from('waitlist').select('referred_by, full_name, referral_code');
+    
+    // Build a map of referral_code -> full_name for later lookup
+    const nameMap = new Map<string, string>();
+    (waitlistEntries || []).forEach((e: any) => {
+      if (e.referral_code && e.full_name) {
+        nameMap.set(e.referral_code, e.full_name.split(' ')[0]);
+      }
+    });
+    
+    const refCounts = new Map<string, number>();
     (waitlistEntries || []).forEach((e: any) => {
       if (e.referred_by) {
         refCounts.set(e.referred_by, (refCounts.get(e.referred_by) || 0) + 1);
       }
     });
+    
     const topReferrers = [...refCounts.entries()]
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
-      .map(([code, count]) => ({ code, count })) as any[];
+      .map(([code, count]) => ({ 
+        code: code, 
+        name: nameMap.get(code) || code, 
+        count 
+      })) as any[];
 
     const { data: hardest } = await supabaseAdmin.from('waitlist').select('hardest_course');
     const courseCounts = new Map<string, number>();
