@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, AlertCircle, Copy, Share2, ArrowRight, ArrowLeft, Loader2, MessageCircle, Sparkles } from "lucide-react";
 import { INSTITUTIONS } from "@/lib/institutions";
 import { normalizeWhatsApp } from "@/lib/validation";
+import useSound from "@/hooks/useSound";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 
@@ -15,6 +16,7 @@ function normalizeNG(input: string): string | null {
 }
 
 export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean }) {
+  const { play } = useSound();
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [refCode, setRefCode] = useState<string | null>(null);
@@ -42,12 +44,13 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
       setVerifyingRef(true);
       setRefCode(ref);
       if (ref === 'UNI-ELON' || konamiUnlocked) {
+        play('unlock');
         toast.success("ELON WOULD BE PROUD", { description: "Special bonus credits activated!", id: "konami" });
       }
       const t = setTimeout(() => setVerifyingRef(false), 900);
       return () => clearTimeout(t);
     }
-  }, [konamiUnlocked]);
+  }, [konamiUnlocked, play]);
 
   const normalized = useMemo(() => normalizeNG(form.whatsapp), [form.whatsapp]);
   const institutionObj = useMemo(() => INSTITUTIONS.find((i) => i.code === form.institution), [form.institution]);
@@ -56,8 +59,8 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const step1Valid = form.fullName.trim().length >= 2 && !!normalized;
   const step2Valid = !!form.institution && !!form.school && !!form.department && !!form.level && !!form.semester && form.hardestCourse.trim().length >= 3;
 
-  const next = () => { setDirection(1); setStep((s) => s + 1); };
-  const back = () => { setDirection(-1); setStep((s) => s - 1); };
+  const next = () => { play('ding'); setDirection(1); setStep((s) => s + 1); };
+  const back = () => { play('ding'); setDirection(-1); setStep((s) => s - 1); };
 
    const submit = async () => {
      setError(null);
@@ -83,6 +86,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
      setSubmitting(false);
 
      if (!res.ok) {
+       play('error');
        const err = await res.json();
        console.log('Server response:', err);
        // Show the error from the server in an alert for debugging
@@ -108,6 +112,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
      }
 
      const data = await res.json();
+     play('success');
      setResult({ fullName: form.fullName.trim(), position: data.position, referralCode: data.referral_code });
      setTotal(data.position + 10);
      if (!confettiFired.current) {

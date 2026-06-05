@@ -1,6 +1,6 @@
 'use client';
 
-import { WhatIs, Features, HowItWorks, Testimonials, FAQ } from '@/components/Sections';
+import { WhatIs, Features, HowItWorks, Testimonials, FAQ, Recommendations } from '@/components/Sections';
 import { JoinForm } from '@/components/JoinForm';
 import { Retrieve } from '@/components/Retrieve';
 import { Leaderboard } from '@/components/Leaderboard';
@@ -10,9 +10,11 @@ import HeroSection from '@/components/HeroSection';
 import Greeting from '@/components/Greeting';
 import LaunchCountdown from '@/components/LaunchCountdown';
 import useKonamiCode from '@/hooks/useKonamiCode';
+import useSound from '@/hooks/useSound';
 
 export default function Home() {
-  const konamiUnlocked = useKonamiCode();
+  const { play } = useSound();
+  const konamiUnlocked = useKonamiCode(() => play('unlock'));
   return (
     <>
       <Greeting />
@@ -24,6 +26,7 @@ export default function Home() {
         <HowItWorks />
         <Testimonials />
         <FAQ />
+        <Recommendations />
         <JoinForm konamiUnlocked={konamiUnlocked} />
         <Retrieve />
         <Leaderboard />

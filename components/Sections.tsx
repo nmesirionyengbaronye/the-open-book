@@ -269,6 +269,83 @@ export function FAQ() {
   );
 }
 
+export function Recommendations() {
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [form, setForm] = useState({ fullName: '', recommendation: '' });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/recommendations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ full_name: form.fullName, recommendation: form.recommendation }),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section id="recommendations" className="py-24 px-5 bg-surface/10">
+      <div className="max-w-4xl mx-auto text-center">
+        <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">FEEDBACK</div>
+        <h2 className="mt-3 text-3xl sm:text-5xl font-display font-bold">
+          HELP US <span className="text-gold">BUILD</span> THE FUTURE.
+        </h2>
+        <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
+          What features or improvements would make Uni UI indispensable for your studies? We're listening.
+        </p>
+
+        <div className="mt-12 max-w-lg mx-auto">
+          {submitted ? (
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+              className="glass-strong p-10 rounded-2xl border border-gold/30">
+              <Sparkles className="w-12 h-12 text-gold mx-auto mb-4" />
+              <h3 className="text-xl font-bold mb-2">Recommendation Received!</h3>
+              <p className="text-sm text-muted-foreground">Thank you for helping us improve Uni UI.</p>
+              <button onClick={() => { setSubmitted(false); setForm({ fullName: '', recommendation: '' }); }}
+                className="mt-6 text-gold text-sm font-semibold hover:underline">Submit another</button>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4 text-left">
+              <div className="glass rounded-xl p-6 border border-gold/10 space-y-4">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 ml-1">Full Name</label>
+                  <input
+                    required value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                    placeholder="Your name" className="w-full bg-background/40 border border-gold/10 rounded-lg px-4 py-3 text-sm focus:border-gold outline-none transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 ml-1">Your Recommendation</label>
+                  <textarea
+                    required rows={4} value={form.recommendation} onChange={(e) => setForm({ ...form, recommendation: e.target.value })}
+                    placeholder="I would love to see..." className="w-full bg-background/40 border border-gold/10 rounded-lg px-4 py-3 text-sm focus:border-gold outline-none transition-colors resize-none"
+                  />
+                </div>
+                <button
+                  disabled={loading}
+                  className="w-full py-4 rounded-xl bg-gold text-background font-bold uppercase tracking-widest text-xs gold-glow-hover flex items-center justify-center gap-2"
+                >
+                  {loading ? <Upload className="w-4 h-4 animate-spin" /> : "Send Feedback"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   show: (i: number = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } }),

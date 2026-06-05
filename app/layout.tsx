@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { WhatsAppBubble } from '@/components/WhatsAppBubble';
+import CursorTrail from '@/components/CursorTrail';
 import { Toaster } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import './globals.css';
@@ -95,6 +96,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
+        <CursorTrail />
         <Navbar />
         <main className="relative">
           <PageTransition>{children}</PageTransition>
