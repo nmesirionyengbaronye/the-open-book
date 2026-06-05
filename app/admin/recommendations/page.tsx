@@ -1,10 +1,10 @@
 'use client';
 
 import { useAdminData } from '@/hooks/useAdminData';
-import { DashboardOverview } from '@/components/admin/DashboardOverview';
+import { RecommendationsList } from '@/components/admin/RecommendationsList';
 import { Loader2 } from 'lucide-react';
 
-export default function AdminOverview() {
+export default function AdminRecommendations() {
   const { data, loading, isAuthChecked } = useAdminData();
 
   if (!isAuthChecked || loading) {
@@ -20,10 +20,10 @@ export default function AdminOverview() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-bold tracking-tight">Admin Overview</h1>
-        <p className="text-muted-foreground">Real-time statistics and system performance.</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Recommendations</h1>
+        <p className="text-muted-foreground">Feedback and suggestions from the student community.</p>
       </div>
-      <DashboardOverview data={data} />
+      <RecommendationsList recommendations={data.recentRecommendations} />
     </div>
   );
 }

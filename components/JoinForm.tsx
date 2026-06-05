@@ -32,6 +32,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
     department: "",
     level: "",
     semester: "",
+    hardestCourse: "",
   });
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const schoolObj = useMemo(() => institutionObj?.schools.find((s) => s.name === form.school), [institutionObj, form.school]);
 
   const step1Valid = form.fullName.trim().length >= 2 && !!normalized;
-  const step2Valid = !!form.institution && !!form.school && !!form.department && !!form.level && !!form.semester;
+  const step2Valid = !!form.institution && !!form.school && !!form.department && !!form.level && !!form.semester && form.hardestCourse.trim().length >= 3;
 
   const next = () => { setDirection(1); setStep((s) => s + 1); };
   const back = () => { setDirection(-1); setStep((s) => s - 1); };
@@ -75,6 +76,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
          level: form.level,
          semester: form.semester,
          referred_by: refCode,
+         hardest_course: form.hardestCourse.trim(),
        }),
      });
 
@@ -231,6 +233,15 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                              </select>
                            </Field>
                          </div>
+
+                         <Field label="Hardest Course" hint="Which course is giving you the most stress?">
+                           <input
+                             value={form.hardestCourse}
+                             onChange={(e) => setForm(prev => ({ ...prev, hardestCourse: e.target.value }))}
+                             placeholder="e.g. MTH 101, GST 111..."
+                             className={inputCls}
+                           />
+                         </Field>
                        </div>
                      )}
                      {step === 2 && (
@@ -241,6 +252,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                          <ReviewRow k="School" v={form.school} />
                          <ReviewRow k="Department" v={form.department} />
                          <ReviewRow k="Level / Semester" v={`${form.level} · ${form.semester}`} />
+                         <ReviewRow k="Hardest Course" v={form.hardestCourse} />
                          {refCode && <ReviewRow k="Referred by" v={refCode} accent />}
                          {error && (
                            <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
