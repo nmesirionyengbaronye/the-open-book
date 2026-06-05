@@ -12,10 +12,10 @@ export async function GET(request: NextRequest) {
       { count: totalSignups },
       { count: todaySignups },
       { count: weekSignups },
-      { data: topReferrers },
-      { data: hardestCourses },
-      { data: recentRecommendations },
-      { data: waitlist },
+      { data: topReferrersData },
+      { data: hardestCoursesData },
+      { data: recommendationsData },
+      { data: waitlistData },
     ] = await Promise.all([
       supabaseAdmin.from('waitlist').select('*', { count: 'exact', head: true }),
       supabaseAdmin
@@ -36,33 +36,34 @@ export async function GET(request: NextRequest) {
         .not('hardest_course', 'is', null)
         .neq('hardest_course', ''),
       supabaseAdmin
-        .from('waitlist')
+        .from('recommendations')
         .select('full_name, recommendation, created_at')
-        .not('recommendation', 'is', null)
-        .neq('recommendation', '')
         .order('created_at', { ascending: false })
-        .limit(20),
+        .limit(50),
       supabaseAdmin.from('waitlist').select('*').order('created_at', { ascending: false }),
     ]);
 
+    // Aggregate Referrers
     const referrerCounts: Record<string, number> = {};
-    topReferrers?.forEach((r) => {
+    topReferrersData?.forEach((r) => {
       if (r.referred_by) {
         referrerCounts[r.referred_by] = (referrerCounts[r.referred_by] || 0) + 1;
       }
     });
-    const topReferrersArray = Object.entries(referrerCounts)
+    const topReferrers = Object.entries(referrerCounts)
       .map(([referral_code, count]) => ({ referral_code, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
+    // Aggregate Hardest Courses
     const courseCounts: Record<string, number> = {};
-    hardestCourses?.forEach((c) => {
+    hardestCoursesData?.forEach((c) => {
       if (c.hardest_course) {
-        courseCounts[c.hardest_course] = (courseCounts[c.hardest_course] || 0) + 1;
+        const course = c.hardest_course.trim().toUpperCase();
+        courseCounts[course] = (courseCounts[course] || 0) + 1;
       }
     });
-    const hardestCoursesArray = Object.entries(courseCounts)
+    const hardestCourses = Object.entries(courseCounts)
       .map(([course, count]) => ({ course, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
@@ -71,10 +72,10 @@ export async function GET(request: NextRequest) {
       totalSignups: totalSignups || 0,
       todaySignups: todaySignups || 0,
       weekSignups: weekSignups || 0,
-      topReferrers: topReferrersArray,
-      hardestCourses: hardestCoursesArray,
-      recentRecommendations: recentRecommendations || [],
-      waitlist: waitlist || [],
+      topReferrers,
+      hardestCourses,
+      recentRecommendations: recommendationsData || [],
+      waitlist: waitlistData || [],
     });
   } catch (e) {
     console.error(e);

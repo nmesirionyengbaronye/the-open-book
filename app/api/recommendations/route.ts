@@ -7,8 +7,34 @@ const recommendationSchema = z.object({
   recommendation: z.string().trim().min(10, "Recommendation must be at least 10 characters").max(1000),
 });
 
+/**
+ * Public Recommendations API
+ * Handles student feedback and improvements.
+ * Includes IP-based rate limiting to prevent spam.
+ */
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for') || '127.0.0.1';
+    
+    // Rate limiting: Check if this IP has submitted a recommendation in the last 60 seconds
+    const { data: recent, error: rateError } = await supabaseAdmin
+      .from('recommendations')
+      .select('created_at')
+      .eq('ip_address', ip)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (recent && recent.length > 0) {
+      const lastSubmit = new Date(recent[0].created_at).getTime();
+      const now = Date.now();
+      if (now - lastSubmit < 60000) { // 60 second cooldown
+        return NextResponse.json(
+          { error: "Too many submissions. Please wait a minute." }, 
+          { status: 429 }
+        );
+      }
+    }
+
     const body = await request.json();
     const parsed = recommendationSchema.safeParse(body);
 
@@ -16,36 +42,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
     }
 
-    const { error } = await supabaseAdmin.from('waitlist').insert({
+    const { error: insertError } = await supabaseAdmin.from('recommendations').insert({
       full_name: parsed.data.full_name,
       recommendation: parsed.data.recommendation,
-      // Use a dummy phone or something to avoid unique constraint if waitlist uses phone as PK
-      // Actually, waitlist table probably has id as PK or phone as unique.
-      // Let's assume we want to store these in the same table but maybe they aren't 'joining' the waitlist.
-      // If the waitlist table requires phone, this might fail.
-      // Let's check the schema or assume we should use a separate table if it exists, 
-      // but AdminClient was reading from 'waitlist'.
-    });
-    
-    // If waitlist table has unique phone, we should probably have a 'recommendations' table.
-    // Let's check AdminClient again to see how it reads recommendations.
-    
-    // AdminClient: supabaseAdmin.from('waitlist').select('full_name, recommendation, created_at').not('recommendation', 'is', null)
-    
-    // Okay, so it IS the waitlist table. If phone is mandatory, we might need a phone here too.
-    // Or we allow null phone if the DB allows it.
-    
-    const { error: insertError } = await supabaseAdmin.from('waitlist').insert({
-      full_name: parsed.data.full_name,
-      recommendation: parsed.data.recommendation,
-      whatsapp_number: `REC-${Date.now()}`, // Dummy unique identifier if needed
-      institution: 'Recommendation',
-      school_code: 'Public',
-      department_code: 'Feedback',
-      level: '200',
-      semester: '1st',
-      position: 0,
-      referral_code: `FEEDBACK-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+      ip_address: ip
     });
 
     if (insertError) {
