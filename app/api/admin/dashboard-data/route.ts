@@ -43,13 +43,14 @@ export async function GET(request: NextRequest) {
       supabaseAdmin.from('waitlist').select('*').order('created_at', { ascending: false }),
     ]);
 
-    // Aggregate Referrers
+    // Aggregate Referrers for counts
     const referrerCounts: Record<string, number> = {};
     topReferrersData?.forEach((r) => {
       if (r.referred_by) {
         referrerCounts[r.referred_by] = (referrerCounts[r.referred_by] || 0) + 1;
       }
     });
+
     const topReferrers = Object.entries(referrerCounts)
       .map(([referral_code, count]) => ({ referral_code, count }))
       .sort((a, b) => b.count - a.count)
@@ -68,6 +69,12 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
+    // Enrich waitlist data with referral counts
+    const enrichedWaitlist = (waitlistData || []).map(entry => ({
+      ...entry,
+      referral_count: referrerCounts[entry.referral_code] || 0
+    }));
+
     return NextResponse.json({
       totalSignups: totalSignups || 0,
       todaySignups: todaySignups || 0,
@@ -75,7 +82,7 @@ export async function GET(request: NextRequest) {
       topReferrers,
       hardestCourses,
       recentRecommendations: recommendationsData || [],
-      waitlist: waitlistData || [],
+      waitlist: enrichedWaitlist,
     });
   } catch (e) {
     console.error(e);
