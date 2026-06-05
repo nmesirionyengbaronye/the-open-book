@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import AboutClient from './AboutClient';
 
 export const metadata: Metadata = {
-  title: 'About Uni UI — University Uploaded Intelligence',
-  description: 'Built by a student in Owerri who was tired of failing and scavenging for materials.',
+  title: 'About Uni UI \u2013 The Story Behind the Platform',
+  description: 'Built by a FUTO student to help Nigerian undergraduates pass exams without stress.',
 };
 
 export default function AboutPage() {

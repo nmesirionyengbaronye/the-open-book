@@ -1,13 +1,7 @@
-import '../globals.css';
-
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      {children}
-    </div>
-  );
+  return <div className="min-h-screen bg-[#0A0A0F] text-white">{children}</div>;
 }

@@ -4,9 +4,9 @@ export function middleware(request: NextRequest) {
   try {
     const { pathname } = request.nextUrl;
 
-    if (pathname.startsWith('/admin')) {
-      const token = request.cookies.get('admin_token');
-      if (!token || token.value !== process.env.ADMIN_PASSWORD) {
+    if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+      const session = request.cookies.get('admin_session')?.value;
+      if (session !== 'authenticated') {
         return NextResponse.redirect(new URL('/admin/login', request.url));
       }
     }

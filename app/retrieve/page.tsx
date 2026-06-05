@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { Retrieve } from '@/components/Retrieve';
 
 export const metadata: Metadata = {
-  title: 'Recover Referral Link — Uni UI',
-  description: 'Recover your personal referral link if you already joined the waitlist.',
+  title: 'Retrieve Your Referral Link \u2013 Uni UI',
+  description: 'Lost your referral link? Enter your WhatsApp number to recover it.',
 };
 
 export default function RetrievePage() {

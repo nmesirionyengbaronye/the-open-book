@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { Leaderboard } from '@/components/Leaderboard';
 
 export const metadata: Metadata = {
-  title: 'Top Sharers — Uni UI Waitlist',
-  description: 'See who is referring the most students on the waitlist.',
+  title: 'Top Referrers \u2013 Uni UI',
+  description: 'See who has referred the most coursemates and climbed the waitlist queue.',
 };
 
 export default function LeaderboardPage() {
