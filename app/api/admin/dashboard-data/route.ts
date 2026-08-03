@@ -56,6 +56,25 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
+    const totalReferrers = Object.keys(referrerCounts).length;
+    const totalReferrals = Object.values(referrerCounts).reduce((sum, count) => sum + count, 0);
+    const viralCoefficient = totalSignups ? Number((totalReferrals / totalSignups).toFixed(2)) : 0;
+    const referralConversionRate = totalSignups ? Number(((totalReferrers / totalSignups) * 100).toFixed(1)) : 0;
+
+    // Build top referrers with names
+    const nameMap = new Map<string, string>();
+    waitlistData?.forEach((e: any) => {
+      if (e.referral_code && e.full_name) {
+        nameMap.set(e.referral_code, e.full_name.split(' ')[0]);
+      }
+    });
+
+    const topReferrerDetails = topReferrers.map((r) => ({
+      referral_code: r.referral_code,
+      name: nameMap.get(r.referral_code) || r.referral_code,
+      count: r.count,
+    }));
+
     // Aggregate Hardest Courses
     const courseCounts: Record<string, number> = {};
     hardestCoursesData?.forEach((c) => {
@@ -80,6 +99,11 @@ export async function GET(request: NextRequest) {
       todaySignups: todaySignups || 0,
       weekSignups: weekSignups || 0,
       topReferrers,
+      topReferrerDetails,
+      totalReferrers,
+      totalReferrals,
+      viralCoefficient,
+      referralConversionRate,
       hardestCourses,
       recentRecommendations: recommendationsData || [],
       waitlist: enrichedWaitlist,

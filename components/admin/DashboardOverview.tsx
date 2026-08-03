@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Users, Clock, Calendar, BookOpen, UserPlus, TrendingUp } from 'lucide-react';
+import { Users, Clock, Calendar, BookOpen, UserPlus, TrendingUp, Activity } from 'lucide-react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   Cell, PieChart, Pie
@@ -12,10 +12,15 @@ interface DashboardData {
   todaySignups: number;
   weekSignups: number;
   topReferrers: { referral_code: string; count: number }[];
+  topReferrerDetails: { referral_code: string; name: string; count: number }[];
+  totalReferrers: number;
+  totalReferrals: number;
+  viralCoefficient: number;
+  referralConversionRate: number;
   hardestCourses: { course: string; count: number }[];
 }
 
-function StatCard({ icon: Icon, label, value, color = "gold" }: { icon: any, label: string, value: number, color?: string }) {
+function StatCard({ icon: Icon, label, value, color = "gold" }: { icon: any, label: string, value: number | string, color?: string }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -26,7 +31,7 @@ function StatCard({ icon: Icon, label, value, color = "gold" }: { icon: any, lab
         <Icon className={`w-4 h-4 text-${color}`} />
         {label}
       </div>
-      <div className="font-display text-4xl text-white">{value.toLocaleString()}</div>
+      <div className="font-display text-4xl text-white">{typeof value === 'number' ? value.toLocaleString() : value}</div>
     </motion.div>
   );
 }
@@ -43,6 +48,13 @@ export function DashboardOverview({ data }: { data: DashboardData }) {
         <StatCard icon={Users} label="Total Signups" value={data.totalSignups} />
         <StatCard icon={Clock} label="Today" value={data.todaySignups} />
         <StatCard icon={Calendar} label="This Week" value={data.weekSignups} />
+      </div>
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon={UserPlus} label="Total Referrers" value={data.totalReferrers} />
+        <StatCard icon={TrendingUp} label="Total Referrals" value={data.totalReferrals} />
+        <StatCard icon={Activity} label="Viral Coefficient" value={data.viralCoefficient} />
+        <StatCard icon={BookOpen} label="Referral Conversion" value={`${data.referralConversionRate}%`} />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
@@ -81,46 +93,34 @@ export function DashboardOverview({ data }: { data: DashboardData }) {
           </div>
         </div>
 
-        {/* Top Referrers Pie */}
+        {/* Top Referrers */}
         <div className="glass-strong rounded-xl p-6 border border-gold/10">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-display text-xl flex items-center gap-2">
               <UserPlus className="w-5 h-5 text-gold" />
-              Referral Distribution
+              Top Referrers
             </h2>
           </div>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={referrerData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="count"
-                  nameKey="referral_code"
-                >
-                  {referrerData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#111', border: '1px solid #D4AF3740', borderRadius: '8px' }}
-                  itemStyle={{ color: '#D4AF37' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {referrerData.map((r, i) => (
-              <div key={r.referral_code} className="flex items-center gap-2 text-xs text-muted-foreground">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                <span className="font-mono">{r.referral_code}</span>
-                <span className="text-white ml-auto">{r.count}</span>
+          <div className="space-y-3">
+            {data.topReferrerDetails.map((r, i) => (
+              <div key={r.referral_code} className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-display font-bold text-xs ${
+                    i === 0 ? 'bg-gold text-background' : i === 1 ? 'bg-zinc-300 text-background' : i === 2 ? 'bg-amber-700 text-background' : 'bg-white/5 text-muted-foreground'
+                  }`}>
+                    {i + 1}
+                  </div>
+                  <div>
+                    <div className="font-medium text-foreground">{r.name}</div>
+                    <div className="text-[10px] text-muted-foreground font-mono">{r.referral_code}</div>
+                  </div>
+                </div>
+                <div className="text-gold font-semibold">{r.count}</div>
               </div>
             ))}
+            {data.topReferrerDetails.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground text-sm">No referrals yet</div>
+            )}
           </div>
         </div>
       </div>

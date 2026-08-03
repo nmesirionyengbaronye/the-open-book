@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Share2, Trophy, Medal, Users, Crown, MessageCircle } from 'lucide-react';
+import { Copy, Check, Share2, Trophy, Medal, Users, Crown, MessageCircle, Download } from 'lucide-react';
 import { QRCodeDisplay } from '@/components/QRCodeDisplay';
-import { BADGES, getEarnedBadges } from '@/lib/referral';
+import { ShareCard } from '@/components/ShareCard';
+import { BADGES, getEarnedBadges, getNextBadge } from '@/lib/referral';
 import { toast } from 'sonner';
 
 type DashboardData = {
@@ -28,20 +29,36 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Medal,
 };
 
-export function ReferralDashboard() {
-  const [mode, setMode] = useState<'lookup' | 'dashboard'>('lookup');
-  const [lookup, setLookup] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [copied, setCopied] = useState(false);
+type Mode = 'lookup' | 'dashboard';
 
-  const handleLookup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = lookup.trim();
-    if (!trimmed || trimmed.length < 3) return;
+export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}) {
+  const [mode, setMode] = useState<Mode>(initialCode ? 'dashboard' : 'lookup');
+  const [lookup, setLookup] = useState(initialCode || '');
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<DashboardData | null>(initialCode ? null : null);
+  const [copied, setCopied] = useState(false);
+  const [showShareCard, setShowShareCard] = useState(false);
+  const [rewards, setRewards] = useState<{ available: any[]; earned: any[] }>({ available: [], earned: [] });
+  const [claiming, setClaiming] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!data?.referralCode) return;
+    let cancelled = false;
+    fetch(`/api/referral/rewards?code=${encodeURIComponent(data.referralCode)}`)
+      .then((r) => r.json().then((d) => ({ ok: r.ok, data: d })))
+      .then((res) => {
+        if (!cancelled && res.ok && res.data) {
+          setRewards(res.data);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [data?.referralCode]);
+
+  const loadDashboard = async (code: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/referral/stats?code=${encodeURIComponent(trimmed)}`);
+      const res = await fetch(`/api/referral/stats?code=${encodeURIComponent(code)}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Lookup failed' }));
         toast.error(err.error || 'Could not find that referral code.');
@@ -58,10 +75,24 @@ export function ReferralDashboard() {
     }
   };
 
+  useEffect(() => {
+    if (initialCode && initialCode.trim().length >= 3) {
+      loadDashboard(initialCode.trim());
+    }
+  }, [initialCode]);
+
+  const handleLookup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = lookup.trim();
+    if (!trimmed || trimmed.length < 3) return;
+    await loadDashboard(trimmed);
+  };
+
   const reset = () => {
     setMode('lookup');
     setData(null);
     setLookup('');
+    setShowShareCard(false);
   };
 
   const shareText = useMemo(() => {
@@ -85,6 +116,47 @@ export function ReferralDashboard() {
       toast.error('Failed to copy link');
     }
   };
+
+  const claimReward = async (rewardType: string) => {
+    if (!data) return;
+    setClaiming(rewardType);
+    try {
+      const res = await fetch('/api/referral/rewards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: data.referralCode, reward_type: rewardType }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        toast.success(json.reward?.title ? `Reward unlocked: ${json.reward.title}` : 'Reward claimed');
+        setRewards((prev) => ({
+          ...prev,
+          available: prev.available.filter((r) => r.type !== rewardType),
+          earned: [...prev.earned, json.reward || { type: rewardType, title: rewardType }],
+        }));
+      } else {
+        const err = await res.json().catch(() => ({ error: 'Failed to claim' }));
+        toast.error(err.error || 'Failed to claim reward');
+      }
+    } catch {
+      toast.error('Something went wrong');
+    } finally {
+      setClaiming(null);
+    }
+  };
+
+  const nextBadge = data ? getNextBadge({ referralCount: data.referralCount, rank: data.rank, totalWaitlist: data.totalWaitlist }) : null;
+  const referralsToNext = useMemo(() => {
+    if (!data || !nextBadge) return null;
+    if (nextBadge.id === 'networker') return Math.max(0, 5 - data.referralCount);
+    if (nextBadge.id === 'influencer') return Math.max(0, 10 - data.referralCount);
+    if (nextBadge.id === 'campus-king') return Math.max(0, 25 - data.referralCount);
+    if (nextBadge.id === 'top-10') {
+      if (data.rank && data.rank <= 10) return 0;
+      return null;
+    }
+    return null;
+  }, [data, nextBadge]);
 
   return (
     <section id="referral-dashboard" className="py-20 px-5">
@@ -160,8 +232,24 @@ export function ReferralDashboard() {
                 <StatBox label="Leaderboard rank" value={data.rank ? `#${data.rank}` : 'Unranked'} />
               </div>
 
+              {nextBadge && referralsToNext !== null && referralsToNext > 0 && (
+                <div className="glass rounded-xl p-4 border border-gold/20 text-sm text-muted-foreground">
+                  You need <span className="text-gold font-semibold">{referralsToNext}</span> more referral
+                  {referralsToNext === 1 ? '' : 's'} to unlock <span className="text-foreground font-medium">{nextBadge.name}</span>.
+                </div>
+              )}
+
               <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6">
-                <QRCodeDisplay url={data.referralLink} title="Your referral QR" />
+                <div className="space-y-6">
+                  <QRCodeDisplay url={data.referralLink} title="Your referral QR" />
+                  <ShareCard
+                    name={data.fullName}
+                    referralCode={data.referralCode}
+                    position={data.position}
+                    referralCount={data.referralCount}
+                    url={data.referralLink}
+                  />
+                </div>
 
                 <div className="glass-strong rounded-2xl p-6 border border-gold/20 flex flex-col gap-4">
                   <div>
@@ -206,11 +294,41 @@ export function ReferralDashboard() {
                             );
                           })
                         )}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                       </AnimatePresence>
+                     </div>
+                   </div>
+
+                   <div>
+                     <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Rewards</div>
+                     <div className="space-y-2">
+                       {rewards.earned.length === 0 && rewards.available.length === 0 && (
+                         <div className="text-xs text-muted-foreground">Rewards will appear here as you refer more friends.</div>
+                       )}
+                       {rewards.earned.map((r) => (
+                         <div key={r.type} className="flex items-center justify-between rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-xs">
+                           <span className="text-gold font-medium">{r.title || r.type}</span>
+                           <span className="text-emerald-400">Earned</span>
+                         </div>
+                       ))}
+                       {rewards.available.map((r) => (
+                         <div key={r.type} className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs">
+                           <div>
+                             <div className="text-foreground font-medium">{r.title}</div>
+                             <div className="text-muted-foreground">{r.threshold} referrals</div>
+                           </div>
+                           <button
+                             onClick={() => claimReward(r.type)}
+                             disabled={claiming === r.type}
+                             className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold disabled:opacity-60"
+                           >
+                             {claiming === r.type ? 'Claiming…' : 'Claim'}
+                           </button>
+                         </div>
+                       ))}
+                     </div>
+                   </div>
+                 </div>
+               </div>
             </motion.div>
           ) : null}
         </AnimatePresence>

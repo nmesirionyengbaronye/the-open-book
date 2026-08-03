@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -8,6 +6,11 @@ export interface DashboardData {
   todaySignups: number;
   weekSignups: number;
   topReferrers: { referral_code: string; count: number }[];
+  topReferrerDetails: { referral_code: string; name: string; count: number }[];
+  totalReferrers: number;
+  totalReferrals: number;
+  viralCoefficient: number;
+  referralConversionRate: number;
   hardestCourses: { course: string; count: number }[];
   recentRecommendations: { full_name: string; recommendation: string; created_at: string }[];
   waitlist: any[];

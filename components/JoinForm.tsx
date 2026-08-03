@@ -8,6 +8,7 @@ import { normalizeWhatsApp } from "@/lib/validation";
 import useSound from "@/hooks/useSound";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
+import { ReferralDashboard } from "@/components/ReferralDashboard";
 
 const WHATSAPP_URL = process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || "https://chat.whatsapp.com/UniUICommunity";
 
@@ -125,7 +126,21 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
    return (
      <>
        {result ? (
-         <SuccessCard entry={result} total={total} />
+         <>
+           <section id="join" className="py-24 px-5">
+             <div className="max-w-2xl mx-auto">
+               <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
+                 className="rounded-2xl p-8 text-center glass border border-[#D4AF37]/30 shadow-[0_0_15px_0_rgba(212,175,55,0.2)]">
+                 <div className="w-16 h-16 mx-auto rounded-full bg-gold/20 grid place-items-center">
+                   <Check className="w-8 h-8 text-gold" />
+                 </div>
+                 <h3 className="mt-5 text-2xl font-display font-bold">You&apos;re in, {result.fullName.split(" ")[0]}.</h3>
+                 <p className="mt-2 text-muted-foreground text-sm">We&apos;ll WhatsApp you when your school&apos;s beta opens.</p>
+               </motion.div>
+             </div>
+           </section>
+           <ReferralDashboard initialCode={result.referralCode} />
+         </>
        ) : (
          <section id="join" className="py-24 px-5">
            <div className="max-w-2xl mx-auto">
