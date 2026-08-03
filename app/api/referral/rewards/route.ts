@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 const REWARD_TIERS = [
-  { type: 'early_access', threshold: 5, title: 'Early Access' },
-  { type: 'founding_member', threshold: 10, title: 'Founding Member' },
-  { type: 'semester_credits', threshold: 25, title: 'Free Semester Credits' },
-  { type: 'lifetime_access', threshold: 50, title: 'Lifetime Access' },
+  { type: 'giveaway_entry', threshold: 15, title: 'Giveaway Entry' },
+  { type: 'early_access', threshold: 25, title: 'Early Access' },
+  { type: 'founding_member', threshold: 40, title: 'Founding Member' },
+  { type: 'semester_credits', threshold: 60, title: 'Free Semester Credits' },
+  { type: 'lifetime_access', threshold: 100, title: 'Lifetime Access' },
 ];
 
 export async function GET(request: NextRequest) {

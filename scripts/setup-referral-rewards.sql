@@ -11,3 +11,6 @@ CREATE TABLE IF NOT EXISTS referral_rewards (
 );
 
 CREATE INDEX IF NOT EXISTS idx_referral_rewards_code ON referral_rewards(referral_code);
+
+-- Optional seed data for reward tiers can be managed via the API.
+-- Tiers: giveaway_entry=15, early_access=25, founding_member=40, semester_credits=60, lifetime_access=100

@@ -17,6 +17,9 @@ type DashboardData = {
   totalWaitlist: number;
   badges: { id: string; name: string; description: string; icon: string }[];
   referralLink: string;
+  institution: string | null;
+  school: string | null;
+  department: string | null;
 };
 
 const WHATSAPP_URL = process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || 'https://chat.whatsapp.com/UniUICommunity';
@@ -148,9 +151,10 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
   const nextBadge = data ? getNextBadge({ referralCount: data.referralCount, rank: data.rank, totalWaitlist: data.totalWaitlist }) : null;
   const referralsToNext = useMemo(() => {
     if (!data || !nextBadge) return null;
-    if (nextBadge.id === 'networker') return Math.max(0, 5 - data.referralCount);
-    if (nextBadge.id === 'influencer') return Math.max(0, 10 - data.referralCount);
-    if (nextBadge.id === 'campus-king') return Math.max(0, 25 - data.referralCount);
+    if (nextBadge.id === 'first-share') return Math.max(0, 15 - data.referralCount);
+    if (nextBadge.id === 'networker') return Math.max(0, 25 - data.referralCount);
+    if (nextBadge.id === 'influencer') return Math.max(0, 50 - data.referralCount);
+    if (nextBadge.id === 'campus-king') return Math.max(0, 100 - data.referralCount);
     if (nextBadge.id === 'top-10') {
       if (data.rank && data.rank <= 10) return 0;
       return null;
@@ -248,6 +252,8 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                     position={data.position}
                     referralCount={data.referralCount}
                     url={data.referralLink}
+                    institution={data.institution || undefined}
+                    department={data.department || undefined}
                   />
                 </div>
 
@@ -298,35 +304,50 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                      </div>
                    </div>
 
-                   <div>
-                     <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Rewards</div>
-                     <div className="space-y-2">
-                       {rewards.earned.length === 0 && rewards.available.length === 0 && (
-                         <div className="text-xs text-muted-foreground">Rewards will appear here as you refer more friends.</div>
-                       )}
-                       {rewards.earned.map((r) => (
-                         <div key={r.type} className="flex items-center justify-between rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-xs">
-                           <span className="text-gold font-medium">{r.title || r.type}</span>
-                           <span className="text-emerald-400">Earned</span>
-                         </div>
-                       ))}
-                       {rewards.available.map((r) => (
-                         <div key={r.type} className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs">
-                           <div>
-                             <div className="text-foreground font-medium">{r.title}</div>
-                             <div className="text-muted-foreground">{r.threshold} referrals</div>
-                           </div>
-                           <button
-                             onClick={() => claimReward(r.type)}
-                             disabled={claiming === r.type}
-                             className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold disabled:opacity-60"
-                           >
-                             {claiming === r.type ? 'Claiming…' : 'Claim'}
-                           </button>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Rewards</div>
+                      <div className="space-y-2">
+                        {rewards.earned.length === 0 && rewards.available.length === 0 && (
+                          <div className="text-xs text-muted-foreground">Rewards will appear here as you refer more friends.</div>
+                        )}
+                        {rewards.earned.map((r) => (
+                          <div key={r.type} className="flex items-center justify-between rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-xs">
+                            <span className="text-gold font-medium">{r.title || r.type}</span>
+                            <span className="text-emerald-400">Earned</span>
+                          </div>
+                        ))}
+                        {rewards.available.map((r) => {
+                          const isGiveaway = r.type === 'giveaway_entry';
+                          return (
+                            <div key={r.type} className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs">
+                              <div>
+                                <div className="text-foreground font-medium">{r.title}</div>
+                                <div className="text-muted-foreground">{r.threshold} referrals</div>
+                                {isGiveaway && (
+                                  <div className="text-gold mt-1">Come to WhatsApp and claim your prize</div>
+                                )}
+                              </div>
+                              {isGiveaway ? (
+                                <button
+                                  onClick={shareWhatsApp}
+                                  className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold"
+                                >
+                                  Go to WhatsApp
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => claimReward(r.type)}
+                                  disabled={claiming === r.type}
+                                  className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold disabled:opacity-60"
+                                >
+                                  {claiming === r.type ? 'Claiming…' : 'Claim'}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                  </div>
                </div>
             </motion.div>

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     const { data: referrer, error: referrerError } = await supabaseAdmin
       .from('waitlist')
-      .select('referral_code, full_name, position, created_at')
+      .select('referral_code, full_name, position, created_at, institution, school_code, department_code')
       .eq('referral_code', code.trim())
       .maybeSingle();
 
@@ -73,6 +73,9 @@ export async function GET(request: NextRequest) {
       totalWaitlist: totalWaitlist || 0,
       badges,
       referralLink,
+      institution: referrer.institution || null,
+      school: referrer.school_code || null,
+      department: referrer.department_code || null,
     });
   } catch (e) {
     console.error('Unhandled error in referral stats:', e);
