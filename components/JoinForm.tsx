@@ -373,6 +373,9 @@ function SuccessCard({ entry, total }: { entry: { fullName: string; position: nu
             <p className="text-[11px] text-muted-foreground mt-2">
               Code: <span className="font-mono text-gold">{entry.referralCode}</span>
             </p>
+            <a href="/dashboard" className="mt-3 inline-flex items-center gap-2 text-sm text-gold hover:underline">
+              Open your referral dashboard
+            </a>
           </div>
 
           <a href={WHATSAPP_URL} target="_blank" rel="noreferrer"

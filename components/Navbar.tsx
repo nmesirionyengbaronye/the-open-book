@@ -12,6 +12,7 @@ const LINKS = [
   { id: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
   { id: "status", label: "Status", path: "/status" },
   { id: "milestones", label: "Milestones", path: "/milestones" },
+  { id: "dashboard", label: "Dashboard", path: "/dashboard" },
   { id: "recommendations", label: "Feedback", path: "/" },
 ];
 
