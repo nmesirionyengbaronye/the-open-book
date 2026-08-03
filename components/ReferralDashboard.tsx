@@ -58,10 +58,16 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
     return () => { cancelled = true; };
   }, [data?.referralCode]);
 
-  const loadDashboard = async (code: string) => {
+  const loadDashboard = async (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed.length < 3) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/referral/stats?code=${encodeURIComponent(code)}`);
+      const isPhone = /^\+?\d{10,15}$/.test(trimmed.replace(/\s+/g, ''));
+      const url = isPhone
+        ? `/api/referral/stats?phone=${encodeURIComponent(trimmed)}`
+        : `/api/referral/stats?code=${encodeURIComponent(trimmed)}`;
+      const res = await fetch(url);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Lookup failed' }));
         toast.error(err.error || 'Could not find that referral code.');

@@ -1,18 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { BADGES, getEarnedBadges } from '@/lib/referral';
+import { normalizeWhatsApp } from '@/lib/validation';
 
 export async function GET(request: NextRequest) {
   try {
-    const code = request.nextUrl.searchParams.get('code');
-    if (!code || code.trim().length < 3) {
+    const rawCode = request.nextUrl.searchParams.get('code');
+    const phone = request.nextUrl.searchParams.get('phone');
+
+    let lookupCode = rawCode?.trim();
+    if (!lookupCode && phone) {
+      const normalized = normalizeWhatsApp(phone);
+      if (!normalized) {
+        return NextResponse.json({ error: 'Invalid WhatsApp number format' }, { status: 400 });
+      }
+      const { data: byPhone, error: phoneError } = await supabaseAdmin
+        .from('waitlist')
+        .select('referral_code')
+        .eq('whatsapp_number', normalized)
+        .maybeSingle();
+
+      if (phoneError || !byPhone) {
+        return NextResponse.json({ error: 'No account found for that WhatsApp number' }, { status: 404 });
+      }
+      lookupCode = byPhone.referral_code;
+    }
+
+    if (!lookupCode || lookupCode.length < 3) {
       return NextResponse.json({ error: 'Referral code is required' }, { status: 400 });
     }
 
     const { data: referrer, error: referrerError } = await supabaseAdmin
       .from('waitlist')
       .select('referral_code, full_name, position, created_at, institution, school_code, department_code')
-      .eq('referral_code', code.trim())
+      .eq('referral_code', lookupCode)
       .maybeSingle();
 
     if (referrerError || !referrer) {
@@ -30,7 +51,6 @@ export async function GET(request: NextRequest) {
 
     const referralCount = (allReferrals || []).length;
 
-    // Compute rank among all referrers
     const { data: allEntries, error: allError } = await supabaseAdmin
       .from('waitlist')
       .select('referral_code');
