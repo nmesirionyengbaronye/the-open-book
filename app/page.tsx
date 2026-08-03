@@ -6,6 +6,11 @@ import { Retrieve } from '@/components/Retrieve';
 import { Leaderboard } from '@/components/Leaderboard';
 import { Status } from '@/components/Status';
 import { Milestones } from '@/components/Milestones';
+import { ReferralTips } from '@/components/ReferralTips';
+import { ReferralFAQ } from '@/components/ReferralFAQ';
+import { ReferralContest } from '@/components/ReferralContest';
+import { RecentActivity } from '@/components/RecentActivity';
+import { SocialProof } from '@/components/SocialProof';
 import HeroSection from '@/components/HeroSection';
 import Greeting from '@/components/Greeting';
 import LaunchCountdown from '@/components/LaunchCountdown';
@@ -27,6 +32,11 @@ export default function Home() {
         <Testimonials />
         <FAQ />
         <Recommendations />
+        <SocialProof />
+        <ReferralTips />
+        <ReferralContest />
+        <ReferralFAQ />
+        <RecentActivity />
         <JoinForm konamiUnlocked={konamiUnlocked} />
         <Retrieve />
         <Leaderboard />

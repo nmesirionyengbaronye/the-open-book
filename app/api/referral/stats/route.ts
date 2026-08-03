@@ -84,6 +84,45 @@ export async function GET(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://waitlist.uniui.com.ng';
     const referralLink = `${baseUrl}/?ref=${referrer.referral_code}`;
 
+    const inviteParam = request.nextUrl.searchParams.get('invites');
+    const streakParam = request.nextUrl.searchParams.get('streak');
+
+    let invites: { full_name: string; created_at: string }[] = [];
+    if (inviteParam === '1' && lookupCode) {
+      const { data: inviteRows, error: inviteError } = await supabaseAdmin
+        .from('waitlist')
+        .select('full_name, created_at')
+        .eq('referred_by', lookupCode)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (!inviteError && inviteRows) {
+        invites = inviteRows.map((row: any) => ({
+          full_name: row.full_name || 'A friend',
+          created_at: row.created_at,
+        }));
+      }
+    }
+
+    let streak = 0;
+    if (streakParam === '1' && lookupCode) {
+      const { data: streakRows, error: streakError } = await supabaseAdmin
+        .from('waitlist')
+        .select('created_at')
+        .eq('referred_by', lookupCode)
+        .order('created_at', { ascending: true });
+
+      if (!streakError && streakRows && streakRows.length > 0) {
+        const uniqueDays = new Set(
+          streakRows.map((row: any) => {
+            const d = new Date(row.created_at);
+            return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+          })
+        );
+        streak = uniqueDays.size;
+      }
+    }
+
     return NextResponse.json({
       referralCode: referrer.referral_code,
       fullName: referrer.full_name,
@@ -96,6 +135,8 @@ export async function GET(request: NextRequest) {
       institution: referrer.institution || null,
       school: referrer.school_code || null,
       department: referrer.department_code || null,
+      invites,
+      streak,
     });
   } catch (e) {
     console.error('Unhandled error in referral stats:', e);

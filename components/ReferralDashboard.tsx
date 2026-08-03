@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Check, Share2, Trophy, Medal, Users, Crown, MessageCircle, Download } from 'lucide-react';
+import { Copy, Check, Share2, Trophy, Medal, Users, Crown, MessageCircle, Download, Target, Flame, Gift, Users2, Zap, CrownIcon, Award, Sparkles, Linkedin, Twitter, Facebook, Instagram, Mail } from 'lucide-react';
 import { QRCodeDisplay } from '@/components/QRCodeDisplay';
 import { ShareCard } from '@/components/ShareCard';
 import { BADGES, getEarnedBadges, getNextBadge } from '@/lib/referral';
@@ -30,9 +30,55 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Trophy,
   Crown,
   Medal,
+  Flame,
+  Gift,
+  Users2,
+  Zap,
+  CrownIcon,
+  Award,
+  Sparkles,
 };
 
 type Mode = 'lookup' | 'dashboard';
+
+const SHARE_TEMPLATES = [
+  {
+    id: 'whatsapp',
+    label: 'WhatsApp',
+    icon: MessageCircle,
+    text: (data: DashboardData) => `🚀 I just joined the Uni UI waitlist (#${data.position})!\n\nJoin with my link and we both jump the queue: ${data.referralLink}\n\nUni UI = University Uploaded Intelligence. Your semester notes + AI = exam success.`,
+  },
+  {
+    id: 'twitter',
+    label: 'X / Twitter',
+    icon: Twitter,
+    text: (data: DashboardData) => `Just joined the Uni UI waitlist (#${data.position}) 🚀\n\nAI that answers from YOUR notes, not the internet.\n\nJoin with my link: ${data.referralLink}\n\n#UniUI #ExamPrep #StudentLife`,
+  },
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    icon: Linkedin,
+    text: (data: DashboardData) => `Excited to join the Uni UI waitlist! 🚀\n\nUni UI is building AI-powered exam prep from students' own course materials—no hallucinations, just your notes.\n\nIf you're a student, join my waitlist and we both move up the queue: ${data.referralLink}`,
+  },
+  {
+    id: 'facebook',
+    label: 'Facebook',
+    icon: Facebook,
+    text: (data: DashboardData) => `Hey everyone! I just joined the Uni UI waitlist. It's an AI study assistant that uses YOUR own course materials to give accurate answers. No more generic internet results.\n\nJoin with my link: ${data.referralLink}`,
+  },
+  {
+    id: 'instagram',
+    label: 'Instagram',
+    icon: Instagram,
+    text: (data: DashboardData) => `Waitlist locked 🚀 #UniUI\n\nAI that studies from your notes, not the internet.\n\nJoin with my link in bio: ${data.referralLink}`,
+  },
+  {
+    id: 'email',
+    label: 'Email',
+    icon: Mail,
+    text: (data: DashboardData) => `Subject: Join me on the Uni UI waitlist\n\nHey,\n\nI just joined the Uni UI waitlist and thought you might want in too. It's an AI tool that answers questions from your actual course materials, not random internet stuff.\n\nHere's my referral link: ${data.referralLink}\n\nLet me know if you join!`,
+  },
+];
 
 export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}) {
   const [mode, setMode] = useState<Mode>(initialCode ? 'dashboard' : 'lookup');
@@ -43,20 +89,10 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
   const [showShareCard, setShowShareCard] = useState(false);
   const [rewards, setRewards] = useState<{ available: any[]; earned: any[] }>({ available: [], earned: [] });
   const [claiming, setClaiming] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!data?.referralCode) return;
-    let cancelled = false;
-    fetch(`/api/referral/rewards?code=${encodeURIComponent(data.referralCode)}`)
-      .then((r) => r.json().then((d) => ({ ok: r.ok, data: d })))
-      .then((res) => {
-        if (!cancelled && res.ok && res.data) {
-          setRewards(res.data);
-        }
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [data?.referralCode]);
+  const [invites, setInvites] = useState<{ full_name: string; created_at: string }[]>([]);
+  const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
+  const [streak, setStreak] = useState(0);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const loadDashboard = async (value: string) => {
     const trimmed = value.trim();
@@ -85,6 +121,48 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
   };
 
   useEffect(() => {
+    if (!data?.referralCode) return;
+    let cancelled = false;
+    fetch(`/api/referral/rewards?code=${encodeURIComponent(data.referralCode)}`)
+      .then((r) => r.json().then((d) => ({ ok: r.ok, data: d })))
+      .then((res) => {
+        if (!cancelled && res.ok && res.data) {
+          setRewards(res.data);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [data?.referralCode]);
+
+  useEffect(() => {
+    if (!data?.referralCode) return;
+    let cancelled = false;
+    fetch(`/api/referral/stats?code=${encodeURIComponent(data.referralCode)}&invites=1`)
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((json: any) => {
+        if (!cancelled && Array.isArray(json.invites)) {
+          setInvites(json.invites);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [data?.referralCode]);
+
+  useEffect(() => {
+    if (!data?.referralCode) return;
+    let cancelled = false;
+    fetch(`/api/referral/stats?code=${encodeURIComponent(data.referralCode)}&streak=1`)
+      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((json: any) => {
+        if (!cancelled && typeof json.streak === 'number') {
+          setStreak(json.streak);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [data?.referralCode]);
+
+  useEffect(() => {
     if (initialCode && initialCode.trim().length >= 3) {
       loadDashboard(initialCode.trim());
     }
@@ -102,6 +180,9 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
     setData(null);
     setLookup('');
     setShowShareCard(false);
+    setInvites([]);
+    setActiveTemplate(null);
+    setShowTemplates(false);
   };
 
   const shareText = useMemo(() => {
@@ -124,6 +205,26 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
     } catch {
       toast.error('Failed to copy link');
     }
+  };
+
+  const shareViaTemplate = (templateId: string) => {
+    if (!data) return;
+    const template = SHARE_TEMPLATES.find((t) => t.id === templateId);
+    if (!template) return;
+    const text = template.text(data);
+    if (templateId === 'whatsapp' || templateId === 'instagram') {
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    } else if (templateId === 'twitter') {
+      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+    } else if (templateId === 'linkedin') {
+      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(data.referralLink)}`, '_blank');
+    } else if (templateId === 'facebook') {
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(data.referralLink)}`, '_blank');
+    } else if (templateId === 'email') {
+      window.open(`mailto:?subject=Join me on Uni UI&body=${encodeURIComponent(text)}`, '_blank');
+    }
+    setActiveTemplate(templateId);
+    setTimeout(() => setActiveTemplate(null), 2000);
   };
 
   const claimReward = async (rewardType: string) => {
@@ -168,9 +269,18 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
     return null;
   }, [data, nextBadge]);
 
+  const badgeProgress = useMemo(() => {
+    if (!data || !nextBadge) return 0;
+    if (nextBadge.id === 'first-share') return Math.min(100, (data.referralCount / 15) * 100);
+    if (nextBadge.id === 'networker') return Math.min(100, (data.referralCount / 25) * 100);
+    if (nextBadge.id === 'influencer') return Math.min(100, (data.referralCount / 50) * 100);
+    if (nextBadge.id === 'campus-king') return Math.min(100, (data.referralCount / 100) * 100);
+    return 0;
+  }, [data, nextBadge]);
+
   return (
     <section id="referral-dashboard" className="py-20 px-5">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <div className="text-center mb-10">
           <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">Growth Engine</div>
           <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold">
@@ -249,6 +359,13 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                 </div>
               )}
 
+              {streak > 0 && (
+                <div className="glass rounded-xl p-4 border border-gold/20 text-sm text-muted-foreground inline-flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-gold" />
+                  <span>You have a <span className="text-gold font-semibold">{streak}-day</span> referral streak!</span>
+                </div>
+              )}
+
               <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-6">
                 <div className="space-y-6">
                   <QRCodeDisplay url={data.referralLink} title="Your referral QR" />
@@ -278,10 +395,30 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                     <button onClick={shareWhatsApp} className="w-full py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover inline-flex items-center justify-center gap-2">
                       <MessageCircle className="w-4 h-4" /> Share on WhatsApp
                     </button>
-                    <button onClick={copyLink} className="w-full py-3 rounded-xl glass border-gold/40 text-gold font-medium inline-flex items-center justify-center gap-2 hover:bg-gold/10">
-                      <Share2 className="w-4 h-4" /> Copy link
+                    <button onClick={() => setShowTemplates((v) => !v)} className="w-full py-3 rounded-xl glass border-gold/40 text-gold font-medium inline-flex items-center justify-center gap-2 hover:bg-gold/10">
+                      <Share2 className="w-4 h-4" /> Share everywhere
                     </button>
                   </div>
+
+                  <AnimatePresence>
+                    {showTemplates && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-2">
+                        {SHARE_TEMPLATES.map((template) => {
+                          const Icon = template.icon;
+                          return (
+                            <button
+                              key={template.id}
+                              onClick={() => shareViaTemplate(template.id)}
+                              className="w-full py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-foreground hover:bg-gold/10 hover:border-gold/30 inline-flex items-center gap-2"
+                            >
+                              <Icon className="w-4 h-4 text-gold" />
+                              {activeTemplate === template.id ? 'Shared!' : template.label}
+                            </button>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <div>
                     <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Badges</div>
@@ -306,56 +443,87 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                             );
                           })
                         )}
-                       </AnimatePresence>
-                     </div>
-                   </div>
+                      </AnimatePresence>
+                    </div>
+                  </div>
 
-                    <div>
-                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Rewards</div>
-                      <div className="space-y-2">
-                        {rewards.earned.length === 0 && rewards.available.length === 0 && (
-                          <div className="text-xs text-muted-foreground">Rewards will appear here as you refer more friends.</div>
-                        )}
-                        {rewards.earned.map((r) => (
-                          <div key={r.type} className="flex items-center justify-between rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-xs">
-                            <span className="text-gold font-medium">{r.title || r.type}</span>
-                            <span className="text-emerald-400">Earned</span>
-                          </div>
-                        ))}
-                        {rewards.available.map((r) => {
-                          const isGiveaway = r.type === 'giveaway_entry';
-                          return (
-                            <div key={r.type} className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs">
-                              <div>
-                                <div className="text-foreground font-medium">{r.title}</div>
-                                <div className="text-muted-foreground">{r.threshold} referrals</div>
-                                {isGiveaway && (
-                                  <div className="text-gold mt-1">Come to WhatsApp and claim your prize</div>
-                                )}
-                              </div>
-                              {isGiveaway ? (
-                                <button
-                                  onClick={shareWhatsApp}
-                                  className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold"
-                                >
-                                  Go to WhatsApp
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => claimReward(r.type)}
-                                  disabled={claiming === r.type}
-                                  className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold disabled:opacity-60"
-                                >
-                                  {claiming === r.type ? 'Claiming…' : 'Claim'}
-                                </button>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs uppercase tracking-widest text-muted-foreground">Next badge</span>
+                      <span className="text-xs text-gold font-semibold">{Math.round(badgeProgress)}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${badgeProgress}%` }}
+                        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                        className="h-full bg-gradient-to-r from-gold to-gold-bright"
+                      />
+                    </div>
+                    {nextBadge && (
+                      <div className="mt-1 text-[10px] text-muted-foreground">
+                        {nextBadge.name} — {referralsToNext !== null && referralsToNext > 0 ? `${referralsToNext} more` : 'Unlocked!'}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Rewards</div>
+                    <div className="space-y-2">
+                      {rewards.earned.length === 0 && rewards.available.length === 0 && (
+                        <div className="text-xs text-muted-foreground">Rewards will appear here as you refer more friends.</div>
+                      )}
+                      {rewards.earned.map((r) => (
+                        <div key={r.type} className="flex items-center justify-between rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-xs">
+                          <span className="text-gold font-medium">{r.title || r.type}</span>
+                          <span className="text-emerald-400">Earned</span>
+                        </div>
+                      ))}
+                      {rewards.available.map((r) => {
+                        const isGiveaway = r.type === 'giveaway_entry';
+                        return (
+                          <div key={r.type} className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs">
+                            <div>
+                              <div className="text-foreground font-medium">{r.title}</div>
+                              <div className="text-muted-foreground">{r.threshold} referrals</div>
+                              {isGiveaway && (
+                                <div className="text-gold mt-1">Come to WhatsApp and claim your prize</div>
                               )}
                             </div>
-                          );
-                        })}
+                            {isGiveaway ? (
+                              <button onClick={shareWhatsApp} className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold">
+                                Go to WhatsApp
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => claimReward(r.type)}
+                                disabled={claiming === r.type}
+                                className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold disabled:opacity-60"
+                              >
+                                {claiming === r.type ? 'Claiming…' : 'Claim'}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {invites.length > 0 && (
+                    <div>
+                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Recent invites</div>
+                      <div className="space-y-2">
+                        {invites.slice(0, 10).map((inv, i) => (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-foreground/90">{inv.full_name || 'A friend'}</span>
+                            <span className="text-muted-foreground">{new Date(inv.created_at).toLocaleDateString()}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
-                 </div>
-               </div>
+                  )}
+                </div>
+              </div>
             </motion.div>
           ) : null}
         </AnimatePresence>
