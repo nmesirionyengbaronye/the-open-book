@@ -7,6 +7,7 @@ import { QRCodeDisplay } from '@/components/QRCodeDisplay';
 import { ShareCard } from '@/components/ShareCard';
 import { BADGES, getEarnedBadges, getNextBadge } from '@/lib/referral';
 import { toast } from 'sonner';
+import RewardsHub from '@/components/rewards/RewardsHub';
 
 type DashboardData = {
   referralCode: string;
@@ -524,6 +525,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                   )}
                 </div>
               </div>
+            {data && <RewardsHub code={data.referralCode} />}
             </motion.div>
           ) : null}
         </AnimatePresence>

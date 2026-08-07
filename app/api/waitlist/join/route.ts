@@ -160,15 +160,17 @@ export async function POST(request: NextRequest) {
     const uniqueReferralCode = generateReferralCode(validData.whatsapp_number, Date.now());
 
     let verifiedReferrer = null;
+    let verifiedReferrerId = null;
     if (validData.referred_by && validData.referred_by.length > 3) {
       const { data: referrerRecord } = await supabaseAdmin
         .from('waitlist')
-        .select('referral_code')
+        .select('id, referral_code')
         .eq('referral_code', validData.referred_by)
         .maybeSingle();
       
       if (referrerRecord) {
         verifiedReferrer = referrerRecord.referral_code;
+        verifiedReferrerId = referrerRecord.id;
         console.log(`[JoinAPI][${requestId}] Referral verified: ${verifiedReferrer}`);
       } else {
         console.log(`[JoinAPI][${requestId}] Referral code provided but not found: ${validData.referred_by}`);
@@ -176,7 +178,9 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Step 5: Database Persistence ---
-    const { error: insertError } = await supabaseAdmin.from('waitlist').insert({
+    const { data: insertedUser, error: insertError } = await supabaseAdmin
+      .from('waitlist')
+      .insert({
       full_name: validData.full_name,
       whatsapp_number: validData.whatsapp_number,
       institution: validData.institution,
@@ -188,7 +192,7 @@ export async function POST(request: NextRequest) {
       referred_by: verifiedReferrer,
       position: newPosition,
       hardest_course: validData.hardest_course || null,
-    });
+    }).select('id').single();
 
     if (insertError) {
       console.error(`[JoinAPI][${requestId}] Critical failure during user insertion:`, insertError);
@@ -217,6 +221,21 @@ export async function POST(request: NextRequest) {
       } catch (refError) {
         // Log but don't fail the primary signup if the reward logic hits a snag
         console.error(`[JoinAPI][${requestId}] Non-critical error during referral reward processing:`, refError);
+      }
+    }
+
+    // --- Step 6b: Record the referral relationship for the gamified rewards engine ---
+    if (verifiedReferrerId && insertedUser?.id) {
+      try {
+        await supabaseAdmin
+          .from('referrals')
+          .insert({
+            referrer_id: verifiedReferrerId,
+            referred_id: insertedUser.id,
+            status: 'pending',
+          });
+      } catch (refRowErr) {
+        console.error(`[JoinAPI][${requestId}] Non-critical error recording referral row:`, refRowErr);
       }
     }
 

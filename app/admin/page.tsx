@@ -2,6 +2,7 @@
 
 import { useAdminData } from '@/hooks/useAdminData';
 import { DashboardOverview } from '@/components/admin/DashboardOverview';
+import RewardsAdmin from '@/components/admin/RewardsAdmin';
 import { Loader2 } from 'lucide-react';
 
 export default function AdminOverview() {
@@ -24,6 +25,7 @@ export default function AdminOverview() {
         <p className="text-muted-foreground">Real-time statistics and system performance.</p>
       </div>
       <DashboardOverview data={data} />
+      <RewardsAdmin />
     </div>
   );
 }
