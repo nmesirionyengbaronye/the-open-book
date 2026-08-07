@@ -54,7 +54,12 @@ export default function RewardsMiniApp() {
   // Re-run verification. The server resolves the REAL phone from the bot-
   // delivered contact (webhook -> DB); it returns `contact_pending` until that
   // arrives, and we retry. The client never supplies or sees the raw number.
-  async function doVerify(initData: string, attempt = 0) {
+  async function doVerify(attempt = 0) {
+    // Read the LATEST initData on every attempt: after the user shares their
+    // contact, Telegram re-signs initData to include it (trusted, server-side
+    // verified). If it's not present yet, the server falls back to the
+    // bot-stored contact (webhook) and returns contact_pending for us to retry.
+    const initData = tg?.initData || '';
     if (!initData) {
       verifyingRef.current = false;
       toast.error('Missing Telegram session');
@@ -73,7 +78,7 @@ export default function RewardsMiniApp() {
       // the shared contact may still be in flight.
       if (data.reason === 'contact_pending') {
         if (attempt < 15) {
-          pollRef.current = setTimeout(() => doVerify(initData, attempt + 1), 1000);
+          pollRef.current = setTimeout(() => doVerify(attempt + 1), 1000);
           return;
         }
         verifyingRef.current = false;
@@ -101,7 +106,7 @@ export default function RewardsMiniApp() {
       setPhase('dashboard');
     } catch {
       if (attempt < 3) {
-        pollRef.current = setTimeout(() => doVerify(initData, attempt + 1), 1500);
+        pollRef.current = setTimeout(() => doVerify(attempt + 1), 1500);
         return;
       }
       verifyingRef.current = false;
@@ -113,7 +118,7 @@ export default function RewardsMiniApp() {
   function startVerify() {
     if (verifyingRef.current) return;
     verifyingRef.current = true;
-    doVerify(tg?.initData || '');
+    doVerify(0);
   }
 
   useEffect(() => {

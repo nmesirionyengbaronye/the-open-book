@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     // The contact may still be in flight from Telegram to the bot. Tell the
     // client to retry shortly rather than failing.
     if (!phone) {
+      console.log('[rewards/verify] no contact yet for', telegramId, '(waiting on bot webhook)');
       return NextResponse.json(
         {
           ok: false,

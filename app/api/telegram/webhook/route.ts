@@ -12,6 +12,13 @@ export const runtime = 'nodejs';
  * Register with: scripts/set-webhook.mjs
  * Secured via X-Telegram-Bot-Api-Secret-Token (set with setWebhook secret_token).
  */
+export async function GET() {
+  const token = process.env.BOT_TOKEN;
+  if (!token) return Response.json({ error: 'BOT_TOKEN not set' }, { status: 500 });
+  const info = await fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`).then((r) => r.json());
+  return Response.json(info);
+}
+
 export async function POST(req: NextRequest) {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
   if (secret && req.headers.get('x-telegram-bot-api-secret-token') !== secret) {
