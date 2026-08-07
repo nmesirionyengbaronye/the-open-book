@@ -23,7 +23,7 @@ const TIPS = [
   {
     icon: Gift,
     title: 'Unlock rewards',
-    body: 'Hit 15 referrals and you get giveaway entry. 25 gets early access. 100 gets lifetime access.',
+    body: 'Hit 7 referrals to unlock your first spin (then 1 spin per 7 referrals, unlimited). 25 referrals gets early access. 100 gets lifetime access.',
   },
   {
     icon: Flame,

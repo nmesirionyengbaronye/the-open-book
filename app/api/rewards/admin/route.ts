@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { sendTelegramMessage } from '@/lib/telegram-bot';
 import {
   adjustBonusReferrals,
   disqualifyUser,
   markPayment,
   resetGiveaway,
+  getTotalLaunchTokens,
+  getRecentSpins,
+  getTopEarners,
+  getRecentBroadcasts,
+  logBroadcast,
 } from '@/lib/rewards';
 
 async function getRewardStats() {
@@ -16,6 +22,8 @@ async function getRewardStats() {
     spins,
     paid,
     tgUsers,
+    bcCount,
+    bcLast,
   ] = await Promise.all([
     supabaseAdmin.from('waitlist').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('referrals').select('*', { count: 'exact', head: true }).eq('status', 'verified'),
@@ -24,9 +32,12 @@ async function getRewardStats() {
     supabaseAdmin.from('spin_history').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('payments').select('amount').eq('status', 'paid'),
     supabaseAdmin.from('telegram_users').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('broadcasts').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('broadcasts').select('created_at').order('created_at', { ascending: false }).limit(1),
   ]);
 
   const totalPaid = (paid.data || []).reduce((s: number, r: any) => s + (r.amount || 0), 0);
+  const tokensAtLaunch = await getTotalLaunchTokens();
 
   return {
     totalWaitlist: w.count || 0,
@@ -36,6 +47,9 @@ async function getRewardStats() {
     boxesOpened: boxes.count || 0,
     spinsCompleted: spins.count || 0,
     moneyPaid: totalPaid,
+    tokensAtLaunch,
+    broadcastsSent: bcCount.count || 0,
+    lastBroadcastAt: (bcLast.data as { created_at: string }[] | null)?.[0]?.created_at || null,
   };
 }
 
@@ -43,26 +57,28 @@ async function broadcastTelegram(message: string) {
   const botToken = process.env.BOT_TOKEN;
   if (!botToken) return { ok: false, reason: 'no_bot_token' };
   if (!message || !message.trim()) return { ok: false, reason: 'empty_message' };
+
   const { data: users } = await supabaseAdmin
     .from('telegram_users')
     .select('telegram_id')
     .eq('verified', true);
   if (!users || users.length === 0) return { ok: true, sent: 0, failed: 0 };
+
+  const api = { sendMessage: (chatId: string, text: string) => sendTelegramMessage(botToken, chatId, text) };
   let sent = 0;
   let failed = 0;
   for (const u of users as { telegram_id: string }[]) {
     try {
-      const r = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: u.telegram_id, text: message, parse_mode: 'HTML' }),
-      });
+      const r = await api.sendMessage(u.telegram_id, message);
       if (r.ok) sent++;
       else failed++;
     } catch {
       failed++;
     }
   }
+
+  // Persist so the admin can audit what was sent.
+  await logBroadcast(message, sent, failed);
   return { ok: true, sent, failed };
 }
 
@@ -91,6 +107,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(await resetGiveaway());
       case 'stats':
         return NextResponse.json(await getRewardStats());
+      case 'activity':
+        return NextResponse.json({
+          recentSpins: await getRecentSpins(20),
+          topEarners: await getTopEarners(10),
+          broadcasts: await getRecentBroadcasts(10),
+        });
       case 'broadcast':
         return NextResponse.json(await broadcastTelegram(body.message));
       default:

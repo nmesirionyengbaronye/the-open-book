@@ -10,6 +10,7 @@ export type RewardsProfile = {
   walletBalance: number;
   walletPaid: number;
   walletPending: number;
+  launchTokens: number;
   launchCountdownDays: number;
   disqualified: boolean;
   telegramVerified: boolean;

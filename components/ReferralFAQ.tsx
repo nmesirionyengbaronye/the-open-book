@@ -11,7 +11,7 @@ const FAQS = [
   },
   {
     q: 'How many referrals do I need for the giveaway?',
-    a: 'The first giveaway starts at 15 referrals. Winners are announced on our WhatsApp community, so make sure you\'ve joined.',
+    a: 'The first giveaway unlocks at 7 verified referrals (then 1 spin per 7 referrals). Winners are announced on our WhatsApp community, so make sure you\'ve joined.',
   },
   {
     q: 'Do both the referrer and referee get benefits?',

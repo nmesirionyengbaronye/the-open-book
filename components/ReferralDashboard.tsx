@@ -94,6 +94,15 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
   const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
   const [streak, setStreak] = useState(0);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [rulesAck, setRulesAck] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && localStorage.getItem('uniui_referral_rules_ack_v1') === '1') {
+        setRulesAck(true);
+      }
+    } catch {}
+  }, []);
 
   const loadDashboard = async (value: string) => {
     const trimmed = value.trim();
@@ -530,7 +539,52 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
           ) : null}
         </AnimatePresence>
       </div>
+
+      {mode === 'dashboard' && data && !rulesAck && (
+        <RulesGate
+          onAccept={() => {
+            setRulesAck(true);
+            try { localStorage.setItem('uniui_referral_rules_ack_v1', '1'); } catch {}
+          }}
+        />
+      )}
     </section>
+  );
+}
+
+function RulesGate({ onAccept }: { onAccept: () => void }) {
+  const rules = [
+    'Refer friends with your unique link. Only verified referrals (the friend joins and confirms) count.',
+    'Every 7 verified referrals unlock 1 spin — 7 → 1 spin, 14 → 2 spins, 21 → 3 spins, and so on. Unlimited.',
+    'Each spin is paid out immediately as a cash prize to your wallet.',
+    'At AI launch you receive 500 tokens for every 7 referrals you’ve verified — usable inside the Uni UI app.',
+    'Top referrers are featured on the Hall of Fame.',
+    'Duplicate signups are blocked (one per WhatsApp number), so only real new signups count.',
+  ];
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-2xl border border-gold/30 bg-[#0A0A0F] p-6 shadow-2xl">
+        <div className="mb-4 text-center">
+          <div className="text-xs uppercase tracking-[0.3em] text-gold/80">Read first</div>
+          <h3 className="mt-2 font-display text-2xl font-bold text-white">How the Referral Program Works</h3>
+          <p className="mt-2 text-xs text-white/50">You must accept these rules to enter your dashboard.</p>
+        </div>
+        <ul className="space-y-3">
+          {rules.map((r, i) => (
+            <li key={i} className="flex gap-3 text-sm text-white/80">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold/15 text-[10px] font-bold text-gold">{i + 1}</span>
+              <span>{r}</span>
+            </li>
+          ))}
+        </ul>
+        <button
+          onClick={onAccept}
+          className="mt-6 w-full rounded-xl bg-gold py-3 text-center font-semibold text-background gold-glow-hover"
+        >
+          I Understand — Enter Dashboard
+        </button>
+      </div>
+    </div>
   );
 }
 

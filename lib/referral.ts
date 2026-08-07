@@ -16,9 +16,9 @@ export const BADGES: Badge[] = [
   {
     id: 'first-share',
     name: 'Giveaway',
-    description: 'Referred 15 friends and unlocked giveaway entry',
+    description: 'Referred 7 friends and unlocked giveaway entry',
     icon: 'Share2',
-    condition: ({ referralCount }) => referralCount >= 15,
+    condition: ({ referralCount }) => referralCount >= 7,
   },
   {
     id: 'networker',

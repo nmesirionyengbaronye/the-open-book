@@ -42,3 +42,25 @@ export function parseInitDataUser(
     return null;
   }
 }
+
+/**
+ * Extract the phone contact shared via WebApp.requestContact().
+ * This is the user's REAL, Telegram-verified number — it is embedded in the
+ * signed `initData` string, so once validateTelegramInitData() passes, the
+ * `phone_number` here is trustworthy and cannot be forged by the client.
+ * Returns null when the user has not yet shared their contact.
+ */
+export function parseInitDataContact(
+  initData: string
+): { phone_number: string; user_id: number | string } | null {
+  const params = new URLSearchParams(initData);
+  const contactRaw = params.get('contact');
+  if (!contactRaw) return null;
+  try {
+    const c = JSON.parse(contactRaw);
+    if (!c?.phone_number) return null;
+    return { phone_number: String(c.phone_number), user_id: c.user_id };
+  } catch {
+    return null;
+  }
+}

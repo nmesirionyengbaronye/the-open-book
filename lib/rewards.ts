@@ -172,6 +172,7 @@ export type RewardsProfile = {
   walletBalance: number;
   walletPaid: number;
   walletPending: number;
+  launchTokens: number; // 500 tokens per completed 7-referral milestone, granted at AI launch
   launchCountdownDays: number;
   disqualified: boolean;
   telegramVerified: boolean;
@@ -210,6 +211,7 @@ export async function getProfile(codeOrPhone: string): Promise<RewardsProfile | 
     walletBalance,
     walletPaid,
     walletPending: Math.max(0, walletBalance - walletPaid),
+    launchTokens: 500 * Math.floor(effective / MILESTONE),
     launchCountdownDays: await getLaunchCountdownDays(),
     disqualified: wl.disqualified || false,
     telegramVerified: wl.telegram_verified || false,
@@ -225,7 +227,12 @@ export async function verifyTelegram(
   username?: string
 ) {
   const normalized = normalizeWhatsApp(phone);
-  if (!normalized) return { ok: false as const, reason: 'invalid_phone' };
+  if (!normalized)
+    return {
+      ok: false as const,
+      reason: 'invalid_phone',
+      error: 'That phone number doesn’t look valid. Use your Nigerian number (e.g. 080… or +234…).',
+    };
 
   // A Telegram account must not be linked to a different phone.
   const { data: existingTg } = await supabaseAdmin
@@ -240,7 +247,12 @@ export async function verifyTelegram(
       .eq('id', existingTg.waitlist_id)
       .eq('whatsapp_number', normalized)
       .maybeSingle();
-    if (!samePhone) return { ok: false as const, reason: 'telegram_taken' };
+    if (!samePhone)
+      return {
+        ok: false as const,
+        reason: 'telegram_taken',
+        error: 'This Telegram account is already linked to a different waitlist number.',
+      };
   }
 
   const { data: user, error } = await supabaseAdmin
@@ -495,6 +507,88 @@ export async function markPayment(
   // Mark matching unpaid spin_history as paid (oldest first) up to amount.
   // (Administrative simplification: payment settles wallet, not individual spins.)
   return { ok: true as const, paymentId: inserted.id, totalPaid };
+}
+
+// ---------------------------------------------------------------------------
+// Rewards activity (admin tracking)
+// ---------------------------------------------------------------------------
+export type RecentSpin = {
+  name: string;
+  code: string;
+  prize: number;
+  paid: boolean;
+  created_at: string;
+};
+
+export async function getRecentSpins(limit = 20): Promise<RecentSpin[]> {
+  const { data } = await supabaseAdmin
+    .from('spin_history')
+    .select('prize, paid, created_at, user_id')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (!data || data.length === 0) return [];
+  const ids = (data as { user_id: string }[]).map((r) => r.user_id);
+  const { data: users } = await supabaseAdmin
+    .from('waitlist')
+    .select('id, full_name, referral_code')
+    .in('id', ids);
+  const userMap = new Map((users || []).map((u: any) => [u.id, u]));
+  return (data as any[]).map((r) => {
+    const u = userMap.get(r.user_id);
+    return {
+      name: u?.full_name || 'Anonymous',
+      code: u?.referral_code || '',
+      prize: r.prize,
+      paid: r.paid,
+      created_at: r.created_at,
+    };
+  });
+}
+
+export type TopEarner = { name: string; code: string; balance: number };
+
+export async function getTopEarners(limit = 10): Promise<TopEarner[]> {
+  const { data } = await supabaseAdmin
+    .from('waitlist')
+    .select('full_name, referral_code, wallet_balance')
+    .order('wallet_balance', { ascending: false })
+    .limit(limit);
+  return (data || []).map((r: any) => ({
+    name: r.full_name || 'Anonymous',
+    code: r.referral_code || '',
+    balance: r.wallet_balance || 0,
+  }));
+}
+
+export type BroadcastRecord = {
+  id: number;
+  message: string;
+  sent: number;
+  failed: number;
+  created_at: string;
+};
+
+export async function logBroadcast(message: string, sent: number, failed: number) {
+  await supabaseAdmin.from('broadcasts').insert({ message, sent, failed });
+}
+
+export async function getRecentBroadcasts(limit = 10): Promise<BroadcastRecord[]> {
+  const { data } = await supabaseAdmin
+    .from('broadcasts')
+    .select('id, message, sent, failed, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  return (data as BroadcastRecord[]) || [];
+}
+
+/** Total launch tokens owed = 500 per completed 7-referral milestone, across all users. */
+export async function getTotalLaunchTokens(): Promise<number> {
+  const { data } = await supabaseAdmin.from('referral_counts').select('verified_count');
+  if (!data) return 0;
+  return (data as { verified_count: number }[]).reduce(
+    (sum, r) => sum + 500 * Math.floor((r.verified_count || 0) / MILESTONE),
+    0
+  );
 }
 
 // ---------------------------------------------------------------------------

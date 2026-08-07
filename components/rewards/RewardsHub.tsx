@@ -84,7 +84,8 @@ export default function RewardsHub({ code }: { code: string }) {
         <Stat label="Verified referrals" value={String(profile.verifiedReferrals)} icon={<Gift className="h-4 w-4" />} />
         <Stat label="Rank" value={profile.rank ? `#${profile.rank}` : '—'} icon={<Trophy className="h-4 w-4" />} />
         <Stat label="Spin tickets" value={String(profile.spinTickets)} icon={<Sparkles className="h-4 w-4" />} />
-        <Stat label="Wallet" value={`₦${profile.walletBalance}`} icon={<Wallet className="h-4 w-4" />} />
+        <Stat label="Wallet (cash)" value={`₦${profile.walletBalance}`} icon={<Wallet className="h-4 w-4" />} />
+        <Stat label="Tokens @ launch" value={String(profile.launchTokens)} icon={<Gift className="h-4 w-4" />} />
       </div>
 
       {profile.disqualified && (

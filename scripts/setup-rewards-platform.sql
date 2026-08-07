@@ -33,6 +33,19 @@ CREATE TABLE IF NOT EXISTS telegram_users (
 );
 
 -- ---------------------------------------------------------------------
+-- 2b. telegram_contacts
+--     The REAL, Telegram-verified phone number, delivered by Telegram to the
+--     bot webhook when the user shares their contact via requestContact().
+--     Keyed by Telegram user id. This is the trusted source of the phone —
+--     the client can never supply or forge it.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS telegram_contacts (
+  telegram_id text PRIMARY KEY,
+  phone text NOT NULL,
+  received_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- ---------------------------------------------------------------------
 -- 3. referrals  (pending -> verified, with anti-fraud guards)
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS referrals (
