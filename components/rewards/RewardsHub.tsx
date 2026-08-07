@@ -21,7 +21,13 @@ import WalletPanel from './WalletPanel';
 import LeaderboardPanel from './LeaderboardPanel';
 import type { RewardsProfile, ReferralsResponse, LeaderboardEntry, WalletInfo } from './types';
 
-export default function RewardsHub({ code }: { code: string }) {
+export default function RewardsHub({
+  code,
+  inTelegram = false,
+}: {
+  code: string;
+  inTelegram?: boolean;
+}) {
   const [profile, setProfile] = useState<RewardsProfile | null>(null);
   const [referrals, setReferrals] = useState<ReferralsResponse | null>(null);
   const [board, setBoard] = useState<LeaderboardEntry[]>([]);
@@ -104,26 +110,40 @@ export default function RewardsHub({ code }: { code: string }) {
   const firstName = (profile.fullName || '').split(' ')[0] || 'there';
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-12 pt-5">
-      {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#D4AF37] text-sm font-bold text-[#0A0A0F]">
-            U
-          </div>
-          <div className="leading-tight">
-            <div className="text-sm font-semibold text-white">UniUI Rewards</div>
-            <div className="text-[10px] uppercase tracking-widest text-white/40">Student giveaway</div>
-          </div>
+    <div className="mx-auto w-full max-w-lg px-4 pb-12 pt-5 [padding-top:max(1.25rem,env(safe-area-inset-top))] [padding-left:max(1rem,env(safe-area-inset-left))] [padding-right:max(1rem,env(safe-area-inset-right))]">
+      {inTelegram ? (
+        // Inside Telegram's Mini App the native header already shows the bot
+        // name, so we avoid a clashing second branded bar and keep only a
+        // lightweight refresh control.
+        <div className="mb-3 flex items-center justify-end">
+          <button
+            onClick={loadAll}
+            aria-label="Refresh"
+            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:text-[#D4AF37]"
+          >
+            <RotateCw className="h-4 w-4" />
+          </button>
         </div>
-        <button
-          onClick={loadAll}
-          aria-label="Refresh"
-          className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:text-[#D4AF37]"
-        >
-          <RotateCw className="h-4 w-4" />
-        </button>
-      </div>
+      ) : (
+        <div className="mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#D4AF37] text-sm font-bold text-[#0A0A0F]">
+              U
+            </div>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold text-white">UniUI Rewards</div>
+              <div className="text-[10px] uppercase tracking-widest text-white/40">Student giveaway</div>
+            </div>
+          </div>
+          <button
+            onClick={loadAll}
+            aria-label="Refresh"
+            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:text-[#D4AF37]"
+          >
+            <RotateCw className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Identity / hero */}
       <div className="mt-5 overflow-hidden rounded-3xl border border-[#D4AF37]/30 bg-gradient-to-br from-[#D4AF37]/10 to-white/[0.02] p-5">
@@ -195,8 +215,8 @@ export default function RewardsHub({ code }: { code: string }) {
         />
       </div>
 
-      {/* Game row */}
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      {/* Game row — stacked so the larger wheel has room on narrow phones */}
+      <div className="mt-5 grid gap-4">
         <MysteryBox
           code={profile.referralCode}
           boxesDue={profile.boxesDue}

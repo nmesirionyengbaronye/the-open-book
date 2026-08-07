@@ -172,7 +172,7 @@ export default function RewardsMiniApp() {
   }
 
   if (phase === 'dashboard') {
-    return <RewardsHub code={code} />;
+    return <RewardsHub code={code} inTelegram={!!tg} />;
   }
 
   // verify or notfound
