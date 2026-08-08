@@ -7,7 +7,6 @@ import { QRCodeDisplay } from '@/components/QRCodeDisplay';
 import { ShareCard } from '@/components/ShareCard';
 import { BADGES, getEarnedBadges, getNextBadge } from '@/lib/referral';
 import { toast } from 'sonner';
-import RewardsHub from '@/components/rewards/RewardsHub';
 
 type DashboardData = {
   referralCode: string;
@@ -362,6 +361,23 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                 <StatBox label="Leaderboard rank" value={data.rank ? `#${data.rank}` : 'Unranked'} />
               </div>
 
+              {/* Referrer join indicator — shows when someone joins via this link */}
+              <div className={`rounded-xl border p-4 text-sm flex items-center gap-3 ${
+                invites.length > 0
+                  ? 'border-gold/30 bg-gold/10 text-gold'
+                  : 'border-white/10 bg-white/5 text-muted-foreground'
+              }`}>
+                <Users className="w-5 h-5 shrink-0" />
+                {invites.length > 0 ? (
+                  <span>
+                    <span className="font-semibold">{invites.length}</span>{' '}
+                    {invites.length === 1 ? 'friend has' : 'friends have'} joined via your link.
+                  </span>
+                ) : (
+                  <span>No one has joined via your link yet — share it to start climbing.</span>
+                )}
+              </div>
+
               {nextBadge && referralsToNext !== null && referralsToNext > 0 && (
                 <div className="glass rounded-xl p-4 border border-gold/20 text-sm text-muted-foreground">
                   You need <span className="text-gold font-semibold">{referralsToNext}</span> more referral
@@ -521,7 +537,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
 
                   {invites.length > 0 && (
                     <div>
-                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Recent invites</div>
+                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Recent joins</div>
                       <div className="space-y-2">
                         {invites.slice(0, 10).map((inv, i) => (
                           <div key={i} className="flex items-center justify-between text-xs">
@@ -534,7 +550,6 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                   )}
                 </div>
               </div>
-            {data && <RewardsHub code={data.referralCode} />}
             </motion.div>
           ) : null}
         </AnimatePresence>

@@ -6,6 +6,7 @@ import {
   AlertCircle,
   Gift,
   Trophy,
+  Users,
   Wallet,
   Sparkles,
   Copy,
@@ -113,7 +114,9 @@ export default function RewardsHub({
   const firstName = (profile.fullName || '').split(' ')[0] || 'there';
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-12 pt-4 [padding-top:max(1rem,env(safe-area-inset-top))] [padding-left:max(1rem,env(safe-area-inset-left))] [padding-right:max(1rem,env(safe-area-inset-right))]">
+    <div className={`mx-auto w-full max-w-lg px-4 pb-12 [padding-left:max(1rem,env(safe-area-inset-left))] [padding-right:max(1rem,env(safe-area-inset-right))] ${
+      inTelegram ? 'pt-[25vh]' : 'pt-4 [padding-top:max(1rem,env(safe-area-inset-top))]'
+    }`}>
       {!inTelegram && (
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -203,6 +206,39 @@ export default function RewardsHub({
           milestone={referrals?.progress.milestone ?? 7}
           need={referrals?.progress.need ?? 0}
         />
+      </div>
+
+      {/* Recent joins — shows people who joined via this user's link */}
+      <div className="mt-5">
+        <SectionTitle icon={<Users className="h-4 w-4" />} title="Recent joins" />
+        {referrals?.referrals?.length ? (
+          <ul className="mt-2 space-y-2">
+            {referrals.referrals.slice(0, 8).map((rf, i) => (
+              <li
+                key={i}
+                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium text-white">{rf.name}</div>
+                  <div className="text-[11px] text-white/40">
+                    Joined {new Date(rf.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] ${
+                    rf.status === 'verified'
+                      ? 'bg-[#D4AF37]/15 text-[#D4AF37]'
+                      : 'bg-white/5 text-white/50'
+                  }`}
+                >
+                  {rf.status === 'verified' ? 'Verified' : 'Pending'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-[11px] text-white/40">No referrals yet — share your code to start.</p>
+        )}
       </div>
 
       {/* Game row — stacked so the larger wheel has room on narrow phones */}

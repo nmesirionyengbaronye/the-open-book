@@ -134,9 +134,20 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                  <div className="w-16 h-16 mx-auto rounded-full bg-gold/20 grid place-items-center">
                    <Check className="w-8 h-8 text-gold" />
                  </div>
-                 <h3 className="mt-5 text-2xl font-display font-bold">You&apos;re in, {result.fullName.split(" ")[0]}.</h3>
-                 <p className="mt-2 text-muted-foreground text-sm">We&apos;ll WhatsApp you when your school&apos;s beta opens.</p>
-               </motion.div>
+                  <h3 className="mt-5 text-2xl font-display font-bold">You&apos;re in, {result.fullName.split(" ")[0]}.</h3>
+                  <p className="mt-2 text-muted-foreground text-sm">We&apos;ll WhatsApp you when your school&apos;s beta opens.</p>
+
+                  <div className="mt-6 flex flex-col gap-3">
+                    <a href={WHATSAPP_URL} target="_blank" rel="noreferrer"
+                       className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover">
+                      <MessageCircle className="w-5 h-5" /> Join WhatsApp Community
+                    </a>
+                    <a href="/dashboard"
+                       className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl glass border-gold/40 text-gold font-medium hover:bg-gold/10">
+                      See your dashboard
+                    </a>
+                  </div>
+                </motion.div>
              </div>
            </section>
            <ReferralDashboard initialCode={result.referralCode} />

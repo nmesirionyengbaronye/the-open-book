@@ -15,11 +15,14 @@ declare global {
 }
 
 const RULES = [
-  'Every 7 verified referrals unlock 1 spin — unlimited.',
-  'Each spin pays out cash to your wallet instantly.',
-  'Spin prizes are random and range from ₦200 to ₦10,000.',
-  'One account per person. Fraud or fake referrals get you disqualified.',
-  'UniUI may modify or end the giveaway at any time.',
+  'Earn 1 spin for every 7 verified referrals. Spins are unlimited as long as you keep referring.',
+  'Each spin is paid out as cash to your in-app wallet immediately after it lands.',
+  'Spin prizes are random — most land on ₦200, with rarer ₦500–₦10,000 wins. The first two players get a guaranteed ₦1,000 on their first spin.',
+  'Mystery boxes (containing 1, 2 or 5 spin tickets) unlock at every 7-referral milestone.',
+  'Referrals must be real, verified users. Fake, recycled, or self-referrals are not allowed.',
+  'One account per person. Multiple accounts, bots, or VPN abuse lead to disqualification and forfeited winnings.',
+  'Prizes are promotional. UniUI may review activity and withhold payouts where abuse is suspected.',
+  'UniUI reserves the right to modify, pause, or end the giveaway at any time, with notice in the community.',
 ];
 
 export default function RewardsMiniApp() {
@@ -152,7 +155,7 @@ export default function RewardsMiniApp() {
 
   if (phase === 'loading') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-[100dvh] flex-col items-center justify-start pt-[25vh]">
         <Loader2 className="h-6 w-6 animate-spin text-[#D4AF37]" />
       </div>
     );
@@ -162,7 +165,7 @@ export default function RewardsMiniApp() {
     const bot = process.env.NEXT_PUBLIC_BOT_USERNAME || 'UniUIRewardsBot';
     const link = `https://t.me/${bot.replace(/^@/, '')}`;
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
+      <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-[#D4AF37]" />
         <h1 className="text-xl font-semibold">UniUI Rewards</h1>
         <p className="mt-2 max-w-sm text-sm text-white/60">Opening in Telegram…</p>
@@ -184,31 +187,47 @@ export default function RewardsMiniApp() {
 
   if (phase === 'rules') {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 pb-12 pt-6 [padding-top:max(1.5rem,env(safe-area-inset-top))]">
-        <div className="rounded-2xl border border-[#D4AF37]/30 bg-white/[0.04] p-6">
-          <div className="mb-4 flex items-center gap-2 text-[#D4AF37]">
-            <ShieldCheck className="h-5 w-5" />
-            <h1 className="text-lg font-semibold">Giveaway rules</h1>
-          </div>
-          <ul className="space-y-3">
-            {RULES.map((r, i) => (
-              <li key={i} className="flex gap-2 text-sm text-white/70">
-                <span className="mt-0.5 text-[#D4AF37]">•</span>
-                <span>{r}</span>
-              </li>
-            ))}
-          </ul>
+      <div className="mx-auto flex min-h-[100dvh] w-full max-w-lg flex-col px-4 pb-6 [padding-top:max(25vh,env(safe-area-inset-top))] [padding-bottom:max(1.5rem,env(safe-area-inset-bottom))]">
+        {/* Step indicator */}
+        <div className="mb-6 flex items-center gap-2">
+          <span className="rounded-full bg-[#D4AF37]/15 px-3 py-1 text-[11px] font-medium text-[#D4AF37]">
+            Step 2 of 2
+          </span>
+          <span className="text-[11px] text-white/40">Review the rules</span>
+        </div>
 
-          <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+        <div className="mb-2 flex items-center gap-2">
+          <ShieldCheck className="h-6 w-6 text-[#D4AF37]" />
+          <h1 className="text-xl font-bold text-white">Giveaway rules</h1>
+        </div>
+        <p className="mb-5 text-sm text-white/50">
+          Please read these rules carefully. You must agree before you can claim rewards.
+        </p>
+
+        <ul className="flex-1 space-y-3 overflow-y-auto pr-1">
+          {RULES.map((r, i) => (
+            <li
+              key={i}
+              className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+            >
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#D4AF37]/15 text-[11px] font-bold text-[#D4AF37]">
+                {i + 1}
+              </span>
+              <span className="text-sm leading-relaxed text-white/75">{r}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-5">
+          <label className="mb-3 flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4">
             <input
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 accent-[#D4AF37]"
+              className="mt-0.5 h-5 w-5 accent-[#D4AF37]"
             />
             <span className="text-sm text-white/80">I have read and agree to the giveaway rules.</span>
           </label>
-
           <button
             onClick={() => {
               try {
@@ -219,9 +238,9 @@ export default function RewardsMiniApp() {
               setPhase('dashboard');
             }}
             disabled={!agreed}
-            className="mt-4 w-full rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold text-black disabled:opacity-40"
+            className="w-full rounded-full bg-[#D4AF37] px-6 py-3.5 text-sm font-semibold text-black transition hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            Next
+            Continue
           </button>
         </div>
       </div>

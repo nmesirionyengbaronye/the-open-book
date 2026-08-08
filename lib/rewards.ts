@@ -423,6 +423,19 @@ export async function spinWheel(codeOrPhone: string) {
     .from('spin_history')
     .insert({ user_id: user.id, prize, paid: false });
 
+  // Alert the backend/admin on every win. Big wins (>= ₦1000) are flagged so
+  // they stand out in logs; the admin Recent Spins panel already surfaces all
+  // wins via getRecentSpins() (which reads from spin_history).
+  console.log('[rewards/spin] WIN', {
+    user: user.id,
+    prize,
+    walletBalance: (wl.wallet_balance || 0) + prize,
+    isFirstSpin,
+  });
+  if (prize >= 1000) {
+    console.warn('[rewards/spin] BIG WIN — admin attention', { user: user.id, prize });
+  }
+
   return {
     ok: true as const,
     prize,
@@ -558,6 +571,37 @@ export async function getTopEarners(limit = 10): Promise<TopEarner[]> {
     code: r.referral_code || '',
     balance: r.wallet_balance || 0,
   }));
+}
+
+export type PrizeWinner = {
+  name: string;
+  code: string;
+  winnings: number;
+  paid: number;
+  pending: number;
+  fullyPaid: boolean;
+};
+
+/** Everyone who has won a prize (wallet_balance > 0) with payment status. */
+export async function getPrizeWinners(limit = 200): Promise<PrizeWinner[]> {
+  const { data } = await supabaseAdmin
+    .from('waitlist')
+    .select('referral_code, full_name, wallet_balance, wallet_paid')
+    .gt('wallet_balance', 0)
+    .order('wallet_balance', { ascending: false })
+    .limit(limit);
+  return (data || []).map((u: any) => {
+    const winnings = u.wallet_balance || 0;
+    const paid = u.wallet_paid || 0;
+    return {
+      name: u.full_name || 'Anonymous',
+      code: u.referral_code || '',
+      winnings,
+      paid,
+      pending: Math.max(0, winnings - paid),
+      fullyPaid: paid >= winnings,
+    };
+  });
 }
 
 export type BroadcastRecord = {

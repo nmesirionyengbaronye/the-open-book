@@ -69,7 +69,7 @@ export function Leaderboard() {
                    }`}>{i + 1}</div>
                    <div className="flex-1 min-w-0">
                      <div className="font-medium text-foreground truncate">{e.name || e.code}</div>
-                     <div className="text-xs text-muted-foreground">{e.count} referrals</div>
+                      <div className="text-xs text-muted-foreground">{e.count} joined</div>
                    </div>
                  </motion.li>
                ))}

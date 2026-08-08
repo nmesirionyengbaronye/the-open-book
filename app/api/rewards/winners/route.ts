@@ -7,6 +7,9 @@ export async function GET() {
       .from('waitlist')
       .select('id, referral_code, full_name, wallet_balance')
       .eq('disqualified', false)
+      // Only surface people who have actually won the wheel (wallet > 0).
+      // If nobody has won yet, the Hall of Fame / Recent winners stay empty.
+      .gt('wallet_balance', 0)
       .order('wallet_balance', { ascending: false })
       .limit(10);
 

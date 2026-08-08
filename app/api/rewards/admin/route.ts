@@ -10,6 +10,7 @@ import {
   getRecentSpins,
   getTopEarners,
   getRecentBroadcasts,
+  getPrizeWinners,
   logBroadcast,
 } from '@/lib/rewards';
 
@@ -113,6 +114,8 @@ export async function POST(req: NextRequest) {
           topEarners: await getTopEarners(10),
           broadcasts: await getRecentBroadcasts(10),
         });
+      case 'prizeWinners':
+        return NextResponse.json({ winners: await getPrizeWinners(200) });
       case 'broadcast':
         return NextResponse.json(await broadcastTelegram(body.message));
       default:

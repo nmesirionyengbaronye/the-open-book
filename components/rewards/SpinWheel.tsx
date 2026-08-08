@@ -7,16 +7,22 @@ import { Trophy } from 'lucide-react';
 import { toast } from 'sonner';
 
 const SIZE = 256; // logical canvas size (matches h-64 w-64)
-const SEGMENTS = [
-  { prize: 200, color: '#D4AF37' }, // gold
-  { prize: 500, color: '#3B82F6' }, // blue
-  { prize: 1000, color: '#EF4444' }, // red
-  { prize: 2000, color: '#22C55E' }, // green
-  { prize: 5000, color: '#A855F7' }, // purple
-  { prize: 10000, color: '#F59E0B' }, // amber
-  { prize: 500, color: '#06B6D4' }, // cyan
-  { prize: 200, color: '#EC4899' }, // pink
-];
+// Distinct, non-repeating prize values — these mirror lib/rewards PRIZES so
+// every wedge is actually winnable and no number repeats on the wheel.
+// Built from a de-duplicated set so a value can never appear in two wedges.
+const PRIZE_VALUES = [200, 500, 1000, 2000, 5000, 10000];
+const PRIZE_COLORS: Record<number, string> = {
+  200: '#D4AF37', // gold
+  500: '#3B82F6', // blue
+  1000: '#EF4444', // red
+  2000: '#22C55E', // green
+  5000: '#A855F7', // purple
+  10000: '#F59E0B', // amber
+};
+const SEGMENTS = Array.from(new Set(PRIZE_VALUES)).map((prize) => ({
+  prize,
+  color: PRIZE_COLORS[prize],
+}));
 const N = SEGMENTS.length;
 const SEG = 360 / N;
 
