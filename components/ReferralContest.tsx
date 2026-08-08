@@ -77,7 +77,7 @@ export function ReferralContest() {
                     </div>
                     <div>
                       <div className="font-display font-semibold text-gold">
-                        {prize.threshold} referrals
+                        {prize.threshold} verified referrals
                       </div>
                       <div className="text-sm text-muted-foreground">{prize.reward}</div>
                     </div>

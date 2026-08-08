@@ -6,6 +6,7 @@ import { Copy, Check, Share2, Trophy, Medal, Users, Crown, MessageCircle, Downlo
 import { QRCodeDisplay } from '@/components/QRCodeDisplay';
 import { ShareCard } from '@/components/ShareCard';
 import { BADGES, getEarnedBadges, getNextBadge, referralsToBadge, badgeProgressPercent } from '@/lib/referral';
+import { MILESTONE } from '@/lib/referral-counts';
 import { WHATSAPP_URL } from '@/lib/links';
 import { isLikelyPhone } from '@/lib/validation';
 import { REFERRAL_RULES } from '@/lib/rules';
@@ -350,8 +351,39 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
 
               <div className="grid sm:grid-cols-3 gap-4">
                 <StatBox label="Queue position" value={`#${data.position}`} />
-                <StatBox label="Referrals" value={String(data.referralCount)} />
+                <StatBox label="Verified referrals" value={String(data.referralCount)} />
                 <StatBox label="Leaderboard rank" value={data.rank ? `#${data.rank}` : 'Unranked'} />
+              </div>
+
+              {/* Milestone ladder — 7 verified referrals = 1 spin, 14 = 2 spins, etc. */}
+              <div className="glass rounded-xl p-4 border border-gold/20">
+                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Spin milestones</div>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: Math.max(3, Math.ceil(data.referralCount / MILESTONE) + 1) }).map((_, i) => {
+                    const milestone = (i + 1) * MILESTONE;
+                    const unlocked = data.referralCount >= milestone;
+                    return (
+                      <div
+                        key={milestone}
+                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium border ${
+                          unlocked
+                            ? 'bg-gold/15 border-gold/40 text-gold'
+                            : 'bg-white/5 border-white/10 text-muted-foreground'
+                        }`}
+                      >
+                        <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center text-[10px] font-bold ${
+                          unlocked ? 'bg-gold text-background' : 'bg-white/10 text-muted-foreground'
+                        }`}>
+                          {unlocked ? '✓' : i + 1}
+                        </span>
+                        {milestone} = {(i + 1)} spin{(i + 1) === 1 ? '' : 's'}
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-[10px] text-muted-foreground">
+                  Pending referrals don’t count. Only verified referrals unlock spins.
+                </p>
               </div>
 
               {/* Referrer join indicator — shows when someone joins via this link */}

@@ -27,7 +27,7 @@ const TIPS = [
   {
     icon: Gift,
     title: 'Unlock rewards',
-    body: `Hit ${GIVEAWAY_ENTRY_THRESHOLD} referrals to unlock your first spin (then 1 spin per ${GIVEAWAY_ENTRY_THRESHOLD} referrals, unlimited). ${EARLY_ACCESS?.threshold} referrals gets early access. ${LIFETIME?.threshold} gets lifetime access.`,
+    body: `Hit ${GIVEAWAY_ENTRY_THRESHOLD} verified referrals to unlock your first spin (then 1 spin per ${GIVEAWAY_ENTRY_THRESHOLD} verified referrals, unlimited). ${EARLY_ACCESS?.threshold} verified referrals gets early access. ${LIFETIME?.threshold} verified referrals gets lifetime access.`,
   },
   {
     icon: Flame,
