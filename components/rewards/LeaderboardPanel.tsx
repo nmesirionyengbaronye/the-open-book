@@ -18,6 +18,7 @@ export default function LeaderboardPanel({ entries }: { entries: LeaderboardEntr
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
       <h3 className="mb-3 text-sm font-semibold text-white/80">Leaderboard — Top 20</h3>
+      <p className="mb-2 text-[10px] text-white/40">Ranked by verified referrals</p>
       <ul className="space-y-1">
         {entries.map((e) => (
           <li

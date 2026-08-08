@@ -13,8 +13,10 @@ import {
   Check,
   BadgeCheck,
   RotateCw,
+  PackageOpen,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { MILESTONE } from '@/lib/referral-counts';
 import ReferralProgressBar from './ReferralProgressBar';
 import MysteryBox from './MysteryBox';
 import SpinWheel from './SpinWheel';
@@ -177,14 +179,17 @@ export default function RewardsHub({
 
       {/* Stats */}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Referrals" value={String(profile.effectiveReferrals)} icon={<Gift className="h-4 w-4" />} />
+        <Stat label="Verified referrals" value={String(profile.effectiveReferrals)} icon={<Gift className="h-4 w-4" />} />
+        <Stat label="Joined via link" value={String(profile.joinedCount)} icon={<Users className="h-4 w-4" />} />
         <Stat label="Rank" value={profile.rank ? `#${profile.rank}` : '—'} icon={<Trophy className="h-4 w-4" />} />
-        <Stat label="Spins" value={String(profile.spinTickets)} icon={<Sparkles className="h-4 w-4" />} />
-        <Stat
-          label="Wallet"
-          value={`₦${profile.walletBalance.toLocaleString()}`}
-          icon={<Wallet className="h-4 w-4" />}
-        />
+        <Stat label="Spin tickets" value={String(profile.spinTickets)} icon={<Sparkles className="h-4 w-4" />} />
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat label="Cash wallet" value={`₦${profile.walletBalance.toLocaleString()}`} icon={<Wallet className="h-4 w-4" />} />
+        <Stat label="Launch tokens" value={String(profile.launchTokens)} icon={<BadgeCheck className="h-4 w-4" />} />
+        <Stat label="Boxes due" value={String(profile.boxesDue)} icon={<PackageOpen className="h-4 w-4" />} />
+        <Stat label="Boxes opened" value={String(profile.boxesOpened)} icon={<Gift className="h-4 w-4" />} />
       </div>
 
       {profile.disqualified && (
@@ -195,12 +200,39 @@ export default function RewardsHub({
 
       {/* Referral progress */}
       <SectionTitle icon={<Gift className="h-4 w-4" />} title="Referral progress" />
-      <span className="mt-1 block text-[11px] text-white/40">
-        {profile.launchTokens > 0
-          ? `You’ll receive ${profile.launchTokens} tokens when the app launches.`
-          : 'Invite friends to earn tokens at launch.'}
-      </span>
-      <div className="mt-2">
+      <div className="mt-2 space-y-3">
+        <div className="glass rounded-xl p-4 border border-white/10">
+          <div className="text-xs text-white/50 mb-2">
+            Verified referrals unlock boxes and spins. Pending referrals don’t count until they verify.
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {Array.from({ length: Math.max(3, Math.ceil((profile.effectiveReferrals || 0) / MILESTONE) + 2) }).map((_, i) => {
+              const milestone = (i + 1) * MILESTONE;
+              const unlocked = (profile.effectiveReferrals || 0) >= milestone;
+              const isNext = !unlocked && i === Math.floor((profile.effectiveReferrals || 0) / MILESTONE);
+              return (
+                <div
+                  key={milestone}
+                  className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium border ${
+                    unlocked
+                      ? 'bg-[#D4AF37]/15 border-[#D4AF37]/40 text-[#D4AF37]'
+                      : isNext
+                        ? 'bg-white/10 border-white/20 text-white'
+                        : 'bg-white/5 border-white/10 text-white/40'
+                  }`}
+                >
+                  <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center text-[10px] font-bold ${
+                    unlocked ? 'bg-[#D4AF37] text-black' : 'bg-white/10 text-white/60'
+                  }`}>
+                    {unlocked ? '✓' : i + 1}
+                  </span>
+                  {milestone} = {(i + 1)} box{(i + 1) === 1 ? '' : 'es'} + {(i + 1)} spin{(i + 1) === 1 ? '' : 's'}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         <ReferralProgressBar
           completed={referrals?.progress.completed ?? 0}
           milestone={referrals?.progress.milestone ?? 7}
@@ -268,10 +300,10 @@ export default function RewardsHub({
                 key={i}
                 className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5"
               >
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-white">{wn.name}</div>
-                  <div className="text-[10px] text-white/40">{wn.referrals} referrals</div>
-                </div>
+                 <div className="min-w-0">
+                   <div className="truncate text-sm font-medium text-white">{wn.name}</div>
+                   <div className="text-[10px] text-white/40">{wn.referrals} verified referrals</div>
+                 </div>
                 <div className="ml-2 shrink-0 font-mono text-sm font-semibold text-[#D4AF37]">
                   ₦{wn.winnings.toLocaleString()}
                 </div>

@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { normalizeWhatsApp, isLikelyPhone } from '@/lib/validation';
 import { PRIZE_VALUES } from '@/lib/prizes';
+import { sendTelegramMessage } from '@/lib/telegram-bot';
 import {
   MILESTONE,
   filterDisqualified,
@@ -152,6 +153,8 @@ export type RewardsProfile = {
   verifiedReferrals: number;
   /** Canonical count (joined + bonus). This is the number shown to users. */
   effectiveReferrals: number;
+  /** Raw joins via this user's link, for display only. */
+  joinedCount: number;
   rank: number | null;
   boxesDue: number;
   boxesOpened: number;
@@ -186,11 +189,17 @@ export async function getProfile(codeOrPhone: string): Promise<RewardsProfile | 
   const walletBalance = wl.wallet_balance || 0;
   const walletPaid = wl.wallet_paid || 0;
 
+  const { count: joinedCount } = await supabaseAdmin
+    .from('waitlist')
+    .select('*', { count: 'exact', head: true })
+    .eq('referred_by', wl.referral_code);
+
   return {
     referralCode: wl.referral_code,
     fullName: wl.full_name,
     verifiedReferrals: verified,
     effectiveReferrals: effective,
+    joinedCount: joinedCount || 0,
     rank,
     boxesDue,
     boxesOpened,
@@ -286,6 +295,7 @@ export async function verifyTelegram(
 
     for (const p of pending as { referrer_id: string }[]) {
       await awardMysteryBoxes(p.referrer_id);
+      await notifyReferrerOfVerification(p.referrer_id, user.id);
     }
   }
 
@@ -708,6 +718,52 @@ export async function getTotalLaunchTokens(): Promise<number> {
   // Uses the canonical board so this agrees with each user's own launchTokens.
   const board = await getRankedReferrers();
   return board.reduce((sum, r) => sum + 500 * Math.floor(r.count / MILESTONE), 0);
+}
+
+// ---------------------------------------------------------------------------
+// Telegram notifications
+// ---------------------------------------------------------------------------
+
+/**
+ * Notify a referrer that one of their referrals just verified on Telegram.
+ * Best-effort: failures are logged but never break the verify flow.
+ */
+export async function notifyReferrerOfVerification(
+  referrerId: string,
+  verifiedUserId: string
+): Promise<void> {
+  try {
+    const botToken = process.env.BOT_TOKEN;
+    if (!botToken) return;
+
+    const [{ data: referrer }, { data: verified }] = await Promise.all([
+      supabaseAdmin
+        .from('waitlist')
+        .select('telegram_id, full_name, referral_code')
+        .eq('id', referrerId)
+        .maybeSingle(),
+      supabaseAdmin
+        .from('waitlist')
+        .select('full_name')
+        .eq('id', verifiedUserId)
+        .maybeSingle(),
+    ]);
+
+    const telegramId = referrer?.telegram_id;
+    if (!telegramId) return;
+
+    const referrerName = (referrer?.full_name || 'Someone').split(' ')[0];
+    const verifiedName = (verified?.full_name || 'A friend').split(' ')[0];
+
+    await sendTelegramMessage(
+      botToken,
+      String(telegramId),
+      `🎉 <b>${verifiedName}</b> just verified on Uni UI!<br/><br/>Keep sharing your link to unlock more rewards. Your current progress has been updated.`,
+      'HTML'
+    );
+  } catch (e) {
+    console.error('[rewards/notify] failed to notify referrer', referrerId, e);
+  }
 }
 
 // ---------------------------------------------------------------------------

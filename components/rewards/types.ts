@@ -3,6 +3,7 @@ export type RewardsProfile = {
   fullName: string;
   verifiedReferrals: number;
   effectiveReferrals: number;
+  joinedCount: number;
   rank: number | null;
   boxesDue: number;
   boxesOpened: number;
