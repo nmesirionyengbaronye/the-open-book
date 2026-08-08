@@ -5,12 +5,11 @@ import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Trophy } from 'lucide-react';
 import { toast } from 'sonner';
+import { PRIZE_VALUES } from '@/lib/prizes';
 
 const SIZE = 256; // logical canvas size (matches h-64 w-64)
-// Distinct, non-repeating prize values — these mirror lib/rewards PRIZES so
-// every wedge is actually winnable and no number repeats on the wheel.
-// Built from a de-duplicated set so a value can never appear in two wedges.
-const PRIZE_VALUES = [200, 500, 1000, 2000, 5000, 10000];
+// Prize values come from lib/prizes so the wheel can never show a value the
+// server can't award (or omit one it can).
 const PRIZE_COLORS: Record<number, string> = {
   200: '#D4AF37', // gold
   500: '#3B82F6', // blue

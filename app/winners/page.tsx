@@ -38,7 +38,10 @@ export default function WinnersPage() {
             Hall of <span className="text-[#D4AF37]">Fame</span>
           </h1>
           <p className="mt-3 text-sm text-white/60">
-            Our top referrers — climbing the leaderboard, winning cash, and inviting coursemates.
+            Our biggest cash winners, ranked by total winnings from the spin wheel.
+          </p>
+          <p className="mt-1 text-xs text-white/40">
+            Referral counts are shown alongside each winner — they don’t determine this ranking.
           </p>
         </div>
 

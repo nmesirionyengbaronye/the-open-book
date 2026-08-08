@@ -112,9 +112,48 @@ INSERT INTO settings (key, value) VALUES
 ON CONFLICT (key) DO NOTHING;
 
 -- ---------------------------------------------------------------------
--- 8. Helper view: verified referral counts per referrer (excludes bonuses)
+-- 8. Helper view: canonical referral counts per referrer.
+--
+--    CANONICAL DEFINITION (mirrors lib/referral-counts.ts):
+--      a referral only counts once it is VERIFIED (status = 'verified').
+--      pending referrals are NOT counted — they stay pending until the
+--      referred user verifies. admin-granted bonus_referrals also count.
+--
+--        referral count = verified referrals + bonus_referrals
+--
+--    This means the spin wheel, mystery boxes, badges, rank and leaderboard
+--    all move only on verification, never on a raw join.
+--
+--    `verified_count` is retained as a column name for backwards compatibility;
+--    `referral_count` is the preferred alias for the canonical (verified) total.
+--    `joined_count` is the raw join figure, display-only.
+--    Disqualified referrers are excluded so public and admin reads agree.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE VIEW referral_counts AS
+SELECT
+  r.id                                              AS referrer_id,
+  COALESCE(v.verified_count, 0) + COALESCE(r.bonus_referrals, 0) AS referral_count,
+  COALESCE(v.verified_count, 0) + COALESCE(r.bonus_referrals, 0) AS verified_count,
+  COALESCE(j.joined_count, 0)                       AS joined_count,
+  COALESCE(r.bonus_referrals, 0)                     AS bonus_count
+FROM waitlist r
+LEFT JOIN (
+  SELECT referrer_id, COUNT(*) AS verified_count
+  FROM referrals
+  WHERE status = 'verified'
+  GROUP BY referrer_id
+) v ON v.referrer_id = r.id
+LEFT JOIN (
+  SELECT referred_by AS code, COUNT(*) AS joined_count
+  FROM waitlist
+  WHERE referred_by IS NOT NULL
+  GROUP BY referred_by
+) j ON j.code = r.referral_code
+WHERE COALESCE(r.disqualified, false) = false
+  AND (COALESCE(v.verified_count, 0) + COALESCE(r.bonus_referrals, 0)) > 0;
+
+-- Raw Telegram verification progress (verified referrals only), for diagnostics.
+CREATE OR REPLACE VIEW verified_referral_counts AS
 SELECT referrer_id, COUNT(*) AS verified_count
 FROM referrals
 WHERE status = 'verified'

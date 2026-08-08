@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getRankedReferrers } from '@/lib/referral-counts';
 
 export async function GET() {
   try {
@@ -15,15 +16,10 @@ export async function GET() {
 
     if (!top || top.length === 0) return NextResponse.json([]);
 
-    const ids = top.map((t: any) => t.id);
-    const { data: counts } = await supabaseAdmin
-      .from('referral_counts')
-      .select('referrer_id, verified_count')
-      .in('referrer_id', ids);
-
-    const map = new Map<string, number>(
-      (counts || []).map((c: any) => [c.referrer_id, c.verified_count])
-    );
+    // Canonical referral counts, so the number beside a winner matches their
+    // dashboard and leaderboard entry.
+    const board = await getRankedReferrers();
+    const map = new Map(board.map((r) => [r.userId, r.count]));
 
     const winners = top.map((t: any) => ({
       name: t.full_name,

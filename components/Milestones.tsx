@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { CheckCircle2, Lock } from "lucide-react";
 
+// NOTE: these gates are keyed on TOTAL WAITLIST SIGNUPS, not on any one
+// person's referral count. Referral tiers live in lib/tiers.ts.
 const TIERS = [
   { at: 50, title: "WhatsApp study group opens", desc: "First 50 get a private room with the founder." },
   { at: 100, title: "Closed beta access", desc: "First 100 try the upload + ask flow before anyone else." },
@@ -30,6 +32,9 @@ export function Milestones() {
         <div className="text-center mb-10">
           <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">Roadmap</div>
           <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold">Milestones we unlock together</h2>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Community goals based on total waitlist signups — not your personal referral count.
+          </p>
           {loading ? (
             <div className="mt-4 h-5 w-40 mx-auto shimmer rounded" />
           ) : (

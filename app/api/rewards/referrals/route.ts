@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveUser, getProfile } from '@/lib/rewards';
 import { supabaseAdmin } from '@/lib/supabase';
-
-const MILESTONE = 7;
+import { MILESTONE } from '@/lib/referral-counts';
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code');
@@ -11,27 +10,34 @@ export async function GET(req: NextRequest) {
     const user = await resolveUser(code);
     if (!user) return NextResponse.json({ error: 'not found' }, { status: 404 });
 
-    const { data: rows } = await supabaseAdmin
-      .from('referrals')
-      .select('status, verified_at, created_at, referred_id')
-      .eq('referrer_id', user.id)
-      .order('created_at', { ascending: false });
+    // Canonical referral list: everyone who joined via this user's link. Reading
+    // `waitlist.referred_by` (not the `referrals` table) means a referred user
+    // shows up here immediately, matching the web dashboard's "Recent joins".
+    // The `referrals` table only supplies the Telegram verification status.
+    const { data: joined } = await supabaseAdmin
+      .from('waitlist')
+      .select('id, full_name, created_at')
+      .eq('referred_by', user.code)
+      .order('created_at', { ascending: false })
+      .limit(50);
 
-    const refIds = (rows || []).map((r: any) => r.referred_id);
-    let names = new Map<string, string>();
-    if (refIds.length) {
-      const { data: users } = await supabaseAdmin
-        .from('waitlist')
-        .select('id, full_name')
-        .in('id', refIds);
-      names = new Map((users || []).map((u: any) => [u.id, u.full_name]));
+    const joinedIds = (joined || []).map((j: any) => j.id);
+    let verifiedIds = new Set<string>();
+    if (joinedIds.length) {
+      const { data: refRows } = await supabaseAdmin
+        .from('referrals')
+        .select('referred_id, status')
+        .eq('referrer_id', user.id)
+        .eq('status', 'verified')
+        .in('referred_id', joinedIds);
+      verifiedIds = new Set((refRows || []).map((r: any) => r.referred_id));
     }
 
-    const list = (rows || []).map((r: any) => ({
-      status: r.status,
-      verifiedAt: r.verified_at,
-      createdAt: r.created_at,
-      name: names.get(r.referred_id) || 'A friend',
+    const list = (joined || []).map((j: any) => ({
+      status: verifiedIds.has(j.id) ? 'verified' : 'pending',
+      verifiedAt: null,
+      createdAt: j.created_at,
+      name: j.full_name || 'A friend',
     }));
 
     const profile = await getProfile(code);

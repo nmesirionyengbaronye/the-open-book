@@ -26,3 +26,12 @@ export function normalizeWhatsApp(input: string): string | null {
 export function isValidNigerianPhone(phone: string): boolean {
   return /^\+234\d{10}$/.test(phone);
 }
+
+/**
+ * Loose check used to decide whether a lookup value is a phone number or a
+ * referral code. Deliberately permissive — `normalizeWhatsApp` does the strict
+ * validation afterwards. Single definition; do not re-inline this regex.
+ */
+export function isLikelyPhone(value: string): boolean {
+  return /^\+?\d{10,15}$/.test(value.replace(/\s/g, ''));
+}

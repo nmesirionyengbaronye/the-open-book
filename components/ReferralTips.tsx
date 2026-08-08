@@ -3,6 +3,10 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Share2, Users, Trophy, Gift, Flame, Target, Zap, Crown, Award, Sparkles } from 'lucide-react';
+import { TIERS, GIVEAWAY_ENTRY_THRESHOLD } from '@/lib/tiers';
+
+const EARLY_ACCESS = TIERS.find((t) => t.type === 'early_access');
+const LIFETIME = TIERS.find((t) => t.type === 'lifetime_access');
 
 const TIPS = [
   {
@@ -23,7 +27,7 @@ const TIPS = [
   {
     icon: Gift,
     title: 'Unlock rewards',
-    body: 'Hit 7 referrals to unlock your first spin (then 1 spin per 7 referrals, unlimited). 25 referrals gets early access. 100 gets lifetime access.',
+    body: `Hit ${GIVEAWAY_ENTRY_THRESHOLD} referrals to unlock your first spin (then 1 spin per ${GIVEAWAY_ENTRY_THRESHOLD} referrals, unlimited). ${EARLY_ACCESS?.threshold} referrals gets early access. ${LIFETIME?.threshold} gets lifetime access.`,
   },
   {
     icon: Flame,

@@ -1,10 +1,16 @@
 import { supabaseAdmin } from '@/lib/supabase';
-import { normalizeWhatsApp } from '@/lib/validation';
+import { normalizeWhatsApp, isLikelyPhone } from '@/lib/validation';
+import { PRIZE_VALUES } from '@/lib/prizes';
+import {
+  MILESTONE,
+  filterDisqualified,
+  getRankFromBoard,
+  getRankedReferrers,
+  getReferralCount,
+  getVerifiedReferralCount as getVerifiedCount,
+} from '@/lib/referral-counts';
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-const MILESTONE = 7; // verified referrals per mystery box
+export { MILESTONE };
 
 // Reward range: ₦200 – ₦10,000 (server-controlled, never client).
 // Weights sum to 1,000,000 so each unit = 0.0001% (lets ₦10,000 be a true
@@ -17,7 +23,7 @@ const MILESTONE = 7; // verified referrals per mystery box
 //   ₦10000   →  0.0001%   impossible — but possible (≈ 1 in 1,000,000 spins)
 // The first TWO spinners still get a guaranteed ₦1000 on their first try
 // (enforced by the claim_first_spin_grant RPC), independent of this table.
-const PRIZES = [200, 500, 1000, 2000, 5000, 10000];
+export const PRIZES = [...PRIZE_VALUES];
 const PRIZE_WEIGHTS = [950000, 48969, 1000, 20, 10, 1];
 
 const BOX_TICKETS = [1, 2, 5];
@@ -44,10 +50,6 @@ function shuffleTickets(): [number, number, number] {
   return arr as [number, number, number];
 }
 
-function isLikelyPhone(value: string): boolean {
-  return /^\+?\d{10,15}$/.test(value.replace(/\s/g, ''));
-}
-
 // ---------------------------------------------------------------------------
 // User resolution
 // ---------------------------------------------------------------------------
@@ -72,37 +74,37 @@ export async function resolveUser(codeOrPhone: string): Promise<ResolvedUser> {
 
 // ---------------------------------------------------------------------------
 // Counts / rank / leaderboard
+//
+// All of these now delegate to lib/referral-counts.ts so the Telegram Mini App,
+// the web dashboard, both leaderboards and the badge engine report the same
+// number for the same user.
 // ---------------------------------------------------------------------------
+
+/** Telegram-verified referrals only. Diagnostic — not the number users see. */
 export async function getVerifiedReferralCount(userId: string): Promise<number> {
-  const { count } = await supabaseAdmin
-    .from('referrals')
-    .select('*', { count: 'exact', head: true })
-    .eq('referrer_id', userId)
-    .eq('status', 'verified');
-  return count || 0;
+  return getVerifiedCount(userId);
 }
 
-/** Effective referral count = verified referrals + admin bonus. */
-export async function getEffectiveReferralCount(userId: string): Promise<number> {
-  const base = await getVerifiedReferralCount(userId);
-  const { data } = await supabaseAdmin
-    .from('waitlist')
-    .select('bonus_referrals')
-    .eq('id', userId)
-    .maybeSingle();
-  return base + (data?.bonus_referrals || 0);
+/** Canonical referral count (joined via link + admin bonus). */
+export async function getEffectiveReferralCount(
+  userId: string,
+  referralCode?: string
+): Promise<number> {
+  let code = referralCode;
+  if (!code) {
+    const { data } = await supabaseAdmin
+      .from('waitlist')
+      .select('referral_code')
+      .eq('id', userId)
+      .maybeSingle();
+    if (!data?.referral_code) return 0;
+    code = data.referral_code as string;
+  }
+  return getReferralCount({ id: userId, referralCode: code }, 'canonical');
 }
 
 export async function getRank(userId: string): Promise<number | null> {
-  const { data, error } = await supabaseAdmin
-    .from('referral_counts')
-    .select('referrer_id, verified_count')
-    .order('verified_count', { ascending: false });
-  if (error || !data) return null;
-  const idx = (data as { referrer_id: string; verified_count: number }[]).findIndex(
-    (r) => r.referrer_id === userId
-  );
-  return idx >= 0 ? idx + 1 : null;
+  return getRankFromBoard(userId);
 }
 
 export type LeaderboardEntry = {
@@ -113,36 +115,19 @@ export type LeaderboardEntry = {
   isCurrentUser: boolean;
 };
 
-export async function getLeaderboard(currentUserId?: string): Promise<LeaderboardEntry[]> {
-  const { data, error } = await supabaseAdmin
-    .from('referral_counts')
-    .select('referrer_id, verified_count')
-    .order('verified_count', { ascending: false })
-    .limit(20);
-  if (error || !data) return [];
-
-  const ids = (data as { referrer_id: string }[]).map((r) => r.referrer_id);
-  const { data: users } = await supabaseAdmin
-    .from('waitlist')
-    .select('id, full_name, referral_code, disqualified')
-    .in('id', ids);
-
-  const userMap = new Map(
-    (users || []).map((u: any) => [u.id, u])
-  );
-
-  return (data as { referrer_id: string; verified_count: number }[])
-    .filter((r) => !userMap.get(r.referrer_id)?.disqualified)
-    .map((r, i) => {
-      const u = userMap.get(r.referrer_id);
-      return {
-        rank: i + 1,
-        name: u?.full_name || 'Anonymous',
-        code: u?.referral_code || '',
-        referrals: r.verified_count,
-        isCurrentUser: r.referrer_id === currentUserId,
-      };
-    });
+/** Canonical leaderboard. `limit` defaults to 20; the homepage passes 10. */
+export async function getLeaderboard(
+  currentUserId?: string,
+  limit = 20
+): Promise<LeaderboardEntry[]> {
+  const board = await getRankedReferrers();
+  return board.slice(0, limit).map((r, i) => ({
+    rank: i + 1,
+    name: r.fullName,
+    code: r.referralCode,
+    referrals: r.count,
+    isCurrentUser: r.userId === currentUserId,
+  }));
 }
 
 export async function getLaunchCountdownDays(): Promise<number> {
@@ -163,7 +148,9 @@ export async function getLaunchCountdownDays(): Promise<number> {
 export type RewardsProfile = {
   referralCode: string;
   fullName: string;
+  /** Telegram-verified subset — exposed for transparency, not the headline stat. */
   verifiedReferrals: number;
+  /** Canonical count (joined + bonus). This is the number shown to users. */
   effectiveReferrals: number;
   rank: number | null;
   boxesDue: number;
@@ -192,7 +179,7 @@ export async function getProfile(codeOrPhone: string): Promise<RewardsProfile | 
   if (!wl) return null;
 
   const verified = await getVerifiedReferralCount(user.id);
-  const effective = await getEffectiveReferralCount(user.id);
+  const effective = await getEffectiveReferralCount(user.id, wl.referral_code);
   const rank = await getRank(user.id);
   const boxesOpened = wl.mystery_boxes || 0;
   const boxesDue = Math.floor(effective / MILESTONE);
@@ -512,6 +499,18 @@ export async function getWallet(codeOrPhone: string): Promise<WalletInfo | null>
   };
 }
 
+/**
+ * Record a payout against a user's wallet.
+ *
+ * Idempotency: the Prizes admin page calls this once per click with
+ * `amount = pending`, so a double click used to insert two payment rows and
+ * push `wallet_paid` above `wallet_balance` (i.e. over-paying the user).
+ * Guards, in order:
+ *   1. reject when nothing is outstanding,
+ *   2. reject a replayed `reference` for the same user,
+ *   3. clamp the amount to what is actually still owed,
+ *   4. clamp the recomputed total to `wallet_balance`.
+ */
 export async function markPayment(
   codeOrPhone: string,
   amount: number,
@@ -520,11 +519,54 @@ export async function markPayment(
   const user = await resolveUser(codeOrPhone);
   if (!user) return { ok: false as const, reason: 'not_found' };
 
+  const { data: wl } = await supabaseAdmin
+    .from('waitlist')
+    .select('wallet_balance, wallet_paid')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (!wl) return { ok: false as const, reason: 'not_found' };
+
+  const balance = wl.wallet_balance || 0;
+  const alreadyPaid = wl.wallet_paid || 0;
+  const outstanding = Math.max(0, balance - alreadyPaid);
+
+  // (1) Nothing left to pay — treat repeat clicks as a no-op, not an over-pay.
+  if (outstanding <= 0) {
+    return {
+      ok: true as const,
+      alreadySettled: true,
+      paymentId: null,
+      totalPaid: Math.min(alreadyPaid, balance),
+    };
+  }
+
+  // (2) Same reference already recorded for this user → replay, ignore.
+  if (reference) {
+    const { data: dupe } = await supabaseAdmin
+      .from('payments')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('reference', reference)
+      .maybeSingle();
+    if (dupe) {
+      return {
+        ok: true as const,
+        duplicate: true,
+        paymentId: dupe.id,
+        totalPaid: alreadyPaid,
+      };
+    }
+  }
+
+  // (3) Never record more than is owed.
+  const applied = Math.min(Math.max(0, amount), outstanding);
+  if (applied <= 0) return { ok: false as const, reason: 'invalid_amount' };
+
   const { data: inserted } = await supabaseAdmin
     .from('payments')
     .insert({
       user_id: user.id,
-      amount,
+      amount: applied,
       status: 'paid',
       reference: reference || null,
       paid_at: new Date().toISOString(),
@@ -534,22 +576,23 @@ export async function markPayment(
 
   if (!inserted) return { ok: false as const, reason: 'insert_failed' };
 
-  // Recompute wallet_paid = sum of paid payments for this user.
+  // (4) Recompute from the ledger, capped at the balance so a stray historical
+  // row can never leave wallet_paid > wallet_balance.
   const { data: paidRows } = await supabaseAdmin
     .from('payments')
     .select('amount')
     .eq('user_id', user.id)
     .eq('status', 'paid');
 
-  const totalPaid = (paidRows || []).reduce((s: number, r: any) => s + (r.amount || 0), 0);
+  const ledgerTotal = (paidRows || []).reduce((s: number, r: any) => s + (r.amount || 0), 0);
+  const totalPaid = Math.min(ledgerTotal, balance);
+
   await supabaseAdmin
     .from('waitlist')
     .update({ wallet_paid: totalPaid })
     .eq('id', user.id);
 
-  // Mark matching unpaid spin_history as paid (oldest first) up to amount.
-  // (Administrative simplification: payment settles wallet, not individual spins.)
-  return { ok: true as const, paymentId: inserted.id, totalPaid };
+  return { ok: true as const, paymentId: inserted.id, totalPaid, applied };
 }
 
 // ---------------------------------------------------------------------------
@@ -568,24 +611,28 @@ export async function getRecentSpins(limit = 20): Promise<RecentSpin[]> {
     .from('spin_history')
     .select('prize, paid, created_at, user_id')
     .order('created_at', { ascending: false })
-    .limit(limit);
+    .limit(limit * 2); // over-fetch: disqualified rows are dropped below
   if (!data || data.length === 0) return [];
   const ids = (data as { user_id: string }[]).map((r) => r.user_id);
   const { data: users } = await supabaseAdmin
     .from('waitlist')
-    .select('id, full_name, referral_code')
+    .select('id, full_name, referral_code, disqualified')
     .in('id', ids);
-  const userMap = new Map((users || []).map((u: any) => [u.id, u]));
-  return (data as any[]).map((r) => {
-    const u = userMap.get(r.user_id);
-    return {
-      name: u?.full_name || 'Anonymous',
-      code: u?.referral_code || '',
-      prize: r.prize,
-      paid: r.paid,
-      created_at: r.created_at,
-    };
-  });
+  // Same disqualification rule as the public winners feed.
+  const userMap = new Map(filterDisqualified(users || []).map((u: any) => [u.id, u]));
+  return (data as any[])
+    .filter((r) => userMap.has(r.user_id))
+    .slice(0, limit)
+    .map((r) => {
+      const u = userMap.get(r.user_id);
+      return {
+        name: u?.full_name || 'Anonymous',
+        code: u?.referral_code || '',
+        prize: r.prize,
+        paid: r.paid,
+        created_at: r.created_at,
+      };
+    });
 }
 
 export type TopEarner = { name: string; code: string; balance: number };
@@ -593,10 +640,11 @@ export type TopEarner = { name: string; code: string; balance: number };
 export async function getTopEarners(limit = 10): Promise<TopEarner[]> {
   const { data } = await supabaseAdmin
     .from('waitlist')
-    .select('full_name, referral_code, wallet_balance')
+    .select('full_name, referral_code, wallet_balance, disqualified')
+    .eq('disqualified', false)
     .order('wallet_balance', { ascending: false })
     .limit(limit);
-  return (data || []).map((r: any) => ({
+  return filterDisqualified(data || []).map((r: any) => ({
     name: r.full_name || 'Anonymous',
     code: r.referral_code || '',
     balance: r.wallet_balance || 0,
@@ -657,12 +705,9 @@ export async function getRecentBroadcasts(limit = 10): Promise<BroadcastRecord[]
 
 /** Total launch tokens owed = 500 per completed 7-referral milestone, across all users. */
 export async function getTotalLaunchTokens(): Promise<number> {
-  const { data } = await supabaseAdmin.from('referral_counts').select('verified_count');
-  if (!data) return 0;
-  return (data as { verified_count: number }[]).reduce(
-    (sum, r) => sum + 500 * Math.floor((r.verified_count || 0) / MILESTONE),
-    0
-  );
+  // Uses the canonical board so this agrees with each user's own launchTokens.
+  const board = await getRankedReferrers();
+  return board.reduce((sum, r) => sum + 500 * Math.floor(r.count / MILESTONE), 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -696,11 +741,23 @@ export async function disqualifyUser(codeOrPhone: string, disqualified: boolean)
   return { ok: true as const, disqualified };
 }
 
-/** Reset giveaway: clear boxes, tickets, wallet, payments, spin history, referrals. */
+/**
+ * Reset giveaway: clear boxes, tickets, wallet, payments, spin history,
+ * referrals and granted reward tiers.
+ *
+ * `referral_rewards` is included — leaving it behind meant a user kept every
+ * tier they had already claimed after a reset, so those tiers could never be
+ * re-earned or re-granted.
+ */
 export async function resetGiveaway() {
-  const tables = ['mystery_boxes', 'spin_history', 'payments', 'referrals'];
+  const tables = ['mystery_boxes', 'spin_history', 'payments', 'referrals', 'referral_rewards'];
   for (const t of tables) {
-    await supabaseAdmin.from(t).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    // referral_rewards may not be deployed in every environment; ignore misses.
+    const { error } = await supabaseAdmin
+      .from(t)
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000');
+    if (error) console.warn(`[resetGiveaway] could not clear ${t}:`, error.message);
   }
   await supabaseAdmin
     .from('waitlist')

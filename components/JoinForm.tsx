@@ -9,8 +9,7 @@ import useSound from "@/hooks/useSound";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import { ReferralDashboard } from "@/components/ReferralDashboard";
-
-const WHATSAPP_URL = process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || "https://chat.whatsapp.com/UniUICommunity";
+import { WHATSAPP_URL } from "@/lib/links";
 
 function normalizeNG(input: string): string | null {
   return normalizeWhatsApp(input);

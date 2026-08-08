@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { TIERS, getTier } from '@/lib/tiers';
+import { getRankedReferrers } from '@/lib/referral-counts';
 
-const REWARD_TIERS = [
-  { type: 'giveaway_entry', threshold: 15, title: 'Giveaway Entry' },
-  { type: 'early_access', threshold: 25, title: 'Early Access' },
-  { type: 'founding_member', threshold: 40, title: 'Founding Member' },
-  { type: 'semester_credits', threshold: 60, title: 'Free Semester Credits' },
-  { type: 'lifetime_access', threshold: 100, title: 'Lifetime Access' },
-];
+// Thresholds come from the shared TIERS table (lib/tiers.ts) so the claim API,
+// the badges and the marketing copy can never drift apart again.
+const REWARD_TIERS = TIERS.map((t) => ({
+  type: t.type,
+  threshold: t.threshold,
+  title: t.title,
+}));
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,9 +56,49 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    const tier = REWARD_TIERS.find((t) => t.type === reward_type);
+    const tier = getTier(reward_type);
     if (!tier) {
       return NextResponse.json({ error: 'Unknown reward type' }, { status: 400 });
+    }
+
+    // Enforce the tier threshold server-side using the canonical count.
+    const { data: user } = await supabaseAdmin
+      .from('waitlist')
+      .select('id, disqualified')
+      .eq('referral_code', code.trim())
+      .maybeSingle();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Referral code not found' }, { status: 404 });
+    }
+    if (user.disqualified) {
+      return NextResponse.json({ error: 'This account is not eligible' }, { status: 403 });
+    }
+
+    const board = await getRankedReferrers();
+    const referralCount = board.find((r) => r.userId === user.id)?.count ?? 0;
+
+    if (referralCount < tier.threshold) {
+      return NextResponse.json(
+        {
+          error: `You need ${tier.threshold} referrals to claim ${tier.title}. You have ${referralCount}.`,
+          referralCount,
+          threshold: tier.threshold,
+        },
+        { status: 403 }
+      );
+    }
+
+    // Don't grant the same tier twice.
+    const { data: existing } = await supabaseAdmin
+      .from('referral_rewards')
+      .select('reward_type')
+      .eq('referral_code', code.trim())
+      .eq('reward_type', tier.type)
+      .maybeSingle();
+
+    if (existing) {
+      return NextResponse.json({ success: true, alreadyClaimed: true, reward: tier });
     }
 
     let inserted: { reward_type: string; threshold: number; granted_at: string } | null = null;

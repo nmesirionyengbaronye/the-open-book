@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { BADGES, getEarnedBadges } from '@/lib/referral';
+import { getEarnedBadges } from '@/lib/referral';
 import { normalizeWhatsApp } from '@/lib/validation';
+import { getRankedReferrers } from '@/lib/referral-counts';
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     const { data: referrer, error: referrerError } = await supabaseAdmin
       .from('waitlist')
-      .select('referral_code, full_name, position, created_at, institution, school_code, department_code')
+      .select('id, referral_code, full_name, position, created_at, institution, school_code, department_code')
       .eq('referral_code', lookupCode)
       .maybeSingle();
 
@@ -40,35 +41,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Referral code not found' }, { status: 404 });
     }
 
-    const { data: allReferrals, error: referralsError } = await supabaseAdmin
+    // Canonical count + rank from the single shared board, so this endpoint,
+    // the Telegram profile, the badges and both leaderboards always agree.
+    const board = await getRankedReferrers();
+    const idx = board.findIndex((r) => r.userId === referrer.id);
+    const referralCount = idx >= 0 ? board[idx].count : 0;
+    const rank = idx >= 0 ? idx + 1 : null;
+
+    // "Joined via your link" — the raw subset, without the admin bonus.
+    const { count: joinedCount } = await supabaseAdmin
       .from('waitlist')
-      .select('referred_by')
+      .select('*', { count: 'exact', head: true })
       .eq('referred_by', referrer.referral_code);
-
-    if (referralsError) {
-      console.error('Failed to load referrals for stats:', referralsError);
-    }
-
-    const referralCount = (allReferrals || []).length;
-
-    const { data: allEntries, error: allError } = await supabaseAdmin
-      .from('waitlist')
-      .select('referral_code, referred_by');
-
-    if (allError) {
-      console.error('Failed to load waitlist for rank computation:', allError);
-    }
-
-    // Rank is by how many people joined via each referrer's code.
-    const counts = new Map<string, number>();
-    (allEntries || []).forEach((e: any) => {
-      if (e.referred_by) {
-        counts.set(e.referred_by, (counts.get(e.referred_by) || 0) + 1);
-      }
-    });
-
-    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-    const rank = sorted.findIndex(([c]) => c === referrer.referral_code) + 1;
 
     const { count: totalWaitlist } = await supabaseAdmin
       .from('waitlist')
@@ -76,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     const ctx = {
       referralCount,
-      rank: rank > 0 ? rank : null,
+      rank,
       totalWaitlist: totalWaitlist || 0,
     };
 
@@ -129,6 +113,7 @@ export async function GET(request: NextRequest) {
       fullName: referrer.full_name,
       position: referrer.position,
       referralCount,
+      joinedCount: joinedCount || 0,
       rank,
       totalWaitlist: totalWaitlist || 0,
       badges,

@@ -5,14 +5,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Check, Share2, Trophy, Medal, Users, Crown, MessageCircle, Download, Target, Flame, Gift, Users2, Zap, CrownIcon, Award, Sparkles, Linkedin, Twitter, Facebook, Instagram, Mail } from 'lucide-react';
 import { QRCodeDisplay } from '@/components/QRCodeDisplay';
 import { ShareCard } from '@/components/ShareCard';
-import { BADGES, getEarnedBadges, getNextBadge } from '@/lib/referral';
+import { BADGES, getEarnedBadges, getNextBadge, referralsToBadge, badgeProgressPercent } from '@/lib/referral';
+import { WHATSAPP_URL } from '@/lib/links';
+import { isLikelyPhone } from '@/lib/validation';
+import { REFERRAL_RULES } from '@/lib/rules';
 import { toast } from 'sonner';
 
 type DashboardData = {
   referralCode: string;
   fullName: string;
   position: number;
+  /** Canonical count (joined via link + admin bonus). */
   referralCount: number;
+  /** Raw "joined via your link" subset, without the admin bonus. */
+  joinedCount?: number;
   rank: number | null;
   totalWaitlist: number;
   badges: { id: string; name: string; description: string; icon: string }[];
@@ -21,8 +27,6 @@ type DashboardData = {
   school: string | null;
   department: string | null;
 };
-
-const WHATSAPP_URL = process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || 'https://chat.whatsapp.com/UniUICommunity';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Share2,
@@ -108,7 +112,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
     if (!trimmed || trimmed.length < 3) return;
     setLoading(true);
     try {
-      const isPhone = /^\+?\d{10,15}$/.test(trimmed.replace(/\s+/g, ''));
+      const isPhone = isLikelyPhone(trimmed);
       const url = isPhone
         ? `/api/referral/stats?phone=${encodeURIComponent(trimmed)}`
         : `/api/referral/stats?code=${encodeURIComponent(trimmed)}`;
@@ -265,27 +269,16 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
   };
 
   const nextBadge = data ? getNextBadge({ referralCount: data.referralCount, rank: data.rank, totalWaitlist: data.totalWaitlist }) : null;
-  const referralsToNext = useMemo(() => {
-    if (!data || !nextBadge) return null;
-    if (nextBadge.id === 'first-share') return Math.max(0, 7 - data.referralCount);
-    if (nextBadge.id === 'networker') return Math.max(0, 25 - data.referralCount);
-    if (nextBadge.id === 'influencer') return Math.max(0, 50 - data.referralCount);
-    if (nextBadge.id === 'campus-king') return Math.max(0, 100 - data.referralCount);
-    if (nextBadge.id === 'top-10') {
-      if (data.rank && data.rank <= 10) return 0;
-      return null;
-    }
-    return null;
-  }, [data, nextBadge]);
+  // Thresholds come from the shared TIERS table via lib/referral — no local ladder.
+  const referralsToNext = useMemo(
+    () => (data ? referralsToBadge(nextBadge, data.referralCount) : null),
+    [data, nextBadge]
+  );
 
-  const badgeProgress = useMemo(() => {
-    if (!data || !nextBadge) return 0;
-    if (nextBadge.id === 'first-share') return Math.min(100, (data.referralCount / 7) * 100);
-    if (nextBadge.id === 'networker') return Math.min(100, (data.referralCount / 25) * 100);
-    if (nextBadge.id === 'influencer') return Math.min(100, (data.referralCount / 50) * 100);
-    if (nextBadge.id === 'campus-king') return Math.min(100, (data.referralCount / 100) * 100);
-    return 0;
-  }, [data, nextBadge]);
+  const badgeProgress = useMemo(
+    () => (data ? badgeProgressPercent(nextBadge, data.referralCount) : 0),
+    [data, nextBadge]
+  );
 
   return (
     <section id="referral-dashboard" className="py-20 px-5">
@@ -380,7 +373,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
 
               {nextBadge && referralsToNext !== null && referralsToNext > 0 && (
                 <div className="glass rounded-xl p-4 border border-gold/20 text-sm text-muted-foreground">
-                  You need <span className="text-gold font-semibold">{referralsToNext}</span> more referral
+                  You need <span className="text-gold font-semibold">{referralsToNext}</span> more verified referral
                   {referralsToNext === 1 ? '' : 's'} to unlock <span className="text-foreground font-medium">{nextBadge.name}</span>.
                 </div>
               )}
@@ -568,14 +561,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
 }
 
 function RulesGate({ onAccept }: { onAccept: () => void }) {
-  const rules = [
-    'Refer friends with your unique link. Only verified referrals (the friend joins and confirms) count.',
-    'Every 7 verified referrals unlock 1 spin — 7 → 1 spin, 14 → 2 spins, 21 → 3 spins, and so on. Unlimited.',
-    'Each spin is paid out immediately as a cash prize to your wallet.',
-    'At AI launch you receive 500 tokens for every 7 referrals you’ve verified — usable inside the Uni UI app.',
-    'Top referrers are featured on the Hall of Fame.',
-    'Duplicate signups are blocked (one per WhatsApp number), so only real new signups count.',
-  ];
+  const rules = REFERRAL_RULES;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm">
       <div className="w-full max-w-lg rounded-2xl border border-gold/30 bg-[#0A0A0F] p-6 shadow-2xl">

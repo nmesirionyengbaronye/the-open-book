@@ -3,13 +3,18 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Gift, Crown, Flame } from 'lucide-react';
+import { TIERS, GIVEAWAY_ENTRY_THRESHOLD } from '@/lib/tiers';
 
-const PRIZES = [
-  { rank: 'Top 3', reward: 'Exclusive early access + branded swag', icon: Trophy },
-  { rank: 'Top 10', reward: 'Founding member badge + priority queue', icon: Medal },
-  { rank: 'Top 25', reward: 'Free semester credits', icon: Gift },
-  { rank: 'Top 100', reward: 'Lifetime access unlock', icon: Crown },
-];
+// Prize tiers are derived from the shared TIERS table so the referral counts
+// advertised here always match the badges and the claim API.
+const ICONS = [Trophy, Medal, Gift, Crown, Flame];
+const PRIZES = TIERS.map((t, i) => ({
+  threshold: t.threshold,
+  reward: t.title,
+  icon: ICONS[i % ICONS.length],
+}));
+
+const GRAND_PRIZE = TIERS[TIERS.length - 1];
 
 export function ReferralContest() {
   const [referrals, setReferrals] = useState(0);
@@ -19,8 +24,10 @@ export function ReferralContest() {
     fetch('/api/waitlist/stats')
       .then((r) => r.json())
       .then((data) => {
-        if (!cancelled && typeof data?.total === 'number') {
-          setReferrals(data.total);
+        // `totalReferrals` = people who joined via someone's link.
+        // (`data.total` is the whole waitlist and must not be used here.)
+        if (!cancelled && typeof data?.totalReferrals === 'number') {
+          setReferrals(data.totalReferrals);
         }
       })
       .catch(() => {});
@@ -47,13 +54,13 @@ export function ReferralContest() {
           </div>
           <div className="glass rounded-2xl p-6 text-center">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">First prize</div>
-            <div className="mt-2 text-4xl font-display font-bold text-gold">15</div>
+            <div className="mt-2 text-4xl font-display font-bold text-gold">{GIVEAWAY_ENTRY_THRESHOLD}</div>
             <div className="text-xs text-muted-foreground">Giveaway entry</div>
           </div>
           <div className="glass rounded-2xl p-6 text-center">
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Grand prize</div>
-            <div className="mt-2 text-4xl font-display font-bold text-gold">100</div>
-            <div className="text-xs text-muted-foreground">Lifetime access</div>
+            <div className="mt-2 text-4xl font-display font-bold text-gold">{GRAND_PRIZE.threshold}</div>
+            <div className="text-xs text-muted-foreground">{GRAND_PRIZE.title}</div>
           </div>
         </div>
 
@@ -63,13 +70,15 @@ export function ReferralContest() {
             {PRIZES.map((prize) => {
               const Icon = prize.icon;
               return (
-                <div key={prize.rank} className="flex items-center justify-between rounded-xl bg-white/5 p-4 border border-white/10">
+                <div key={prize.threshold} className="flex items-center justify-between rounded-xl bg-white/5 p-4 border border-white/10">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gold/15 grid place-items-center">
                       <Icon className="w-5 h-5 text-gold" />
                     </div>
                     <div>
-                      <div className="font-display font-semibold text-gold">{prize.rank}</div>
+                      <div className="font-display font-semibold text-gold">
+                        {prize.threshold} referrals
+                      </div>
                       <div className="text-sm text-muted-foreground">{prize.reward}</div>
                     </div>
                   </div>

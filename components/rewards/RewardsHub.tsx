@@ -177,7 +177,7 @@ export default function RewardsHub({
 
       {/* Stats */}
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Referrals" value={String(profile.verifiedReferrals)} icon={<Gift className="h-4 w-4" />} />
+        <Stat label="Referrals" value={String(profile.effectiveReferrals)} icon={<Gift className="h-4 w-4" />} />
         <Stat label="Rank" value={profile.rank ? `#${profile.rank}` : '—'} icon={<Trophy className="h-4 w-4" />} />
         <Stat label="Spins" value={String(profile.spinTickets)} icon={<Sparkles className="h-4 w-4" />} />
         <Stat

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getRankedReferrers } from '@/lib/referral-counts';
 
 export async function GET() {
   try {
@@ -29,33 +30,22 @@ export async function GET() {
       : [] as string[];
 
     const { data: all } = await supabaseAdmin.from('waitlist').select('referral_code');
-    
-    // Get all waitlist entries that have referred_by set, including full_name
-    const { data: waitlistEntries } = await supabaseAdmin.from('waitlist').select('referred_by, full_name, referral_code');
-    
-    // Build a map of referral_code -> full_name for later lookup
-    const nameMap = new Map<string, string>();
-    (waitlistEntries || []).forEach((e: any) => {
-      if (e.referral_code && e.full_name) {
-        nameMap.set(e.referral_code, e.full_name.split(' ')[0]);
-      }
-    });
-    
-    const refCounts = new Map<string, number>();
-    (waitlistEntries || []).forEach((e: any) => {
-      if (e.referred_by) {
-        refCounts.set(e.referred_by, (refCounts.get(e.referred_by) || 0) + 1);
-      }
-    });
-    
-    const topReferrers = [...refCounts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([code, count]) => ({ 
-        code: code, 
-        name: nameMap.get(code) || code, 
-        count 
-      })) as any[];
+
+    // Canonical leaderboard — same board the rewards leaderboard and rank use,
+    // so the homepage can never show a different order or different numbers.
+    const board = await getRankedReferrers();
+    const topReferrers = board.slice(0, 10).map((r) => ({
+      code: r.referralCode,
+      name: (r.fullName || r.referralCode).split(' ')[0],
+      count: r.count,
+    }));
+
+    // Real referral total: people who joined via someone's link. Previously the
+    // contest UI displayed `total` (the whole waitlist) as "total referrals".
+    const { count: totalReferrals } = await supabaseAdmin
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true })
+      .not('referred_by', 'is', null);
 
     const { data: hardest } = await supabaseAdmin.from('waitlist').select('hardest_course');
     const courseCounts = new Map<string, number>();
@@ -82,6 +72,7 @@ export async function GET() {
 
     return NextResponse.json({
       total: total || 0,
+      totalReferrals: totalReferrals || 0,
       today: today || 0,
       week: week || 0,
       recentNames: recent,

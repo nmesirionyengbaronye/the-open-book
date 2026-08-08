@@ -5,6 +5,7 @@ import { Loader2, PhoneCall, Gift, AlertTriangle, Check, ShieldCheck } from 'luc
 import { toast } from 'sonner';
 import RewardsHub from './RewardsHub';
 import MiniJoin from './MiniJoin';
+import { GIVEAWAY_RULES } from '@/lib/rules';
 
 type Phase = 'loading' | 'blocked' | 'verify' | 'notfound' | 'rules' | 'dashboard';
 
@@ -14,16 +15,8 @@ declare global {
   }
 }
 
-const RULES = [
-  'Earn 1 spin for every 7 verified referrals. Spins are unlimited as long as you keep referring.',
-  'Each spin is paid out as cash to your in-app wallet immediately after it lands.',
-  'Spin prizes are random — most land on ₦200, with rarer ₦500–₦10,000 wins. The first two players get a guaranteed ₦1,000 on their first spin.',
-  'Mystery boxes (containing 1, 2 or 5 spin tickets) unlock at every 7-referral milestone.',
-  'Referrals must be real, verified users. Fake, recycled, or self-referrals are not allowed.',
-  'One account per person. Multiple accounts, bots, or VPN abuse lead to disqualification and forfeited winnings.',
-  'Prizes are promotional. UniUI may review activity and withhold payouts where abuse is suspected.',
-  'UniUI reserves the right to modify, pause, or end the giveaway at any time, with notice in the community.',
-];
+// Shared with the web dashboard gate — see lib/rules.ts
+const RULES = GIVEAWAY_RULES;
 
 export default function RewardsMiniApp() {
   const [phase, setPhase] = useState<Phase>('loading');
