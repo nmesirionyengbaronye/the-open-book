@@ -1,10 +1,65 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { Trophy } from 'lucide-react';
 import { toast } from 'sonner';
+
+const SIZE = 256; // logical canvas size (matches h-64 w-64)
+const SEGMENTS = [
+  { prize: 200, color: '#D4AF37' }, // gold
+  { prize: 500, color: '#3B82F6' }, // blue
+  { prize: 1000, color: '#EF4444' }, // red
+  { prize: 2000, color: '#22C55E' }, // green
+  { prize: 5000, color: '#A855F7' }, // purple
+  { prize: 10000, color: '#F59E0B' }, // amber
+  { prize: 500, color: '#06B6D4' }, // cyan
+  { prize: 200, color: '#EC4899' }, // pink
+];
+const N = SEGMENTS.length;
+const SEG = 360 / N;
+
+function drawWheel(canvas: HTMLCanvasElement) {
+  const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
+  canvas.width = SIZE * dpr;
+  canvas.height = SIZE * dpr;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, SIZE, SIZE);
+  const c = SIZE / 2;
+
+  for (let i = 0; i < N; i++) {
+    const start = ((i * SEG - 90) * Math.PI) / 180;
+    const end = (((i + 1) * SEG - 90) * Math.PI) / 180;
+
+    ctx.beginPath();
+    ctx.moveTo(c, c);
+    ctx.arc(c, c, c - 2, start, end);
+    ctx.closePath();
+    ctx.fillStyle = SEGMENTS[i].color;
+    ctx.fill();
+
+    // Segment label
+    ctx.save();
+    ctx.translate(c, c);
+    ctx.rotate(((i + 0.5) * SEG - 90) * (Math.PI / 180));
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#0A0A0F';
+    ctx.font = 'bold 15px ui-sans-serif, system-ui, sans-serif';
+    ctx.fillText('₦' + SEGMENTS[i].prize.toLocaleString(), c - 14, 0);
+    ctx.restore();
+  }
+
+  // Outer rim
+  ctx.beginPath();
+  ctx.arc(c, c, c - 2, 0, Math.PI * 2);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = 'rgba(212,175,55,0.6)';
+  ctx.stroke();
+}
 
 export default function SpinWheel({
   code,
@@ -18,15 +73,21 @@ export default function SpinWheel({
   const [spinning, setSpinning] = useState(false);
   const [prize, setPrize] = useState<number | null>(null);
   const [rotation, setRotation] = useState(0);
+  const rotRef = useRef(0);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (canvasRef.current) drawWheel(canvasRef.current);
+  }, []);
 
   async function spin() {
     if (tickets < 1) {
       toast.error('No spin tickets left. Open a mystery box!');
       return;
     }
+    if (spinning) return;
     setSpinning(true);
     setPrize(null);
-    setRotation((r) => r + 1440 + Math.floor(Math.random() * 360));
     try {
       const res = await fetch('/api/rewards/spin', {
         method: 'POST',
@@ -35,13 +96,29 @@ export default function SpinWheel({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Spin failed');
+
+      // Pick a wheel segment whose prize matches the server-awarded prize.
+      const matches: number[] = [];
+      SEGMENTS.forEach((s, i) => {
+        if (s.prize === data.prize) matches.push(i);
+      });
+      const seg = matches.length ? matches[Math.floor(Math.random() * matches.length)] : 0;
+
+      // Rotate so that segment `seg` lands under the top pointer.
+      const turns = 5;
+      const target = (-(seg + 0.5) * SEG - rotRef.current) % 360;
+      const adj = (target + 360) % 360;
+      const next = rotRef.current + turns * 360 + adj;
+      rotRef.current = next;
+      setRotation(next);
+
       setTimeout(() => {
         setPrize(data.prize);
         setSpinning(false);
         confetti({ particleCount: 160, spread: 85, origin: { y: 0.5 } });
         toast.success(`🎊 You won ₦${data.prize}!`);
         onSpin?.();
-      }, 1600);
+      }, 1700);
     } catch (e: any) {
       setSpinning(false);
       toast.error(e.message || 'Spin failed');
@@ -52,22 +129,27 @@ export default function SpinWheel({
     <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
       <h3 className="mb-4 text-sm font-semibold text-white/80">Spin the Wheel</h3>
       <div className="flex flex-col items-center gap-4">
-        <div className="relative">
-          {/* Pointer at the top of the wheel */}
-          <div className="absolute -top-1 left-1/2 z-10 h-0 w-0 -translate-x-1/2 border-x-[10px] border-t-[16px] border-x-transparent border-t-[#D4AF37] drop-shadow" />
+        <div className="relative" style={{ width: SIZE, height: SIZE }}>
+          {/* Pointer */}
+          <div className="absolute -top-1 left-1/2 z-20 h-0 w-0 -translate-x-1/2 border-x-[11px] border-t-[18px] border-x-transparent border-t-[#D4AF37] drop-shadow" />
+          {/* Rotating wheel */}
           <motion.div
+            className="absolute inset-0"
             animate={{ rotate: rotation }}
-            transition={{ duration: 1.6, ease: 'easeOut' }}
-            className="relative flex h-64 w-64 items-center justify-center rounded-full border-8 border-[#D4AF37]/50 shadow-[0_0_40px_rgba(212,175,55,0.25)]"
-            style={{
-              background:
-                'conic-gradient(from 0deg, #D4AF37 0deg 40deg, #1a1a22 40deg 80deg, #D4AF37 80deg 120deg, #1a1a22 120deg 160deg, #D4AF37 160deg 200deg, #1a1a22 200deg 240deg, #D4AF37 240deg 280deg, #1a1a22 280deg 320deg, #D4AF37 320deg 360deg)',
-            }}
+            transition={{ duration: 1.7, ease: 'easeOut' }}
           >
-            <div className="flex h-40 w-40 items-center justify-center rounded-full bg-[#0A0A0F] text-[#D4AF37] shadow-[inset_0_0_20px_rgba(212,175,55,0.25)]">
-              <Trophy className="h-14 w-14" />
-            </div>
+            <canvas
+              ref={canvasRef}
+              style={{ width: SIZE, height: SIZE }}
+              className="rounded-full"
+            />
           </motion.div>
+          {/* Fixed center hub */}
+          <div className="pointer-events-none absolute inset-0 grid place-items-center">
+            <div className="grid h-20 w-20 place-items-center rounded-full border-4 border-white/10 bg-[#0A0A0F] text-[#D4AF37] shadow-[inset_0_0_20px_rgba(212,175,55,0.3)]">
+              <Trophy className="h-7 w-7" />
+            </div>
+          </div>
         </div>
 
         <button

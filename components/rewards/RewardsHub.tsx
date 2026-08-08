@@ -32,6 +32,7 @@ export default function RewardsHub({
   const [referrals, setReferrals] = useState<ReferralsResponse | null>(null);
   const [board, setBoard] = useState<LeaderboardEntry[]>([]);
   const [wallet, setWallet] = useState<WalletInfo | null>(null);
+  const [winners, setWinners] = useState<{ name: string; winnings: number; referrals: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -41,7 +42,7 @@ export default function RewardsHub({
     setLoading(true);
     setError(null);
     try {
-      const [p, r, l, w] = await Promise.all([
+      const [p, r, l, w, win] = await Promise.all([
         fetch(`/api/rewards/profile?code=${encodeURIComponent(code)}`).then((x) =>
           x.ok ? x.json() : Promise.reject(new Error('profile'))
         ),
@@ -54,11 +55,13 @@ export default function RewardsHub({
         fetch(`/api/rewards/wallet?code=${encodeURIComponent(code)}`).then((x) =>
           x.ok ? x.json() : null
         ),
+        fetch(`/api/rewards/winners`).then((x) => (x.ok ? x.json() : [])),
       ]);
       setProfile(p);
       setReferrals(r);
       setBoard(l);
       setWallet(w);
+      setWinners(win);
     } catch (e: any) {
       setError(e?.message || 'Failed to load rewards');
     } finally {
@@ -84,7 +87,7 @@ export default function RewardsHub({
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 pt-10 text-center text-white/50">
+      <div className="mx-auto w-full max-w-lg px-4 pt-12 text-center text-white/50 [padding-top:max(3rem,env(safe-area-inset-top))]">
         <Loader2 className="mx-auto h-6 w-6 animate-spin text-[#D4AF37]" />
         <p className="mt-3 text-sm">Loading your rewards…</p>
       </div>
@@ -92,7 +95,7 @@ export default function RewardsHub({
   }
   if (error || !profile) {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 pt-10">
+      <div className="mx-auto w-full max-w-lg px-4 pt-12 [padding-top:max(3rem,env(safe-area-inset-top))]">
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center text-sm text-red-300">
           <AlertCircle className="mx-auto mb-2 h-6 w-6" />
           {error || 'Rewards unavailable'}
@@ -110,21 +113,8 @@ export default function RewardsHub({
   const firstName = (profile.fullName || '').split(' ')[0] || 'there';
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 pb-12 pt-5 [padding-top:max(1.25rem,env(safe-area-inset-top))] [padding-left:max(1rem,env(safe-area-inset-left))] [padding-right:max(1rem,env(safe-area-inset-right))]">
-      {inTelegram ? (
-        // Inside Telegram's Mini App the native header already shows the bot
-        // name, so we avoid a clashing second branded bar and keep only a
-        // lightweight refresh control.
-        <div className="mb-3 flex items-center justify-end">
-          <button
-            onClick={loadAll}
-            aria-label="Refresh"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:text-[#D4AF37]"
-          >
-            <RotateCw className="h-4 w-4" />
-          </button>
-        </div>
-      ) : (
+    <div className="mx-auto w-full max-w-lg px-4 pb-12 pt-4 [padding-top:max(1rem,env(safe-area-inset-top))] [padding-left:max(1rem,env(safe-area-inset-left))] [padding-right:max(1rem,env(safe-area-inset-right))]">
+      {!inTelegram && (
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#D4AF37] text-sm font-bold text-[#0A0A0F]">
@@ -231,6 +221,29 @@ export default function RewardsHub({
         <WalletPanel wallet={wallet} />
         <LeaderboardPanel entries={board} />
       </div>
+
+      {/* Recent winners */}
+      {winners.length > 0 && (
+        <div className="mt-5">
+          <SectionTitle icon={<Trophy className="h-4 w-4" />} title="Recent winners" />
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {winners.slice(0, 6).map((wn, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5"
+              >
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium text-white">{wn.name}</div>
+                  <div className="text-[10px] text-white/40">{wn.referrals} referrals</div>
+                </div>
+                <div className="ml-2 shrink-0 font-mono text-sm font-semibold text-[#D4AF37]">
+                  ₦{wn.winnings.toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
