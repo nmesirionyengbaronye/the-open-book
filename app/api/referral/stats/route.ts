@@ -53,16 +53,17 @@ export async function GET(request: NextRequest) {
 
     const { data: allEntries, error: allError } = await supabaseAdmin
       .from('waitlist')
-      .select('referral_code');
+      .select('referral_code, referred_by');
 
     if (allError) {
       console.error('Failed to load waitlist for rank computation:', allError);
     }
 
+    // Rank is by how many people joined via each referrer's code.
     const counts = new Map<string, number>();
     (allEntries || []).forEach((e: any) => {
-      if (e.referral_code) {
-        counts.set(e.referral_code, (counts.get(e.referral_code) || 0) + 1);
+      if (e.referred_by) {
+        counts.set(e.referred_by, (counts.get(e.referred_by) || 0) + 1);
       }
     });
 

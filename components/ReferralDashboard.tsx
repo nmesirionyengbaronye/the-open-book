@@ -267,7 +267,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
   const nextBadge = data ? getNextBadge({ referralCount: data.referralCount, rank: data.rank, totalWaitlist: data.totalWaitlist }) : null;
   const referralsToNext = useMemo(() => {
     if (!data || !nextBadge) return null;
-    if (nextBadge.id === 'first-share') return Math.max(0, 15 - data.referralCount);
+    if (nextBadge.id === 'first-share') return Math.max(0, 7 - data.referralCount);
     if (nextBadge.id === 'networker') return Math.max(0, 25 - data.referralCount);
     if (nextBadge.id === 'influencer') return Math.max(0, 50 - data.referralCount);
     if (nextBadge.id === 'campus-king') return Math.max(0, 100 - data.referralCount);
@@ -280,7 +280,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
 
   const badgeProgress = useMemo(() => {
     if (!data || !nextBadge) return 0;
-    if (nextBadge.id === 'first-share') return Math.min(100, (data.referralCount / 15) * 100);
+    if (nextBadge.id === 'first-share') return Math.min(100, (data.referralCount / 7) * 100);
     if (nextBadge.id === 'networker') return Math.min(100, (data.referralCount / 25) * 100);
     if (nextBadge.id === 'influencer') return Math.min(100, (data.referralCount / 50) * 100);
     if (nextBadge.id === 'campus-king') return Math.min(100, (data.referralCount / 100) * 100);

@@ -302,6 +302,36 @@ export async function verifyTelegram(
     }
   }
 
+  // Safety net: if this user joined via someone's link but the join-time
+  // referral row was missed (that insert is best-effort), ensure a verified
+  // referrals row exists so the referrer's dashboard and rank credit them.
+  const { data: meRow } = await supabaseAdmin
+    .from('waitlist')
+    .select('referred_by')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (meRow?.referred_by) {
+    const { data: refRow } = await supabaseAdmin
+      .from('waitlist')
+      .select('id')
+      .eq('referral_code', meRow.referred_by)
+      .maybeSingle();
+    if (refRow) {
+      const { error: upsertErr } = await supabaseAdmin
+        .from('referrals')
+        .upsert(
+          {
+            referrer_id: refRow.id,
+            referred_id: user.id,
+            status: 'verified',
+            verified_at: new Date().toISOString(),
+          },
+          { onConflict: 'referrer_id,referred_id' }
+        );
+      if (!upsertErr) await awardMysteryBoxes(refRow.id);
+    }
+  }
+
   return { ok: true as const, profile: await getProfile(user.referral_code) };
 }
 
