@@ -15,16 +15,15 @@ export default function MusicPlayer() {
   const [trackIndex, setTrackIndex] = useState(0);
   const [ready, setReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const initializedRef = useRef(false);
 
-  const ensureAudio = useCallback(() => {
-    if (audioRef.current) return audioRef.current;
+  useEffect(() => {
     const audio = new Audio();
     audio.loop = false;
     audio.volume = 0.15;
     audio.preload = 'auto';
     audioRef.current = audio;
 
+    const onCanPlay = () => setReady(true);
     const onEnded = () => {
       setTrackIndex((prev) => {
         const next = (prev + 1) % TRACKS.length;
@@ -36,17 +35,22 @@ export default function MusicPlayer() {
         return next;
       });
     };
-    const onCanPlay = () => setReady(true);
-    audio.addEventListener('ended', onEnded);
     audio.addEventListener('canplay', onCanPlay);
+    audio.addEventListener('ended', onEnded);
     audio.src = TRACKS[0];
     audio.load();
-    initializedRef.current = true;
-    return audio;
+
+    return () => {
+      audio.removeEventListener('canplay', onCanPlay);
+      audio.removeEventListener('ended', onEnded);
+      audio.pause();
+      audioRef.current = null;
+    };
   }, []);
 
   const playNow = useCallback(async () => {
-    const audio = ensureAudio();
+    const audio = audioRef.current;
+    if (!audio) return;
     try {
       await audio.play();
       setPlaying(true);
@@ -56,17 +60,14 @@ export default function MusicPlayer() {
         await audio.play();
         setPlaying(true);
       } catch {
-        // blocked
+        // blocked or unavailable
       }
     }
-  }, [ensureAudio]);
+  }, []);
 
   const toggle = useCallback(async () => {
     const audio = audioRef.current;
-    if (!audio) {
-      await playNow();
-      return;
-    }
+    if (!audio) return;
     if (playing) {
       audio.pause();
       setPlaying(false);
@@ -76,22 +77,10 @@ export default function MusicPlayer() {
   }, [playing, playNow]);
 
   useEffect(() => {
-    // Autoplay when ready once; user gesture may still be required in browsers.
     if (ready) {
       playNow().catch(() => {});
     }
   }, [ready, playNow]);
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener('ended', () => {});
-        audioRef.current.removeEventListener('canplay', () => {});
-        audioRef.current = null;
-      }
-    };
-  }, []);
 
   return (
     <button

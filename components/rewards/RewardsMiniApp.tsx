@@ -150,7 +150,10 @@ export default function RewardsMiniApp() {
     } catch {
       setRequesting(false);
       setVerifyMsg('Contact sharing isn’t available here. Open the app from Telegram and tap Share.');
+      return;
     }
+    // Fallback: start verification immediately; server will ask for retry if contact is still in flight.
+    startVerify();
   }
 
   if (phase === 'loading') {
