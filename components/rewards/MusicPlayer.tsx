@@ -22,7 +22,7 @@ export default function MusicPlayer() {
     const audio = new Audio();
     audio.loop = false;
     audio.volume = 0.15;
-    audio.preload = 'metadata';
+    audio.preload = 'auto';
     audioRef.current = audio;
 
     const onEnded = () => {
@@ -45,14 +45,8 @@ export default function MusicPlayer() {
     return audio;
   }, []);
 
-  const toggle = useCallback(async () => {
+  const playNow = useCallback(async () => {
     const audio = ensureAudio();
-    if (playing) {
-      audio.pause();
-      setPlaying(false);
-      return;
-    }
-
     try {
       await audio.play();
       setPlaying(true);
@@ -62,10 +56,31 @@ export default function MusicPlayer() {
         await audio.play();
         setPlaying(true);
       } catch {
-        // Still blocked or unavailable
+        // blocked
       }
     }
-  }, [playing, ensureAudio]);
+  }, [ensureAudio]);
+
+  const toggle = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio) {
+      await playNow();
+      return;
+    }
+    if (playing) {
+      audio.pause();
+      setPlaying(false);
+      return;
+    }
+    await playNow();
+  }, [playing, playNow]);
+
+  useEffect(() => {
+    // Autoplay when ready once; user gesture may still be required in browsers.
+    if (ready) {
+      playNow().catch(() => {});
+    }
+  }, [ready, playNow]);
 
   useEffect(() => {
     return () => {
@@ -90,3 +105,4 @@ export default function MusicPlayer() {
     </button>
   );
 }
+

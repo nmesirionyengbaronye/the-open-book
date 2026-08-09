@@ -33,52 +33,31 @@ export default function RewardsMiniApp() {
     let tries = 0;
     let timer: ReturnType<typeof setTimeout>;
     const check = () => {
-      const tw = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-      if (tw && tw.initData) {
-        try {
-          tw.ready();
-          tw.expand();
-          tw.setHeaderColor?.('#0A0A0F');
-          tw.setBackgroundColor?.('#0A0A0F');
-        } catch {
-          /* noop */
+      const inTelegram =
+        typeof window !== 'undefined' &&
+        (!!(window as any).Telegram?.WebApp ||
+          /Telegram/i.test(navigator.userAgent) ||
+          !!document.querySelector('script[src*="telegram-web-app.js"]'));
+      if (inTelegram) {
+        const tw = (window as any).Telegram?.WebApp;
+        if (tw) {
+          try {
+            tw.ready();
+            tw.expand();
+            tw.setHeaderColor?.('#0A0A0F');
+            tw.setBackgroundColor?.('#0A0A0F');
+          } catch {
+            /* noop */
+          }
+          setTg(tw);
         }
-        setTg(tw);
         setPhase('verify');
         return;
       }
-      if (tries++ < 40) {
-        timer = setTimeout(check, 200);
+      if (tries++ < 80) {
+        timer = setTimeout(check, 250);
       } else {
-        // Try loading Telegram WebApp script dynamically if not present
-        if (!document.querySelector('script[src*="telegram-web-app"]')) {
-          const script = document.createElement('script');
-          script.src = 'https://telegram.org/js/telegram-web-app.js';
-          script.async = true;
-          script.onload = () => {
-            setTimeout(() => {
-              const tw2 = window.Telegram?.WebApp;
-              if (tw2 && tw2.initData) {
-                try {
-                  tw2.ready();
-                  tw2.expand();
-                  tw2.setHeaderColor?.('#0A0A0F');
-                  tw2.setBackgroundColor?.('#0A0A0F');
-                } catch {
-                  /* noop */
-                }
-                setTg(tw2);
-                setPhase('verify');
-              } else {
-                setPhase('blocked');
-              }
-            }, 300);
-          };
-          script.onerror = () => setPhase('blocked');
-          document.head.appendChild(script);
-        } else {
-          setPhase('blocked');
-        }
+        setPhase('blocked');
       }
     };
     check();
