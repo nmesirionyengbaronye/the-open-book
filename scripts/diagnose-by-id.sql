@@ -1,9 +1,9 @@
 -- =====================================================================
 -- Targeted diagnostic: look up by exact waitlist/referrals ID
--- Paste the exact ID in the WHERE clause below.
+-- Case-insensitive for UUIDs stored as text.
 -- =====================================================================
 
--- 1. Find the user by exact ID
+-- 1. Find the user by exact ID (case-insensitive)
 SELECT
   id,
   referral_code,
@@ -14,13 +14,13 @@ SELECT
   bonus_referrals,
   disqualified
 FROM waitlist
-WHERE id::text = '5e4206'
-   OR referral_code = '5e4206'
-   OR id::text LIKE '%5e4206%'
-   OR referral_code LIKE '%5e4206%'
+WHERE UPPER(id::text) = UPPER('5e4206')
+   OR UPPER(referral_code) = UPPER('5e4206')
+   OR UPPER(id::text) LIKE '%5E4206%'
+   OR UPPER(referral_code) LIKE '%5E4206%'
 LIMIT 10;
 
--- 2. Find referrals rows by exact IDs
+-- 2. Find referrals rows mentioning this ID
 SELECT
   ref.id AS referral_id,
   ref.referrer_id,
@@ -34,10 +34,10 @@ SELECT
 FROM referrals ref
 JOIN waitlist r ON r.id = ref.referrer_id
 JOIN waitlist w ON w.id = ref.referred_id
-WHERE ref.referrer_id::text LIKE '%5e4206%'
-   OR ref.referred_id::text LIKE '%5e4206%'
-   OR r.referral_code LIKE '%5e4206%'
-   OR w.referral_code LIKE '%5e4206%'
+WHERE UPPER(ref.referrer_id::text) LIKE '%5E4206%'
+   OR UPPER(ref.referred_id::text) LIKE '%5E4206%'
+   OR UPPER(r.referral_code) LIKE '%5E4206%'
+   OR UPPER(w.referral_code) LIKE '%5E4206%'
 LIMIT 20;
 
 -- 3. Canonical count for any referrer matching this ID
@@ -48,6 +48,6 @@ SELECT
   COUNT(ref.id) FILTER (WHERE ref.status = 'verified') + COALESCE(r.bonus_referrals, 0) AS canonical_count
 FROM waitlist r
 LEFT JOIN referrals ref ON ref.referrer_id = r.id
-WHERE r.id::text LIKE '%5e4206%'
-   OR r.referral_code LIKE '%5e4206%'
+WHERE UPPER(r.id::text) LIKE '%5E4206%'
+   OR UPPER(r.referral_code) LIKE '%5E4206%'
 GROUP BY r.id, r.referral_code, r.bonus_referrals;
