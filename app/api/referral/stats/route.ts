@@ -3,13 +3,14 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { getEarnedBadges } from '@/lib/referral';
 import { normalizeWhatsApp } from '@/lib/validation';
 import { getRankedReferrers } from '@/lib/referral-counts';
+import { sanitizeLike } from '@/lib/sanitize';
 
 export async function GET(request: NextRequest) {
   try {
     const rawCode = request.nextUrl.searchParams.get('code');
     const phone = request.nextUrl.searchParams.get('phone');
 
-    let lookupCode = rawCode?.trim();
+    let lookupCode = sanitizeLike(rawCode?.trim(), 20);
     if (!lookupCode && phone) {
       const normalized = normalizeWhatsApp(phone);
       if (!normalized) {

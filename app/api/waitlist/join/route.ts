@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabase';
+import { sanitizeText, sanitizeAlphanumeric } from '@/lib/sanitize';
 
 /**
  * Validation Schema for the Waitlist Join Process.
@@ -90,6 +91,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "A valid WhatsApp number is required." }, { status: 400 });
     }
     
+    // Sanitize text inputs to strip control characters and dangerous sequences.
+    const safeFullName = sanitizeText(full_name, 100);
+    const safeInstitution = sanitizeText(institution, 120);
+    const safeSchool = sanitizeText(school, 120);
+    const safeDepartment = sanitizeText(department, 120);
+    const safeSemester = sanitizeText(semester, 50);
+    const safeReferredBy = sanitizeAlphanumeric(referred_by, 20);
+    const safeHardestCourse = sanitizeText(hardest_course, 120);
+    
     // Normalize and validate WhatsApp number format
     let normalizedWhatsApp = null;
     const cleanDigits = whatsapp_number.replace(/\D/g, '');
@@ -110,15 +120,15 @@ export async function POST(request: NextRequest) {
     
     // --- Step 2: Zod Schema Verification ---
     const parsed = schema.safeParse({
-      full_name: full_name.trim(),
+      full_name: safeFullName,
       whatsapp_number: normalizedWhatsApp,
-      institution: (institution || '').trim(),
-      school: (school || '').trim(),
-      department: (department || '').trim(),
+      institution: safeInstitution,
+      school: safeSchool,
+      department: safeDepartment,
       level: String(level || ''),
-      semester: (semester || '').trim(),
-      referred_by: (referred_by || '').trim(),
-      hardest_course: (hardest_course || '').trim(),
+      semester: safeSemester,
+      referred_by: safeReferredBy,
+      hardest_course: safeHardestCourse,
     });
 
     if (!parsed.success) {
