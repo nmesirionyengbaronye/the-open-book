@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase';
 import { normalizeWhatsApp, isLikelyPhone } from '@/lib/validation';
 import { PRIZE_VALUES } from '@/lib/prizes';
-import { sendTelegramMessage } from '@/lib/telegram-bot';
+import { sendTelegramMessage, getBotToken } from '@/lib/telegram-bot';
 import {
   MILESTONE,
   filterDisqualified,
@@ -166,6 +166,7 @@ export type RewardsProfile = {
   launchCountdownDays: number;
   disqualified: boolean;
   telegramVerified: boolean;
+  referralLinkExpiresAt: string | null;
 };
 
 export async function getProfile(codeOrPhone: string): Promise<RewardsProfile | null> {
@@ -175,7 +176,7 @@ export async function getProfile(codeOrPhone: string): Promise<RewardsProfile | 
   const { data: wl } = await supabaseAdmin
     .from('waitlist')
     .select(
-      'referral_code, full_name, mystery_boxes, spin_tickets, wallet_balance, wallet_paid, disqualified, telegram_verified, bonus_referrals'
+      'referral_code, full_name, mystery_boxes, spin_tickets, wallet_balance, wallet_paid, disqualified, telegram_verified, bonus_referrals, referral_link_expires_at'
     )
     .eq('id', user.id)
     .maybeSingle();
@@ -196,7 +197,6 @@ export async function getProfile(codeOrPhone: string): Promise<RewardsProfile | 
 
   console.log('[rewards/profile]', {
     userId: user.id,
-    code: wl.referral_code,
     telegram_verified: wl.telegram_verified,
     bonus_referrals: wl.bonus_referrals,
     verified,
@@ -223,6 +223,7 @@ export async function getProfile(codeOrPhone: string): Promise<RewardsProfile | 
     launchCountdownDays: await getLaunchCountdownDays(),
     disqualified: wl.disqualified || false,
     telegramVerified: wl.telegram_verified || false,
+    referralLinkExpiresAt: wl.referral_link_expires_at || null,
   };
 }
 
@@ -265,15 +266,13 @@ export async function verifyTelegram(
 
   const { data: user, error } = await supabaseAdmin
     .from('waitlist')
-    .select('id, referral_code')
+    .select('id, referral_code, full_name')
     .eq('whatsapp_number', normalized)
     .maybeSingle();
   if (error || !user) return { ok: false as const, reason: 'not_on_waitlist' };
 
   console.log('[rewards/verify] matched user', {
     userId: user.id,
-    referralCode: user.referral_code,
-    phone: normalized,
     telegramId,
   });
 
@@ -298,6 +297,18 @@ export async function verifyTelegram(
       { onConflict: 'telegram_id' }
     );
 
+  // Send verification confirmation to the user.
+  const botToken = getBotToken();
+  if (botToken && telegramId) {
+    const firstName = (user.full_name || '').split(' ')[0] || 'there';
+    sendTelegramMessage(
+      botToken,
+      String(telegramId),
+      `Hey ${firstName}, you just verified on Uni UI! 🎉`,
+      'HTML'
+    ).catch((e) => console.error('[rewards/verify] user notification failed', e));
+  }
+
   // Promote pending referrals where THIS user is the referred person.
   const { data: pending } = await supabaseAdmin
     .from('referrals')
@@ -308,7 +319,6 @@ export async function verifyTelegram(
   console.log('[rewards/verify] pending referrals to promote', {
     userId: user.id,
     count: pending?.length || 0,
-    referrerIds: (pending || []).map((p: any) => p.referrer_id),
   });
 
   if (pending && pending.length) {
@@ -321,7 +331,6 @@ export async function verifyTelegram(
     console.log('[rewards/verify] promotion result', {
       userId: user.id,
       updated: !updateError,
-      error: updateError?.message,
     });
 
     for (const p of pending as { referrer_id: string }[]) {

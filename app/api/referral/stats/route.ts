@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
       streak,
     });
   } catch (e) {
-    console.error('Unhandled error in referral stats:', e);
+    console.error('Unhandled error in referral stats');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

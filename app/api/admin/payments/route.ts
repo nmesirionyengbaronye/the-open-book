@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isValidSession } from '@/lib/admin-session';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = req.cookies.get('admin_session');
-    if (session?.value !== 'authenticated') {
+    const token = req.cookies.get('admin_session')?.value;
+    if (!isValidSession(token)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ payments: rows });
   } catch (e) {
-    console.error('[admin/payments]', e);
+    console.error('[admin/payments] server error');
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
 }

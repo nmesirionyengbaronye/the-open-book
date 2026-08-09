@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sanitizeText, sanitizeAlphanumeric } from '@/lib/sanitize';
+import { rateLimit } from '@/lib/rate-limit';
+import crypto from 'crypto';
 
 /**
  * Validation Schema for the Waitlist Join Process.
@@ -36,19 +38,12 @@ const schema = z.object({
 });
 
 /**
- * Deterministic Referral Code Generator.
- * Uses a basic hashing algorithm to create unique, recognizable codes.
- * Ensures that codes are unique to the user's phone and signup time.
+ * Generates a cryptographically random referral code.
+ * Format: UNI-XXXXXX where X is hex.
  */
-function generateReferralCode(phone: string, timestamp: number): string {
-  const combined = `${phone}-${timestamp}`;
-  let hash = 0;
-  for (let i = 0; i < combined.length; i++) {
-    const char = combined.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
-  }
-  const hex = Math.abs(hash).toString(16).slice(0, 6).toUpperCase().padStart(6, '0');
+function generateReferralCode(): string {
+  const bytes = crypto.randomBytes(3);
+  const hex = bytes.toString('hex').toUpperCase();
   return `UNI-${hex}`;
 }
 
@@ -64,9 +59,19 @@ export async function POST(request: NextRequest) {
   const requestId = Math.random().toString(36).substring(7);
   console.log(`[JoinAPI][${requestId}] Inbound request received.`);
 
+  // Rate limit by IP + action
+  const forwarded = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+  const ip = forwarded.split(',')[0]?.trim() || 'unknown';
+  const { allowed, remaining, resetAt } = rateLimit(ip, 'join', 5);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many signups. Please wait a moment and try again.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((resetAt - Date.now()) / 1000)) } }
+    );
+  }
+
   try {
     const body = await request.json();
-    console.log(`[JoinAPI][${requestId}] Payload received:`, { ...body, whatsapp_number: '***' });
     
     // --- Step 1: Detailed Field-Level Validation ---
     const { 
@@ -82,24 +87,13 @@ export async function POST(request: NextRequest) {
     } = body;
     
     if (!full_name || typeof full_name !== 'string' || full_name.trim().length < 2) {
-      console.warn(`[JoinAPI][${requestId}] Validation failed: full_name length.`);
       return NextResponse.json({ error: "Your name is required and must be at least 2 characters." }, { status: 400 });
     }
     
     if (!whatsapp_number || typeof whatsapp_number !== 'string') {
-      console.warn(`[JoinAPI][${requestId}] Validation failed: whatsapp_number missing or invalid type.`);
       return NextResponse.json({ error: "A valid WhatsApp number is required." }, { status: 400 });
     }
-    
-    // Sanitize text inputs to strip control characters and dangerous sequences.
-    const safeFullName = sanitizeText(full_name, 100);
-    const safeInstitution = sanitizeText(institution, 120);
-    const safeSchool = sanitizeText(school, 120);
-    const safeDepartment = sanitizeText(department, 120);
-    const safeSemester = sanitizeText(semester, 50);
-    const safeReferredBy = sanitizeAlphanumeric(referred_by, 20);
-    const safeHardestCourse = sanitizeText(hardest_course, 120);
-    
+
     // Normalize and validate WhatsApp number format
     let normalizedWhatsApp = null;
     const cleanDigits = whatsapp_number.replace(/\D/g, '');
@@ -114,9 +108,69 @@ export async function POST(request: NextRequest) {
     }
     
     if (!normalizedWhatsApp || !/^\+234\d{10}$/.test(normalizedWhatsApp)) {
-      console.warn(`[JoinAPI][${requestId}] Validation failed: Phone format mismatch.`);
       return NextResponse.json({ error: "Please use a valid Nigerian WhatsApp number (e.g. 08012345678)." }, { status: 400 });
     }
+
+    // --- Step 1b: Duplicate and device fingerprinting ---
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+    const deviceFingerprint = crypto
+      .createHash('sha256')
+      .update(`${userAgent}:${ip}`)
+      .digest('hex')
+      .slice(0, 16);
+
+    // Check for duplicate phone numbers
+    const { data: existingByPhone } = await supabaseAdmin
+      .from('waitlist')
+      .select('id, referral_code, position, created_at')
+      .eq('whatsapp_number', normalizedWhatsApp)
+      .maybeSingle();
+
+    if (existingByPhone) {
+      return NextResponse.json({
+        error: "This WhatsApp number is already registered on our waitlist.",
+        code: existingByPhone.referral_code,
+        position: existingByPhone.position,
+        isDuplicate: true
+      }, { status: 409 });
+    }
+
+    // Check for duplicate device fingerprint
+    const { data: existingByDevice } = await supabaseAdmin
+      .from('waitlist')
+      .select('id, referral_code')
+      .eq('device_fingerprint', deviceFingerprint)
+      .maybeSingle();
+
+    if (existingByDevice) {
+      console.warn(`[JoinAPI][${requestId}] Duplicate device detected: ${deviceFingerprint}`);
+      return NextResponse.json({
+        error: "Multiple accounts from the same device are not allowed.",
+        code: existingByDevice.referral_code
+      }, { status: 409 });
+    }
+
+    // Check for suspicious IP activity
+    const { count: ipCount } = await supabaseAdmin
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true })
+      .eq('ip_address', ip);
+
+    if ((ipCount || 0) >= 3) {
+      console.warn(`[JoinAPI][${requestId}] Suspicious IP activity: ${ip} has ${ipCount} accounts`);
+      return NextResponse.json({
+        error: "Too many signups from this network. Contact support if this is an error."
+      }, { status: 429 });
+    }
+    
+    // Sanitize text inputs to strip control characters and dangerous sequences.
+    const safeFullName = sanitizeText(full_name, 100);
+    const safeInstitution = sanitizeText(institution, 120);
+    const safeSchool = sanitizeText(school, 120);
+    const safeDepartment = sanitizeText(department, 120);
+    const safeSemester = sanitizeText(semester, 50);
+    const safeReferredBy = sanitizeAlphanumeric(referred_by, 20);
+    const safeHardestCourse = sanitizeText(hardest_course, 120);
     
     // --- Step 2: Zod Schema Verification ---
     const parsed = schema.safeParse({
@@ -133,7 +187,6 @@ export async function POST(request: NextRequest) {
 
     if (!parsed.success) {
       const firstError = parsed.error.errors[0];
-      console.warn(`[JoinAPI][${requestId}] Zod validation failed for field "${firstError.path.join('.')}": ${firstError.message}`);
       return NextResponse.json({ error: firstError.message }, { status: 400 });
     }
 
@@ -162,18 +215,11 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Step 4: Referral Verification and Queue Placement ---
-    const { data: maxPosData } = await supabaseAdmin
-      .from('waitlist')
-      .select('position')
-      .order('position', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const newPosition = (maxPosData?.position || 0) + 1;
-    const uniqueReferralCode = generateReferralCode(validData.whatsapp_number, Date.now());
-
-    let verifiedReferrer = null;
-    let verifiedReferrerId = null;
+    // Use a retry loop to handle concurrent signups safely.
+    let newPosition = 0;
+    let maxPosData: { position: number } | null = null;
+    let verifiedReferrer: string | null = null;
+    let verifiedReferrerId: string | null = null;
     if (validData.referred_by && validData.referred_by.length > 3) {
       const { data: referrerRecord } = await supabaseAdmin
         .from('waitlist')
@@ -189,26 +235,60 @@ export async function POST(request: NextRequest) {
         console.log(`[JoinAPI][${requestId}] Referral code provided but not found: ${validData.referred_by}`);
       }
     }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error } = await supabaseAdmin
+        .from('waitlist')
+        .select('position')
+        .order('position', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    // --- Step 5: Database Persistence ---
+      if (error) {
+        console.error(`[JoinAPI][${requestId}] Failed to fetch max position:`, error);
+        return NextResponse.json({ error: 'System congestion. Please try again.' }, { status: 500 });
+      }
+
+      const candidate = (data?.position || 0) + 1;
+
+      const { error: insertError } = await supabaseAdmin
+        .from('waitlist')
+        .insert({
+          full_name: safeFullName,
+          whatsapp_number: normalizedWhatsApp,
+          institution: safeInstitution,
+          school_code: safeSchool,
+          department_code: safeDepartment,
+          level: validData.level,
+          semester: safeSemester,
+          referral_code: generateReferralCode(),
+          referred_by: verifiedReferrer,
+          position: candidate,
+          hardest_course: safeHardestCourse || null,
+          device_fingerprint: deviceFingerprint,
+          ip_address: ip,
+        });
+
+      if (!insertError) {
+        newPosition = candidate;
+        break;
+      }
+
+      // If position conflict, retry with a fresh read.
+      if (attempt === 2) {
+        console.error(`[JoinAPI][${requestId}] Failed to assign position after retries:`, insertError);
+        return NextResponse.json({ error: 'Failed to secure your spot. Please try again.' }, { status: 500 });
+      }
+      await new Promise((r) => setTimeout(r, 50 * (attempt + 1)));
+    }
+
     const { data: insertedUser, error: insertError } = await supabaseAdmin
       .from('waitlist')
-      .insert({
-      full_name: validData.full_name,
-      whatsapp_number: validData.whatsapp_number,
-      institution: validData.institution,
-      school_code: validData.school,
-      department_code: validData.department,
-      level: validData.level,
-      semester: validData.semester,
-      referral_code: uniqueReferralCode,
-      referred_by: verifiedReferrer,
-      position: newPosition,
-      hardest_course: validData.hardest_course || null,
-    }).select('id').single();
+      .select('id, referral_code')
+      .eq('whatsapp_number', normalizedWhatsApp)
+      .maybeSingle();
 
-    if (insertError) {
-      console.error(`[JoinAPI][${requestId}] Critical failure during user insertion:`, insertError);
+    // --- Step 5: Database Persistence ---
+    if (!insertedUser) {
       return NextResponse.json({ error: "Failed to secure your spot. Our servers are under heavy load." }, { status: 500 });
     }
 
@@ -229,16 +309,15 @@ export async function POST(request: NextRequest) {
             .update({ position: upgradedPosition })
             .eq('referral_code', verifiedReferrer);
           
-          console.log(`[JoinAPI][${requestId}] Referrer ${verifiedReferrer} rewarded. New position: ${upgradedPosition}`);
+          console.log(`[JoinAPI][${requestId}] Referrer rewarded. New position: ${upgradedPosition}`);
         }
-      } catch (refError) {
+      } catch {
         // Log but don't fail the primary signup if the reward logic hits a snag
-        console.error(`[JoinAPI][${requestId}] Non-critical error during referral reward processing:`, refError);
       }
     }
 
     // --- Step 6b: Record the referral relationship for the gamified rewards engine ---
-    if (verifiedReferrerId && insertedUser?.id) {
+    if (verifiedReferrerId && insertedUser.id) {
       try {
         await supabaseAdmin
           .from('referrals')
@@ -247,15 +326,15 @@ export async function POST(request: NextRequest) {
             referred_id: insertedUser.id,
             status: 'pending',
           });
-      } catch (refRowErr) {
-        console.error(`[JoinAPI][${requestId}] Non-critical error recording referral row:`, refRowErr);
+      } catch {
+        // non-critical
       }
     }
 
-    console.log(`[JoinAPI][${requestId}] Registration successful. User ${uniqueReferralCode} at position ${newPosition}`);
+    console.log(`[JoinAPI][${requestId}] Registration successful. User at position ${newPosition}`);
     return NextResponse.json({ 
       success: true, 
-      referral_code: uniqueReferralCode, 
+      referral_code: insertedUser.referral_code, 
       position: newPosition 
     });
 

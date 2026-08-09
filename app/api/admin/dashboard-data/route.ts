@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getRankedReferrers } from '@/lib/referral-counts';
+import { isValidSession } from '@/lib/admin-session';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = request.cookies.get('admin_session');
-    if (session?.value !== 'authenticated') {
+    const token = request.cookies.get('admin_session')?.value;
+    if (!isValidSession(token)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -106,7 +107,7 @@ export async function GET(request: NextRequest) {
       waitlist: enrichedWaitlist,
     });
   } catch (e) {
-    console.error(e);
+    console.error('[admin/dashboard-data] server error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

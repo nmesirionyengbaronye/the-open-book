@@ -15,6 +15,7 @@ export type RewardsProfile = {
   launchCountdownDays: number;
   disqualified: boolean;
   telegramVerified: boolean;
+  referralLinkExpiresAt: string | null;
 };
 
 export type ReferralItem = {

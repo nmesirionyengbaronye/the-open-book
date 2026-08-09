@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, AlertCircle, Copy, Share2, ArrowRight, ArrowLeft, Loader2, MessageCircle, Sparkles } from "lucide-react";
+import { Check, AlertCircle, Copy, Share2, ArrowRight, ArrowLeft, Loader2, MessageCircle, Sparkles, WifiOff } from "lucide-react";
 import { INSTITUTIONS } from "@/lib/institutions";
 import { normalizeWhatsApp } from "@/lib/validation";
 import useSound from "@/hooks/useSound";
@@ -10,6 +10,7 @@ import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import { ReferralDashboard } from "@/components/ReferralDashboard";
 import { WHATSAPP_URL } from "@/lib/links";
+import { useOfflineQueue } from "@/lib/offline-queue";
 
 function normalizeNG(input: string): string | null {
   return normalizeWhatsApp(input);
@@ -35,6 +36,31 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
     level: "",
     semester: "",
     hardestCourse: "",
+  });
+  const [offline, setOffline] = useState(false);
+
+  useEffect(() => {
+    setOffline(!navigator.onLine);
+    const handleOnline = () => setOffline(false);
+    const handleOffline = () => setOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const { enqueue } = useOfflineQueue({
+    onOnline: async (payload: any) => {
+      const res = await fetch("/api/waitlist/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
   });
 
   useEffect(() => {
@@ -62,26 +88,35 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const next = () => { play('ding'); setDirection(1); setStep((s) => s + 1); };
   const back = () => { play('ding'); setDirection(-1); setStep((s) => s - 1); };
 
-   const submit = async () => {
-     setError(null);
-     setSubmitting(true);
-     (document.activeElement as HTMLElement)?.blur();
+    const submit = async () => {
+      setError(null);
+      setSubmitting(true);
+      (document.activeElement as HTMLElement)?.blur();
 
-     const res = await fetch("/api/waitlist/join", {
-       method: "POST",
-       headers: { "Content-Type": "application/json" },
-       body: JSON.stringify({
-         full_name: form.fullName.trim(),
-         whatsapp_number: normalized,
-         institution: form.institution,
-         school: form.school,
-         department: form.department,
-         level: form.level,
-         semester: form.semester,
-         referred_by: refCode,
-         hardest_course: form.hardestCourse.trim(),
-       }),
-     });
+      const payload = {
+        full_name: form.fullName.trim(),
+        whatsapp_number: normalized,
+        institution: form.institution,
+        school: form.school,
+        department: form.department,
+        level: form.level,
+        semester: form.semester,
+        referred_by: refCode,
+        hardest_course: form.hardestCourse.trim(),
+      };
+
+      if (!navigator.onLine) {
+        enqueue(payload);
+        toast.success('You are offline', { description: 'Your submission will be sent when you reconnect.' });
+        setSubmitting(false);
+        return;
+      }
+
+      const res = await fetch("/api/waitlist/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
      setSubmitting(false);
 
@@ -164,11 +199,16 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                </p>
              </div>
 
-             {verifyingRef && (
-               <div className="mb-5 glass rounded-xl p-4 flex items-center gap-3 text-sm">
-                 <Loader2 className="w-4 h-4 animate-spin text-gold" /> Verifying your referral link…
-               </div>
-             )}
+              {verifyingRef && (
+                <div className="mb-5 glass rounded-xl p-4 flex items-center gap-3 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin text-gold" /> Verifying your referral link…
+                </div>
+              )}
+              {offline && (
+                <div className="mb-5 rounded-xl border border-orange-500/30 bg-orange-500/10 p-4 flex items-center gap-3 text-sm text-orange-300">
+                  <WifiOff className="w-4 h-4" /> You are offline. Submissions will be queued and sent when you reconnect.
+                </div>
+              )}
              {refCode && !verifyingRef && (
                <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
                  className="mb-5 glass rounded-xl p-4 flex items-start gap-3 text-sm border-gold/40">

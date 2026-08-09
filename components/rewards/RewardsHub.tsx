@@ -23,6 +23,13 @@ import SpinWheel from './SpinWheel';
 import WalletPanel from './WalletPanel';
 import LeaderboardPanel from './LeaderboardPanel';
 import MusicPlayer from './MusicPlayer';
+import StreakDisplay from '../engagement/StreakDisplay';
+import BadgeShowcase from '../engagement/BadgeShowcase';
+import ShareTemplates from '../engagement/ShareTemplates';
+import GroupChallenge from '../engagement/GroupChallenge';
+import LinkExpiryWarning from '../engagement/LinkExpiryWarning';
+import MilestoneCertificate from '../engagement/MilestoneCertificate';
+import ConfettiCelebration from '../engagement/ConfettiCelebration';
 import type { RewardsProfile, ReferralsResponse, LeaderboardEntry, WalletInfo } from './types';
 
 export default function RewardsHub({
@@ -40,6 +47,22 @@ export default function RewardsHub({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [engagement, setEngagement] = useState<{
+    streak: { current: number; longest: number };
+    badges: { key: string; label: string; emoji: string; color: string }[];
+    celebrations: number[];
+    nextMilestone: number;
+    need: number;
+  } | null>(null);
+  const [celebrationTrigger, setCelebrationTrigger] = useState(0);
+
+  useEffect(() => {
+    if (!code) return;
+    fetch(`/api/engagement?code=${encodeURIComponent(code)}`)
+      .then((x) => (x.ok ? x.json() : null))
+      .then(setEngagement)
+      .catch(() => {});
+  }, [code]);
 
   const loadAll = useCallback(async () => {
     if (!code) return;
@@ -199,6 +222,38 @@ export default function RewardsHub({
         </div>
       )}
 
+      {/* Engagement */}
+      {engagement && (
+        <>
+          <div className="mt-4">
+            <StreakDisplay current={engagement.streak.current} longest={engagement.streak.longest} />
+          </div>
+          <div className="mt-4">
+            <BadgeShowcase
+              profile={profile}
+              badges={engagement.badges}
+              celebrations={engagement.celebrations}
+              onShare={() => setCopied(true)}
+            />
+          </div>
+          <div className="mt-4">
+            <GroupChallenge current={profile.effectiveReferrals} target={engagement.nextMilestone * MILESTONE} reward={`${engagement.nextMilestone} box + ${engagement.nextMilestone} spin`} />
+          </div>
+          {profile.referralLinkExpiresAt && (
+            <LinkExpiryWarning
+              expiresAt={new Date(profile.referralLinkExpiresAt)}
+              onShare={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/r/${profile.referralCode}`);
+                toast.success('Link copied');
+              }}
+            />
+          )}
+          <div className="mt-4">
+            <ShareTemplates code={profile.referralCode} fullName={profile.fullName} />
+          </div>
+        </>
+      )}
+
       {/* Referral progress */}
       <SectionTitle icon={<Gift className="h-4 w-4" />} title="Referral progress" />
       <div className="mt-2 space-y-3">
@@ -313,6 +368,7 @@ export default function RewardsHub({
           </div>
         </div>
       )}
+      <ConfettiCelebration trigger={celebrationTrigger} />
       <MusicPlayer />
     </div>
   );

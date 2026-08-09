@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     // The contact may still be in flight from Telegram to the bot. Tell the
     // client to retry shortly rather than failing.
     if (!phone) {
-      console.log('[rewards/verify] no contact yet for', telegramId, '(waiting on bot webhook)');
+      console.log('[rewards/verify] no contact yet (waiting on bot webhook)');
       return NextResponse.json(
         {
           ok: false,
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) return NextResponse.json(res, { status: 400 });
     return NextResponse.json(res);
   } catch (e) {
-    console.error('[rewards/verify]', e);
+    console.error('[rewards/verify] server error');
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
 }

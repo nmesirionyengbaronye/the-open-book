@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
       },
     });
   } catch (e) {
-    console.error('[rewards/referrals]', e);
+    console.error('[rewards/referrals] server error');
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
 }

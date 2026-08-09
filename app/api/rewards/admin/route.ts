@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { sendTelegramMessage } from '@/lib/telegram-bot';
+import { isValidSession } from '@/lib/admin-session';
+import { assertCsrf } from '@/lib/csrf';
 import {
   adjustBonusReferrals,
   disqualifyUser,
@@ -66,9 +68,6 @@ async function broadcastTelegram(message: string) {
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -99,45 +98,75 @@ async function broadcastTelegram(message: string) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = req.cookies.get('admin_session');
-  if (session?.value !== 'authenticated') {
+  const token = req.cookies.get('admin_session')?.value;
+  if (!isValidSession(token)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   try {
+    assertCsrf(req);
     const body = await req.json();
     const { action } = body;
+    const adminId = req.headers.get('x-admin-id') || 'unknown';
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'unknown';
+    const userAgent = req.headers.get('user-agent') || 'unknown';
+
+    async function audit(targetCode: string | null, payload: Record<string, any>) {
+      try {
+        await supabaseAdmin.from('admin_audit_log').insert({
+          action,
+          admin_identifier: adminId,
+          target_referral_code: targetCode,
+          payload,
+          ip_address: clientIp,
+          user_agent: userAgent.slice(0, 255),
+        });
+      } catch {
+        // non-critical
+      }
+    }
+
+    let result: any;
     switch (action) {
       case 'adjust':
-        return NextResponse.json(
-          await adjustBonusReferrals(body.code, Number(body.delta) || 0)
-        );
+        result = await adjustBonusReferrals(body.code, Number(body.delta) || 0);
+        await audit(body.code, { delta: Number(body.delta) || 0 });
+        break;
       case 'disqualify':
-        return NextResponse.json(
-          await disqualifyUser(body.code, body.disqualified !== false)
-        );
+        result = await disqualifyUser(body.code, body.disqualified !== false);
+        await audit(body.code, { disqualified: body.disqualified !== false });
+        break;
       case 'pay':
-        return NextResponse.json(
-          await markPayment(body.code, Number(body.amount) || 0, body.reference)
-        );
+        result = await markPayment(body.code, Number(body.amount) || 0, body.reference);
+        await audit(body.code, { amount: Number(body.amount) || 0, reference: body.reference });
+        break;
       case 'reset':
-        return NextResponse.json(await resetGiveaway());
+        result = await resetGiveaway();
+        await audit(null, { reset: true });
+        break;
       case 'stats':
-        return NextResponse.json(await getRewardStats());
+        result = await getRewardStats();
+        break;
       case 'activity':
-        return NextResponse.json({
+        result = {
           recentSpins: await getRecentSpins(20),
           topEarners: await getTopEarners(10),
           broadcasts: await getRecentBroadcasts(10),
-        });
+        };
+        break;
       case 'prizeWinners':
-        return NextResponse.json({ winners: await getPrizeWinners(200) });
+        result = { winners: await getPrizeWinners(200) };
+        break;
       case 'broadcast':
-        return NextResponse.json(await broadcastTelegram(body.message));
+        result = await broadcastTelegram(body.message);
+        await audit(null, { messageLength: body.message?.length || 0 });
+        break;
       default:
         return NextResponse.json({ error: 'unknown action' }, { status: 400 });
     }
+
+    return NextResponse.json(result);
   } catch (e) {
-    console.error('[rewards/admin]', e);
+    console.error('[rewards/admin] server error');
     return NextResponse.json({ error: 'server error' }, { status: 500 });
   }
 }

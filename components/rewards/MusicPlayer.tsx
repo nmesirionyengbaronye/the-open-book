@@ -3,17 +3,34 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Music, Pause, Play } from 'lucide-react';
 
+const TRACKS = [
+  '/audio/01.mp3',
+  '/audio/02.mp3',
+  '/audio/03.mp3',
+  '/audio/04.mp3',
+];
+
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false);
+  const [trackIndex, setTrackIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    const audio = new Audio('/audio/rewards-bgm.mp3');
-    audio.loop = true;
+    const audio = new Audio(TRACKS[0]);
+    audio.loop = false;
     audio.volume = 0.15;
     audioRef.current = audio;
 
-    const onEnded = () => setPlaying(false);
+    const onEnded = () => {
+      setTrackIndex((prev) => {
+        const next = (prev + 1) % TRACKS.length;
+        if (audioRef.current) {
+          audioRef.current.src = TRACKS[next];
+          audioRef.current.play().catch(() => {});
+        }
+        return next;
+      });
+    };
     audio.addEventListener('ended', onEnded);
 
     return () => {

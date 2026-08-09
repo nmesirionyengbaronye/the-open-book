@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { z } from 'zod';
+import { isValidSession } from '@/lib/admin-session';
+import { assertCsrf } from '@/lib/csrf';
 
 const importSchema = z.array(z.object({
   whatsapp_number: z.string().trim().min(5),
@@ -23,10 +25,11 @@ const importSchema = z.array(z.object({
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = request.cookies.get('admin_session');
-    if (session?.value !== 'authenticated') {
+    const token = request.cookies.get('admin_session')?.value;
+    if (!isValidSession(token)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    assertCsrf(request);
 
     const { entries } = await request.json();
 
@@ -46,13 +49,13 @@ export async function POST(request: NextRequest) {
       .upsert(parsed.data, { onConflict: 'whatsapp_number' });
 
     if (error) {
-      console.error('[AdminImport] Database Error:', error);
-      return NextResponse.json({ error: 'Bulk import failed. Check console for details.' }, { status: 500 });
+      console.error('[AdminImport] database error');
+      return NextResponse.json({ error: 'Bulk import failed.' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, count: parsed.data.length });
   } catch (e) {
-    console.error('[AdminImport] Unhandled Exception:', e);
+    console.error('[AdminImport] server error');
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
