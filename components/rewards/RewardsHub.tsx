@@ -22,6 +22,7 @@ import MysteryBox from './MysteryBox';
 import SpinWheel from './SpinWheel';
 import WalletPanel from './WalletPanel';
 import LeaderboardPanel from './LeaderboardPanel';
+import MusicPlayer from './MusicPlayer';
 import type { RewardsProfile, ReferralsResponse, LeaderboardEntry, WalletInfo } from './types';
 
 export default function RewardsHub({
@@ -312,6 +313,7 @@ export default function RewardsHub({
           </div>
         </div>
       )}
+      <MusicPlayer />
     </div>
   );
 }

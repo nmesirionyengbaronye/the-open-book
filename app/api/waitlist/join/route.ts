@@ -162,11 +162,14 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Step 4: Referral Verification and Queue Placement ---
-    const { count: currentTotal } = await supabaseAdmin
+    const { data: maxPosData } = await supabaseAdmin
       .from('waitlist')
-      .select('*', { count: 'exact', head: true });
+      .select('position')
+      .order('position', { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    const newPosition = (currentTotal || 0) + 1;
+    const newPosition = (maxPosData?.position || 0) + 1;
     const uniqueReferralCode = generateReferralCode(validData.whatsapp_number, Date.now());
 
     let verifiedReferrer = null;

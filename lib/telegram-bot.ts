@@ -7,6 +7,10 @@ const BASE = 'https://api.telegram.org/bot';
 
 export type SendMessageResult = { ok: boolean; error?: string };
 
+export function getBotToken(): string | undefined {
+  return process.env.BOT_TOKEN;
+}
+
 export async function sendTelegramMessage(
   botToken: string,
   chatId: string,
