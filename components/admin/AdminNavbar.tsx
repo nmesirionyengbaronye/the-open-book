@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, MessageSquare, LogOut, BookOpen, Gift } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, LogOut, BookOpen, Gift, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Waitlist', href: '/admin/waitlist', icon: Users },
   { label: 'Recommendations', href: '/admin/recommendations', icon: MessageSquare },
   { label: 'Prizes', href: '/admin/prizes', icon: Gift },
+  { label: 'Payments', href: '/admin/payments', icon: Wallet },
 ];
 
 export function AdminNavbar() {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getRankedReferrers } from '@/lib/referral-counts';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +13,6 @@ export async function GET(request: NextRequest) {
       { count: totalSignups },
       { count: todaySignups },
       { count: weekSignups },
-      { data: topReferrersData },
       { data: hardestCoursesData },
       { data: recommendationsData },
       { data: waitlistData },
@@ -28,10 +28,6 @@ export async function GET(request: NextRequest) {
         .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
       supabaseAdmin
         .from('waitlist')
-        .select('referred_by')
-        .not('referred_by', 'is', null),
-      supabaseAdmin
-        .from('waitlist')
         .select('hardest_course')
         .not('hardest_course', 'is', null)
         .neq('hardest_course', ''),
@@ -43,21 +39,22 @@ export async function GET(request: NextRequest) {
       supabaseAdmin.from('waitlist').select('*').order('created_at', { ascending: false }),
     ]);
 
-    // Aggregate Referrers for counts
+    // Use canonical verified referral board so admin numbers match user-facing counts.
+    const board = await getRankedReferrers();
     const referrerCounts: Record<string, number> = {};
-    topReferrersData?.forEach((r) => {
-      if (r.referred_by) {
-        referrerCounts[r.referred_by] = (referrerCounts[r.referred_by] || 0) + 1;
-      }
-    });
+    const referrerIds: Record<string, string> = {};
+    for (const r of board) {
+      referrerCounts[r.referralCode] = r.count;
+      referrerIds[r.referralCode] = r.userId;
+    }
 
     const topReferrers = Object.entries(referrerCounts)
       .map(([referral_code, count]) => ({ referral_code, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    const totalReferrers = Object.keys(referrerCounts).length;
-    const totalReferrals = Object.values(referrerCounts).reduce((sum, count) => sum + count, 0);
+    const totalReferrers = board.length;
+    const totalReferrals = board.reduce((sum, r) => sum + r.count, 0);
     const viralCoefficient = totalSignups ? Number((totalReferrals / totalSignups).toFixed(2)) : 0;
     const referralConversionRate = totalSignups ? Number(((totalReferrers / totalSignups) * 100).toFixed(1)) : 0;
 
@@ -88,7 +85,7 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    // Enrich waitlist data with referral counts
+    // Enrich waitlist data with verified referral counts
     const enrichedWaitlist = (waitlistData || []).map(entry => ({
       ...entry,
       referral_count: referrerCounts[entry.referral_code] || 0

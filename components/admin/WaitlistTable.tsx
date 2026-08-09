@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface WaitlistEntry {
+  id: string;
   whatsapp_number: string;
   full_name: string;
   institution: string;
@@ -19,6 +20,14 @@ interface WaitlistEntry {
   position: number;
   hardest_course: string | null;
   created_at: string;
+  telegram_verified: boolean;
+  telegram_id: string | null;
+  bonus_referrals: number;
+  mystery_boxes: number;
+  spin_tickets: number;
+  wallet_balance: number;
+  wallet_paid: number;
+  disqualified: boolean;
 }
 
 export function WaitlistTable({ waitlist: initialWaitlist }: { waitlist: WaitlistEntry[] }) {
@@ -208,6 +217,10 @@ export function WaitlistTable({ waitlist: initialWaitlist }: { waitlist: Waitlis
               <th className="text-left pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">My Code</th>
               <th className="text-center pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Referrals</th>
               <th className="text-left pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Referred By</th>
+              <th className="text-center pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Tg</th>
+              <th className="text-center pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Bonus</th>
+              <th className="text-center pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Wallet</th>
+              <th className="text-center pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Spins/Boxes</th>
               <th className="text-left pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Status</th>
               <th className="text-right pb-4 font-display uppercase tracking-widest text-[10px] text-muted-foreground font-semibold">Actions</th>
             </tr>
@@ -252,6 +265,27 @@ export function WaitlistTable({ waitlist: initialWaitlist }: { waitlist: Waitlis
                   ) : (
                     <span className="text-[10px] text-muted-foreground italic opacity-30">Direct</span>
                   )}
+                </td>
+                <td className="py-5 text-center">
+                  <span className={cn(
+                    "inline-flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-medium border",
+                    entry.telegram_verified
+                      ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                      : "bg-white/5 text-muted-foreground border-white/10"
+                  )}>
+                    {entry.telegram_verified ? 'Verified' : '—'}
+                  </span>
+                </td>
+                <td className="py-5 text-center">
+                  <span className="text-xs font-mono text-white/70">{entry.bonus_referrals || 0}</span>
+                </td>
+                <td className="py-5 text-center">
+                  <span className="text-xs font-mono text-[#D4AF37]">₦{entry.wallet_balance?.toLocaleString?.() || '0'}</span>
+                  <span className="block text-[10px] text-muted-foreground">paid ₦{entry.wallet_paid?.toLocaleString?.() || '0'}</span>
+                </td>
+                <td className="py-5 text-center">
+                  <span className="text-xs text-white/70">{entry.spin_tickets || 0} spins</span>
+                  <span className="block text-[10px] text-muted-foreground">{entry.mystery_boxes || 0} boxes</span>
                 </td>
                 <td className="py-5">
                   <div className="flex flex-col">

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
+import Footer02 from '@/components/originkit/footer-02';
 import { WhatsAppBubble } from '@/components/WhatsAppBubble';
 import CursorTrail from '@/components/CursorTrail';
 import { Toaster } from 'sonner';
@@ -101,7 +101,7 @@ export default function RootLayout({
         <main className="relative">
           <PageTransition>{children}</PageTransition>
         </main>
-        <Footer />
+        <Footer02 />
         <WhatsAppBubble />
         <Toaster position="bottom-center" />
       </body>
