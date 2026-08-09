@@ -35,7 +35,7 @@ export function ReferralLanding({ code }: ReferralLandingProps) {
     return () => { cancelled = true; };
   }, [code]);
 
-  const ctaHref = useMemo(() => `/?ref=${encodeURIComponent(code)}`, [code]);
+  const ctaHref = useMemo(() => `/join?ref=${encodeURIComponent(code)}`, [code]);
   const shareText = useMemo(
     () =>
       `Join the Uni UI waitlist with ${referrer?.full_name || 'a friend'}: ${typeof window !== 'undefined' ? window.location.origin : ''}${ctaHref}`,
