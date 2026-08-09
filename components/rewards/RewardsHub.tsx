@@ -206,7 +206,7 @@ export default function RewardsHub({
             Verified referrals unlock boxes and spins. Pending referrals don’t count until they verify.
           </div>
           <div className="flex flex-wrap gap-2">
-            {Array.from({ length: Math.max(3, Math.ceil((profile.effectiveReferrals || 0) / MILESTONE) + 2) }).map((_, i) => {
+            {Array.from({ length: Math.max(5, Math.ceil((profile.effectiveReferrals || 0) / MILESTONE) + 3) }).map((_, i) => {
               const milestone = (i + 1) * MILESTONE;
               const unlocked = (profile.effectiveReferrals || 0) >= milestone;
               const isNext = !unlocked && i === Math.floor((profile.effectiveReferrals || 0) / MILESTONE);
