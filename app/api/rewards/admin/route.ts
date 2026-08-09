@@ -59,6 +59,21 @@ async function broadcastTelegram(message: string) {
   if (!botToken) return { ok: false, reason: 'no_bot_token' };
   if (!message || !message.trim()) return { ok: false, reason: 'empty_message' };
 
+  // Strip HTML tags for Telegram delivery. Telegram HTML parse_mode is
+  // limited and the admin UI may paste full HTML documents.
+  const plainText = message
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!plainText) return { ok: false, reason: 'empty_message_after_sanitize' };
+
   const { data: users } = await supabaseAdmin
     .from('telegram_users')
     .select('telegram_id')
@@ -70,7 +85,7 @@ async function broadcastTelegram(message: string) {
   let failed = 0;
   for (const u of users as { telegram_id: string }[]) {
     try {
-      const r = await api.sendMessage(u.telegram_id, message);
+      const r = await api.sendMessage(u.telegram_id, plainText);
       if (r.ok) sent++;
       else failed++;
     } catch {
@@ -78,8 +93,8 @@ async function broadcastTelegram(message: string) {
     }
   }
 
-  // Persist so the admin can audit what was sent.
-  await logBroadcast(message, sent, failed);
+  // Persist the sanitized message so the admin can audit what was sent.
+  await logBroadcast(plainText, sent, failed);
   return { ok: true, sent, failed };
 }
 

@@ -89,21 +89,6 @@ export default function RewardsAdmin() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-display text-2xl font-bold tracking-tight">Rewards Platform — Live Tracker</h2>
-          <p className="text-muted-foreground text-sm">
-            Real-time view of everything happening in the giveaway, spins, payouts and broadcasts.
-          </p>
-        </div>
-        <button
-          onClick={loadAll}
-          className="inline-flex items-center gap-2 rounded-lg glass border-gold/30 px-3 py-2 text-xs text-gold hover:bg-gold/10"
-        >
-          <RefreshCw className="h-3.5 w-3.5" /> Refresh
-        </button>
-      </div>
-
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {cards.map((c) => {
           const Icon = c.icon;
