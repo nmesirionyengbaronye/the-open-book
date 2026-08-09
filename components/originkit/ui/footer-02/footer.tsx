@@ -63,17 +63,12 @@ const SOCIAL_SHADOW =
 export function Footer() {
   return (
     <footer
-      aria-label="Notrix footer"
-      className="relative isolate mx-auto w-full min-h-[778px] overflow-hidden rounded-[12px] bg-[#212121]"
+      aria-label="Uni UI footer"
+      className="relative isolate mx-auto w-full overflow-hidden rounded-[12px] bg-[#0A0A0F]"
     >
-      {/*
-        Mobile (Figma 2168:524): stacked brand → 2-col links (Legal wraps)
-        iPad   (Figma 2168:264): stacked brand → 3-col links
-        Desktop (Figma 2168:5):  brand | links side-by-side
-      */}
-      <div className="relative z-10 flex flex-col gap-8 px-4 pt-10 pb-[300px] ipad:gap-12 ipad:px-12 ipad:pt-12 ipad:pb-[320px] desktop-sm:flex-row desktop-sm:items-stretch desktop-sm:justify-between desktop-sm:gap-0 desktop-sm:px-14 desktop-sm:pt-[72px] desktop-sm:pb-[300px]">
+      <div className="relative z-10 flex flex-col gap-8 px-4 pt-10 pb-6 ipad:gap-12 ipad:px-12 ipad:pt-12 desktop-sm:flex-row desktop-sm:items-stretch desktop-sm:justify-between desktop-sm:gap-0 desktop-sm:px-14 desktop-sm:pt-[72px]">
         {/* Brand */}
-        <div className="flex w-full flex-col gap-6 ipad:gap-8 desktop-sm:w-[169px] desktop-sm:shrink-0 desktop-sm:justify-between desktop-sm:gap-0">
+        <div className="flex w-full flex-col gap-6 ipad:gap-8 desktop-sm:w-[220px] desktop-sm:shrink-0 desktop-sm:justify-between desktop-sm:gap-0">
           <div className="flex flex-col gap-2 ipad:gap-4">
             <p className="font-hedvig text-[24px] leading-[1.1] tracking-[-0.96px] text-white/90">
               Uni <span className="text-[#D4AF37]">UI</span>
@@ -96,7 +91,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   aria-label={social.label}
                   tabIndex={0}
-                  className="relative inline-flex size-10 touch-manipulation items-center justify-center rounded-full bg-[#292929] transition-opacity duration-200 ease before:absolute before:inset-[-6px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white [-webkit-tap-highlight-color:transparent] [@media(hover:hover)_and_(pointer:fine)]:hover:opacity-80"
+                  className="relative inline-flex size-10 touch-manipulation items-center justify-center rounded-full bg-white/10 transition-opacity duration-200 ease before:absolute before:inset-[-6px] before:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white [-webkit-tap-highlight-color:transparent] [@media(hover:hover)_and_(pointer:fine)]:hover:opacity-80"
                   style={{ boxShadow: SOCIAL_SHADOW }}
                 >
                   <span className="relative size-5 overflow-clip">
@@ -118,7 +113,7 @@ export function Footer() {
         {/* Link columns */}
         <nav
           aria-label="Footer"
-          className="grid w-full grid-cols-2 gap-x-8 gap-y-8 ipad:grid-cols-3 ipad:gap-8 desktop-sm:flex desktop-sm:w-[541px] desktop-sm:shrink-0 desktop-sm:gap-14"
+          className="grid w-full grid-cols-2 gap-x-8 gap-y-8 ipad:grid-cols-3 ipad:gap-8 desktop-sm:flex desktop-sm:w-[520px] desktop-sm:shrink-0 desktop-sm:gap-14"
         >
           {LINK_COLUMNS.map((column) => (
             <div
@@ -147,21 +142,9 @@ export function Footer() {
         </nav>
       </div>
 
-      {/* Tetris board — decorative stack along the bottom */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-[268px] overflow-hidden"
-      >
-        <Tetris
-          boardColor="#212121"
-          colors={["#FDF9ED"]}
-          cellSize={20}
-          gap={0}
-          rounded={20}
-          dropSpeed={1}
-          movement={2}
-          startFilled={true}
-        />
+      {/* Gold accent footer bottom */}
+      <div className="relative z-10 border-t border-white/10 py-4 text-center text-[11px] text-muted-foreground">
+        &copy; {new Date().getFullYear()} Uni UI. All rights reserved.
       </div>
     </footer>
   );
