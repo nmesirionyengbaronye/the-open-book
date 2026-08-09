@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, PhoneCall, Gift, AlertTriangle, Check, ShieldCheck } from 'lucide-react';
+import { Loader2, PhoneCall, Gift, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import RewardsHub from './RewardsHub';
 import MiniJoin from './MiniJoin';
@@ -47,10 +47,38 @@ export default function RewardsMiniApp() {
         setPhase('verify');
         return;
       }
-      if (tries++ < 25) {
-        timer = setTimeout(check, 150);
+      if (tries++ < 40) {
+        timer = setTimeout(check, 200);
       } else {
-        setPhase('blocked');
+        // Try loading Telegram WebApp script dynamically if not present
+        if (!document.querySelector('script[src*="telegram-web-app"]')) {
+          const script = document.createElement('script');
+          script.src = 'https://telegram.org/js/telegram-web-app.js';
+          script.async = true;
+          script.onload = () => {
+            setTimeout(() => {
+              const tw2 = window.Telegram?.WebApp;
+              if (tw2 && tw2.initData) {
+                try {
+                  tw2.ready();
+                  tw2.expand();
+                  tw2.setHeaderColor?.('#0A0A0F');
+                  tw2.setBackgroundColor?.('#0A0A0F');
+                } catch {
+                  /* noop */
+                }
+                setTg(tw2);
+                setPhase('verify');
+              } else {
+                setPhase('blocked');
+              }
+            }, 300);
+          };
+          script.onerror = () => setPhase('blocked');
+          document.head.appendChild(script);
+        } else {
+          setPhase('blocked');
+        }
       }
     };
     check();
@@ -156,14 +184,17 @@ export default function RewardsMiniApp() {
 
   if (phase === 'blocked') {
     const bot = process.env.NEXT_PUBLIC_BOT_USERNAME || 'UniUIRewardsBot';
-    const link = `https://t.me/${bot.replace(/^@/, '')}`;
+    const botLink = `https://t.me/${bot.replace(/^@/, '')}`;
+
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
         <Loader2 className="mb-4 h-8 w-8 animate-spin text-[#D4AF37]" />
         <h1 className="text-xl font-semibold">UniUI Rewards</h1>
-        <p className="mt-2 max-w-sm text-sm text-white/60">Opening in Telegram…</p>
+        <p className="mt-2 max-w-sm text-sm text-white/60">
+          This page only works inside Telegram. Open the bot below to access your rewards.
+        </p>
         <a
-          href={link}
+          href={botLink}
           target="_blank"
           rel="noreferrer"
           className="mt-6 rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-semibold text-black"
@@ -241,6 +272,21 @@ export default function RewardsMiniApp() {
   }
 
   // verify or notfound
+  if (phase === 'notfound') {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center px-6">
+        <div className="w-full max-w-sm rounded-2xl border border-[#D4AF37]/30 bg-white/5 p-6 text-center">
+          <Gift className="mx-auto mb-3 h-9 w-9 text-[#D4AF37]" />
+          <h1 className="text-lg font-semibold">Join UniUI first</h1>
+          <p className="mt-2 text-sm text-white/60">
+            This Telegram number isn’t on the waitlist yet. Join now and we’ll verify you immediately.
+          </p>
+          <MiniJoin onJoined={() => { setPhase('verify'); startVerify(); }} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm rounded-2xl border border-[#D4AF37]/30 bg-white/5 p-6 text-center">
@@ -248,31 +294,15 @@ export default function RewardsMiniApp() {
         <h1 className="text-lg font-semibold">Welcome to UniUI Rewards</h1>
         <p className="mt-2 text-sm text-white/60">{verifyMsg}</p>
 
-        {phase === 'notfound' ? (
-          <div className="mt-4 flex items-center gap-2 rounded-lg bg-red-500/10 p-3 text-xs text-red-300">
-            <AlertTriangle className="h-4 w-4" /> You’re not on the UniUI Waitlist with this Telegram number.
-          </div>
-        ) : (
-          <button
-            onClick={shareContact}
-            disabled={requesting}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold text-black disabled:opacity-60"
-          >
-            {requesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PhoneCall className="h-4 w-4" />}
-            Share Phone Number
-          </button>
-        )}
-
-        <p className="mt-3 text-[10px] text-white/40">
-          We match your verified Telegram number to your UniUI waitlist account — no password needed.
-        </p>
+        <button
+          onClick={shareContact}
+          disabled={requesting}
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold text-black disabled:opacity-60"
+        >
+          {requesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PhoneCall className="h-4 w-4" />}
+          Share Phone Number
+        </button>
       </div>
-
-      {phase === 'notfound' && (
-        <div className="w-full max-w-sm">
-          <MiniJoin onJoined={() => { setPhase('verify'); startVerify(); }} />
-        </div>
-      )}
     </div>
   );
 }

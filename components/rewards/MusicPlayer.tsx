@@ -13,12 +13,16 @@ const TRACKS = [
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false);
   const [trackIndex, setTrackIndex] = useState(0);
+  const [ready, setReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const initializedRef = useRef(false);
 
-  useEffect(() => {
-    const audio = new Audio(TRACKS[0]);
+  const ensureAudio = useCallback(() => {
+    if (audioRef.current) return audioRef.current;
+    const audio = new Audio();
     audio.loop = false;
     audio.volume = 0.15;
+    audio.preload = 'metadata';
     audioRef.current = audio;
 
     const onEnded = () => {
@@ -26,35 +30,53 @@ export default function MusicPlayer() {
         const next = (prev + 1) % TRACKS.length;
         if (audioRef.current) {
           audioRef.current.src = TRACKS[next];
+          audioRef.current.load();
           audioRef.current.play().catch(() => {});
         }
         return next;
       });
     };
+    const onCanPlay = () => setReady(true);
     audio.addEventListener('ended', onEnded);
-
-    return () => {
-      audio.removeEventListener('ended', onEnded);
-      audio.pause();
-      audioRef.current = null;
-    };
+    audio.addEventListener('canplay', onCanPlay);
+    audio.src = TRACKS[0];
+    audio.load();
+    initializedRef.current = true;
+    return audio;
   }, []);
 
   const toggle = useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const audio = ensureAudio();
     if (playing) {
       audio.pause();
       setPlaying(false);
-    } else {
+      return;
+    }
+
+    try {
+      await audio.play();
+      setPlaying(true);
+    } catch {
       try {
+        audio.load();
         await audio.play();
         setPlaying(true);
       } catch {
-        // Autoplay may be blocked until user interaction.
+        // Still blocked or unavailable
       }
     }
-  }, [playing]);
+  }, [playing, ensureAudio]);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.removeEventListener('ended', () => {});
+        audioRef.current.removeEventListener('canplay', () => {});
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <button

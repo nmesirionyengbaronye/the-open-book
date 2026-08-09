@@ -5,8 +5,6 @@ import { WhatsAppBubble } from '@/components/WhatsAppBubble';
 import CursorTrail from '@/components/CursorTrail';
 import { Toaster } from 'sonner';
 import PageTransition from '@/components/PageTransition';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import ThemeToggle from '@/components/ThemeToggle';
 import './globals.css';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://waitlist.uniui.com.ng';
@@ -98,17 +96,14 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <ThemeProvider>
-          <CursorTrail />
-          <Navbar />
-          <main className="relative">
-            <PageTransition>{children}</PageTransition>
-          </main>
-          <Footer02 />
-          <WhatsAppBubble />
-          <ThemeToggle />
-          <Toaster position="bottom-center" />
-        </ThemeProvider>
+        <CursorTrail />
+        <Navbar />
+        <main className="relative">
+          <PageTransition>{children}</PageTransition>
+        </main>
+        <Footer02 />
+        <WhatsAppBubble />
+        <Toaster position="bottom-center" />
       </body>
     </html>
   );
