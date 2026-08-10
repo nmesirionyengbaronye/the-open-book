@@ -55,8 +55,6 @@ export default function RewardsMiniApp() {
           }
           setTg(tw);
         } else {
-          // In Telegram's browser but not as a Mini App (no WebApp object).
-          // The user needs to open via the bot's web_app button.
           setTelegramBrowserNoApp(true);
         }
         setPhase('verify');
@@ -162,12 +160,22 @@ export default function RewardsMiniApp() {
     }
     setRequesting(true);
     setVerifyMsg('Tap "Allow" in Telegram to share your number. We use it only to match your waitlist account — it can’t be faked.');
+
+    let didCallback = false;
+    // If the requestContact callback doesn't fire within 5s, start
+    // verification anyway — the server will retry as contact_pending.
+    const fallback = setTimeout(() => {
+      if (!didCallback) startVerify();
+    }, 5000);
+
     try {
       tg.requestContact(() => {
-        // Contact was shared by the user — now we can start verifying.
+        didCallback = true;
+        clearTimeout(fallback);
         startVerify();
       });
-    } catch (e) {
+    } catch {
+      clearTimeout(fallback);
       // requestContact not supported — try verification directly.
       startVerify();
     }
