@@ -27,6 +27,7 @@ export default function RewardsMiniApp() {
   const [agreed, setAgreed] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [autoPlayMusic, setAutoPlayMusic] = useState(false);
+  const [inTelegramBrowser, setInTelegramBrowser] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const verifyingRef = useRef(false);
 
@@ -58,6 +59,12 @@ export default function RewardsMiniApp() {
       if (tries++ < 80) {
         timer = setTimeout(check, 250);
       } else {
+        // Timed out waiting for WebApp — check if we're at least in Telegram's
+        // browser (UA match). If so, the bot's menu button web_app URL is
+        // misconfigured and the user should open via the bot menu instead.
+        if (/Telegram/i.test(navigator.userAgent)) {
+          setInTelegramBrowser(true);
+        }
         setPhase('blocked');
       }
     };
@@ -194,7 +201,9 @@ export default function RewardsMiniApp() {
         <Gift className="mx-auto mb-3 h-9 w-9 text-[#D4AF37]" />
         <h1 className="text-xl font-semibold">UniUI Rewards</h1>
         <p className="mt-2 max-w-sm text-sm text-white/60">
-          This page only works inside the UniUI Rewards bot. Open the bot below to access your rewards.
+          {inTelegramBrowser
+            ? 'This page must be opened from the bot menu. Tap "Open in Telegram" below, then open the bot and tap "My Rewards".'
+            : 'This page only works inside the UniUI Rewards bot. Open the bot below to access your rewards.'}
         </p>
         <a
           href={botLink}
