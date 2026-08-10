@@ -10,9 +10,10 @@ const TRACKS = [
   '/audio/04.mp3',
 ];
 
-export default function MusicPlayer() {
+export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }) {
   const [playing, setPlaying] = useState(false);
   const [trackIndex, setTrackIndex] = useState(0);
+  const [ready, setReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export default function MusicPlayer() {
     audio.preload = 'auto';
     audioRef.current = audio;
 
+    const onCanPlay = () => setReady(true);
     const onEnded = () => {
       setTrackIndex((prev) => {
         const next = (prev + 1) % TRACKS.length;
@@ -35,16 +37,38 @@ export default function MusicPlayer() {
         return next;
       });
     };
+    audio.addEventListener('canplay', onCanPlay);
     audio.addEventListener('ended', onEnded);
     audio.src = TRACKS[trackIndex];
     audio.load();
 
     return () => {
+      audio.removeEventListener('canplay', onCanPlay);
       audio.removeEventListener('ended', onEnded);
       audio.pause();
       audioRef.current = null;
     };
   }, [playing, trackIndex]);
+
+  // Attempt to autoplay when ready and autoPlay is requested.
+  // This works because the user just interacted with the Share button,
+  // which counts as a user gesture in Telegram's WebView.
+  useEffect(() => {
+    if (ready && autoPlay && !playing) {
+      startPlay();
+    }
+  }, [ready, autoPlay]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const startPlay = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    try {
+      await audio.play();
+      setPlaying(true);
+    } catch {
+      // autoplay blocked
+    }
+  }, []);
 
   const toggle = useCallback(async () => {
     const audio = audioRef.current;

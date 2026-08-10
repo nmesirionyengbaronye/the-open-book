@@ -35,9 +35,11 @@ import type { RewardsProfile, ReferralsResponse, LeaderboardEntry, WalletInfo } 
 export default function RewardsHub({
   code,
   inTelegram = false,
+  autoPlayMusic = false,
 }: {
   code: string;
   inTelegram?: boolean;
+  autoPlayMusic?: boolean;
 }) {
   const [profile, setProfile] = useState<RewardsProfile | null>(null);
   const [referrals, setReferrals] = useState<ReferralsResponse | null>(null);
@@ -369,7 +371,7 @@ export default function RewardsHub({
         </div>
       )}
       <ConfettiCelebration trigger={celebrationTrigger} />
-      <MusicPlayer />
+      <MusicPlayer autoPlay={autoPlayMusic} />
     </div>
   );
 }

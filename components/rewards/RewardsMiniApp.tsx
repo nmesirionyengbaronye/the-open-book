@@ -26,6 +26,7 @@ export default function RewardsMiniApp() {
   const [verifyMsg, setVerifyMsg] = useState('Share your Telegram number to unlock your rewards.');
   const [agreed, setAgreed] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [autoPlayMusic, setAutoPlayMusic] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const verifyingRef = useRef(false);
 
@@ -42,7 +43,6 @@ export default function RewardsMiniApp() {
       const inTelegram = tw || /Telegram/i.test(navigator.userAgent);
 
       if (inTelegram) {
-        // If we have the WebApp object, use it for full API access.
         if (tw) {
           try {
             tw.ready?.();
@@ -54,9 +54,6 @@ export default function RewardsMiniApp() {
           }
           setTg(tw);
         }
-        // Even without the full WebApp object, Telegram's browser may still
-        // provide initData via the URL query param (fallback for older clients).
-        // In that case, tg stays null and we show a message below.
         setPhase('verify');
         return;
       }
@@ -112,6 +109,7 @@ export default function RewardsMiniApp() {
       }
       verifyingRef.current = false;
       setCode(data.profile.referralCode);
+      setAutoPlayMusic(true);
       let accepted = false;
       try {
         accepted = localStorage.getItem('uniui_rewards_rules') === '1';
@@ -152,29 +150,23 @@ export default function RewardsMiniApp() {
   }, [tg]);
 
   function shareContact() {
-    if (!tg) return;
-    if (requesting) return; // prevent double-click
+    if (requesting) return;
+    if (!tg) {
+      toast('Open this page from the UniUI Rewards bot in Telegram for full access.', {
+        duration: 4000,
+      });
+      setVerifyMsg('Open this page from the UniUI Rewards bot in Telegram. Tap the bot menu → "My Rewards" to launch inside Telegram.');
+      return;
+    }
     setRequesting(true);
-    setVerifyMsg('Tap “Allow” in Telegram to share your number. We use it only to match your waitlist account — it can’t be faked.');
-
-    let didCallback = false;
-    // Fallback: if the contact callback doesn't fire within 5s, start
-    // verification anyway. The server will return contact_pending if the
-    // contact hasn't arrived yet, and client will poll until it shows up.
-    const fallback = setTimeout(() => {
-      if (!didCallback) startVerify();
-    }, 5000);
-
+    setVerifyMsg('Tap "Allow" in Telegram to share your number. We use it only to match your waitlist account — it can’t be faked.');
     try {
       tg.requestContact(() => {
-        didCallback = true;
-        clearTimeout(fallback);
         // Contact was shared by the user — now we can start verifying.
         startVerify();
       });
-    } catch {
-      clearTimeout(fallback);
-      // requestContact not available — try verification directly.
+    } catch (e) {
+      // requestContact not supported — try verification directly.
       startVerify();
     }
   }
@@ -211,7 +203,7 @@ export default function RewardsMiniApp() {
   }
 
   if (phase === 'dashboard') {
-    return <RewardsHub code={code} inTelegram={!!tg} />;
+    return <RewardsHub code={code} inTelegram={!!tg} autoPlayMusic={autoPlayMusic} />;
   }
 
   if (phase === 'rules') {
@@ -301,7 +293,7 @@ export default function RewardsMiniApp() {
 
         <button
           onClick={shareContact}
-          disabled={requesting || !tg}
+          disabled={requesting}
           className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold text-black transition hover:bg-yellow-300 disabled:opacity-60"
         >
           {requesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PhoneCall className="h-4 w-4" />}
