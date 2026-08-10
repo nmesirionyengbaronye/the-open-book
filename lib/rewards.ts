@@ -466,13 +466,20 @@ export async function spinWheel(codeOrPhone: string) {
   // The first TWO people (distinct users) on their first try win a guaranteed
   // ₦1000; everyone else — and every later spin — follows the weighted table.
   // claim_first_spin_grant is atomic (Postgres fn) so the cap of 2 is enforced
-  // even under concurrent spins. If the RPC/table isn't deployed yet it simply
-  // returns false and the normal distribution is used.
+  // even under concurrent spins. If the RPC/table hasn't been deployed yet the
+  // call throws — catch it and fall back to the normal distribution so the spin
+  // still works (you just lose the guaranteed first-2 bonus until it's deployed).
   let prize: number;
   if (isFirstSpin) {
-    const { data: granted } = await supabaseAdmin.rpc('claim_first_spin_grant', {
-      p_user_id: user.id,
-    });
+    let granted = false;
+    try {
+      const { data } = await supabaseAdmin.rpc('claim_first_spin_grant', {
+        p_user_id: user.id,
+      });
+      granted = !!data;
+    } catch {
+      granted = false;
+    }
     prize = granted ? 1000 : weightedPrize();
   } else {
     prize = weightedPrize();
