@@ -14,6 +14,10 @@
 //
 // Reads BOT_TOKEN / TELEGRAM_WEBHOOK_SECRET / NEXT_PUBLIC_SITE_URL from
 // the environment, or from a local .env file if present.
+//
+// NOTE: setMyMenuButton returns 404 for some bots — we use setChatMenuButton
+// with the bot's own user ID instead (set via getMe). This is the reliable
+// way to configure the bot's menu button.
 
 import { readFileSync } from 'node:fs';
 
@@ -67,26 +71,44 @@ async function setMenuButton() {
   }
   const webAppUrl = `${base.replace(/\/$/, '')}/rewards`;
   console.log('Setting menu button web_app URL:', webAppUrl);
-  const result = await api('setMyMenuButton', {
+
+  // Get the bot's user ID — setChatMenuButton requires it to set the bot's
+  // own menu button (chat_id = bot user ID, NOT 0).
+  const me = await api('getMe');
+  if (!me.ok) {
+    console.error('✗ Could not get bot info:', me.description);
+    process.exit(1);
+  }
+  const botUserId = me.result.id;
+  console.log('Bot user ID:', botUserId);
+
+  // setMyMenuButton returns 404 for some bots — use setChatMenuButton instead.
+  const result = await api('setChatMenuButton', {
+    chat_id: botUserId,
     menu_button: {
       type: 'web_app',
-      text: 'My Rewards',
+      text: '🎁 Rewards',
       web_app: { url: webAppUrl },
     },
   });
   console.log(result);
   if (result.ok) {
-    console.log('✓ Menu button configured. Tap "My Rewards" in the bot menu to launch the Mini App.');
+    console.log('✓ Menu button configured. Tap "🎁 Rewards" in the bot menu to launch the Mini App.');
   } else {
     console.error('✗ Failed to set menu button:', result.description);
   }
 }
 
 async function showStatus() {
-  console.log('Webhook info:');
+  const me = await api('getMe');
+  const botUserId = me.ok ? me.result.id : 0;
+  console.log('Bot:', me.result?.username || 'unknown', '(ID:', botUserId + ')');
+  console.log('has_main_web_app:', me.result?.has_main_web_app);
+
+  console.log('\nWebhook info:');
   console.log(await api('getWebhookInfo'));
   console.log('\nMenu button:');
-  console.log(await api('getMyMenuButton'));
+  console.log(await api('getChatMenuButton', { chat_id: botUserId }));
 }
 
 if (cmd === 'status') {
