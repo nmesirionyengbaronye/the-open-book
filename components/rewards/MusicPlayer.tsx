@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Music, Pause, Play } from 'lucide-react';
 
 const TRACKS = [
   '/audio/01.mp3',
@@ -54,9 +53,10 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
     trackIndexRef.current = trackIndex;
   }, [trackIndex]);
 
-  // Autoplay once the first track is ready. This is safe because the user has
-  // already performed a gesture (tapping Share / the rules modal) by the time
-  // the dashboard mounts, which satisfies the browser's autoplay policy.
+  // Autoplay once the first track is ready. Safe because the user has already
+  // performed a gesture (tapping "Share Phone Number" during verification) by
+  // the time the dashboard mounts, which satisfies the browser's autoplay
+  // policy — no manual toggle is needed or shown.
   useEffect(() => {
     if (ready && autoPlay && !playing) {
       startPlay();
@@ -71,35 +71,12 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
       await audio.play();
       setPlaying(true);
     } catch {
-      /* autoplay blocked — user can tap the button */
+      /* autoplay blocked — will retry on next ready/autoPlay change */
     }
   }, []);
 
-  const toggle = useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (playing) {
-      audio.pause();
-      setPlaying(false);
-      return;
-    }
-    try {
-      await audio.play();
-      setPlaying(true);
-    } catch {
-      /* blocked — silently ignore */
-    }
-  }, [playing]);
-
-  return (
-    <button
-      onClick={toggle}
-      aria-label={playing ? 'Pause music' : 'Play music'}
-      className="fixed bottom-4 right-4 z-50 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur border border-white/20 px-3 py-2 text-xs text-white/80 hover:bg-white/20"
-    >
-      {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-      <Music className="h-4 w-4" />
-      <span className="hidden sm:inline">{playing ? 'Pause' : 'Play'}</span>
-    </button>
-  );
+  // No visible toggle: music starts automatically once the user verifies via
+  // "Share Phone Number". The player stays mounted (single Audio element) so
+  // playback isn't killed; returning null means nothing is rendered.
+  return null;
 }
