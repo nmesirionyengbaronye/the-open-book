@@ -39,21 +39,19 @@ export default function RewardsMiniApp() {
       const tgObj = (window as any).Telegram;
       const tw = tgObj?.WebApp;
 
-      // Detect if we're inside Telegram's in-app browser.
-      const inTelegram = tw || /Telegram/i.test(navigator.userAgent);
-
-      if (inTelegram) {
-        if (tw) {
-          try {
-            tw.ready?.();
-            tw.expand?.();
-            tw.setHeaderColor?.('#0A0A0F');
-            tw.setBackgroundColor?.('#0A0A0F');
-          } catch {
-            /* noop */
-          }
-          setTg(tw);
+      // Only trust the real Telegram WebApp bridge — no UA sniffing.
+      // If it's missing, the page is being opened outside a proper Mini App
+      // (e.g. bot web_app URL misconfigured as a relative path). Block it.
+      if (tw) {
+        try {
+          tw.ready?.();
+          tw.expand?.();
+          tw.setHeaderColor?.('#0A0A0F');
+          tw.setBackgroundColor?.('#0A0A0F');
+        } catch {
+          /* noop */
         }
+        setTg(tw);
         setPhase('verify');
         return;
       }
