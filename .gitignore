@@ -13,13 +13,13 @@ node_modules
 # Build outputs
 .next
 .kilo
-.next
 dist
 dist-ssr
 .output
 .vinxi
 .tanstack/**
 .nitro
+tsconfig.tsbuildinfo
 
 # Environment variables - keep .env as it contains example values
 .env.local
