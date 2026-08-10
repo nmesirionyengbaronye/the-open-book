@@ -188,7 +188,7 @@ export default function RewardsMiniApp() {
   if (phase === 'blocked') {
     const bot = process.env.NEXT_PUBLIC_BOT_USERNAME || 'UniUIRewardsBot';
     const botLink = `https://t.me/${bot.replace(/^@/, '')}`;
-    const envUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || '';
+    const envUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || '';
     // Fall back to the page's own origin if env vars aren't set
     const appUrl = envUrl || (typeof window !== 'undefined' ? window.location.origin : '');
 
