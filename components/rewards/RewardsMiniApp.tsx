@@ -35,17 +35,28 @@ export default function RewardsMiniApp() {
     let timer: ReturnType<typeof setTimeout>;
     const check = () => {
       if (typeof window === 'undefined') return;
-      const tw = (window as any).Telegram?.WebApp;
-      if (tw) {
-        try {
-          tw.ready();
-          tw.expand();
-          tw.setHeaderColor?.('#0A0A0F');
-          tw.setBackgroundColor?.('#0A0A0F');
-        } catch {
-          /* noop */
+      const tgObj = (window as any).Telegram;
+      const tw = tgObj?.WebApp;
+
+      // Detect if we're inside Telegram's in-app browser.
+      const inTelegram = tw || /Telegram/i.test(navigator.userAgent);
+
+      if (inTelegram) {
+        // If we have the WebApp object, use it for full API access.
+        if (tw) {
+          try {
+            tw.ready?.();
+            tw.expand?.();
+            tw.setHeaderColor?.('#0A0A0F');
+            tw.setBackgroundColor?.('#0A0A0F');
+          } catch {
+            /* noop */
+          }
+          setTg(tw);
         }
-        setTg(tw);
+        // Even without the full WebApp object, Telegram's browser may still
+        // provide initData via the URL query param (fallback for older clients).
+        // In that case, tg stays null and we show a message below.
         setPhase('verify');
         return;
       }
