@@ -193,11 +193,13 @@ export default function RewardsMiniApp() {
   }
 
   if (phase === 'blocked') {
-    const bot = process.env.NEXT_PUBLIC_BOT_USERNAME || 'UniUIRewardsBot';
-    const botLink = `https://t.me/${bot.replace(/^@/, '')}`;
+    const bot = (process.env.NEXT_PUBLIC_BOT_USERNAME || 'UniUIRewardsBot').replace(/^@/, '');
+    const botLink = `https://t.me/${bot}`;
+    // Deep link that opens the Mini App INSIDE Telegram (loads window.Telegram.WebApp).
+    const tmaLink = `https://t.me/${bot}/rewards`;
 
     return (
-      <BlockedPage botLink={botLink} inTelegramBrowser={inTelegramBrowser} />
+      <BlockedPage botLink={botLink} tmaLink={tmaLink} inTelegramBrowser={inTelegramBrowser} />
     );
   }
 
@@ -345,14 +347,26 @@ export default function RewardsMiniApp() {
    );
 }
 
-function BlockedPage({ botLink, inTelegramBrowser }: { botLink: string; inTelegramBrowser: boolean }) {
+function BlockedPage({
+  botLink,
+  tmaLink,
+  inTelegramBrowser,
+}: {
+  botLink: string;
+  tmaLink: string;
+  inTelegramBrowser: boolean;
+}) {
+  // When opened inside Telegram's plain in-app browser (a raw https link), the
+  // WebApp bridge is absent so this page is shown. Deep-link straight back into
+  // the Mini App (tmaLink) which DOES have the bridge — otherwise we'd loop back
+  // to the bot chat. Outside Telegram, point at the bot.
+  const target = inTelegramBrowser ? tmaLink : botLink;
   useEffect(() => {
-    // Auto-redirect to the bot (matches original behavior)
     const timer = setTimeout(() => {
-      window.location.href = botLink;
+      window.location.href = target;
     }, 1500);
     return () => clearTimeout(timer);
-  }, [botLink]);
+  }, [target]);
 
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
@@ -360,11 +374,11 @@ function BlockedPage({ botLink, inTelegramBrowser }: { botLink: string; inTelegr
       <h1 className="text-xl font-semibold">UniUI Rewards</h1>
       <p className="mt-2 max-w-sm text-sm text-white/60">
         {inTelegramBrowser
-          ? 'Redirecting to the bot to unlock your rewards…'
+          ? 'Opening the Rewards Mini App…'
           : 'This page only works inside Telegram. Redirecting…'}
       </p>
       <a
-        href={botLink}
+        href={target}
         target="_blank"
         rel="noreferrer"
         className="mt-6 rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-semibold text-black"

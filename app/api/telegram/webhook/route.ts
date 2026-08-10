@@ -71,8 +71,12 @@ export async function POST(req: NextRequest) {
 // Command handling
 // ---------------------------------------------------------------------------
 
+const BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || 'UniUIRewardsBot').replace(/^@/, '');
+// Deep link that opens the Mini App INSIDE Telegram (loads window.Telegram.WebApp).
+// A raw https URL would open in Telegram's plain in-app browser, where the
+// WebApp bridge is absent and the page blocks itself ("redirect to Telegram").
+const TMA_LINK = `https://t.me/${BOT_USERNAME}/rewards`;
 const APP_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://waitlist.uniui.com.ng').replace(/\/$/, '');
-const MINI_APP_URL = `${APP_URL}/rewards`;
 
 async function handleCommand(
   text: string,
@@ -96,14 +100,14 @@ async function handleCommand(
       return reply(
         `🎁 <b>Welcome to UniUI Rewards</b>, ${escapeHtml(firstName || 'there')}!\n\n` +
           `This is the Uni UI student giveaway bot. Verify your Telegram number to unlock spins, mystery boxes and cash prizes.\n\n` +
-          `▶️ <b>Open the Rewards Mini App:</b>\n${MINI_APP_URL}\n\n` +
+          `▶️ <b>Open the Rewards Mini App:</b>\n${TMA_LINK}\n\n` +
           `Inside the Mini App, tap <b>“Share Phone Number”</b> to verify. Everything else (profile, referrals, wallet) lives there too.`
       );
 
     case '/verify':
       return reply(
         `🔐 <b>Verify your account</b>\n\n` +
-          `Open the Mini App and tap <b>“Share Phone Number”</b>:\n${MINI_APP_URL}\n\n` +
+          `Open the Mini App and tap <b>“Share Phone Number”</b>:\n${TMA_LINK}\n\n` +
           `We use Telegram’s secure contact share — no typing, no faking.`
       );
 
@@ -159,7 +163,7 @@ async function handleCommand(
 
     case '/spin':
       return reply(
-        `🎰 <b>Spin the wheel inside the Mini App</b>\n\nOpen it here:\n${MINI_APP_URL}\n\n` +
+        `🎰 <b>Spin the wheel inside the Mini App</b>\n\nOpen it here:\n${TMA_LINK}\n\n` +
           `You need spin tickets (earned from verified referrals) to play.`
       );
 
@@ -171,7 +175,7 @@ async function handleCommand(
           `• Mystery boxes (1/2/5 tickets) unlock every 7-referral milestone.\n` +
           `• Referrals must be real, verified people.\n` +
           `• One account per person. Abuse = disqualification.\n\n` +
-          `Full rules: ${MINI_APP_URL}`
+          `Full rules: ${TMA_LINK}`
       );
 
     case '/help':
@@ -186,7 +190,7 @@ async function handleCommand(
           `/rewards — boxes & spin tickets\n` +
           `/wallet — your cash balance\n` +
           `/rules — giveaway rules\n\n` +
-          `▶️ Best experience: open the Mini App → ${MINI_APP_URL}`
+          `▶️ Best experience: open the Mini App → ${TMA_LINK}`
       );
 
     default:
@@ -199,7 +203,7 @@ async function handleCommand(
 function notVerified(reply: (s: string) => Promise<unknown>) {
   return reply(
     `🔐 You haven’t verified your Telegram number yet.\n\n` +
-      `Open the Mini App and tap <b>“Share Phone Number”</b>:\n${MINI_APP_URL}\n\n` +
+      `Open the Mini App and tap <b>“Share Phone Number”</b>:\n${TMA_LINK}\n\n` +
       `Your waitlist account must already exist (join at ${APP_URL} if not).`
   );
 }
