@@ -198,11 +198,9 @@ export default function RewardsMiniApp() {
   if (phase === 'blocked') {
     const bot = (process.env.NEXT_PUBLIC_BOT_USERNAME || 'UniUIRewardsBot').replace(/^@/, '');
     const botLink = `https://t.me/${bot}`;
-    // Deep link that opens the Mini App INSIDE Telegram (loads window.Telegram.WebApp).
-    const tmaLink = `https://t.me/${bot}/rewards`;
 
     return (
-      <BlockedPage botLink={botLink} tmaLink={tmaLink} inTelegramBrowser={inTelegramBrowser} />
+      <BlockedPage botLink={botLink} inTelegramBrowser={inTelegramBrowser} />
     );
   }
 
@@ -352,41 +350,36 @@ export default function RewardsMiniApp() {
 
 function BlockedPage({
   botLink,
-  tmaLink,
   inTelegramBrowser,
 }: {
   botLink: string;
-  tmaLink: string;
   inTelegramBrowser: boolean;
 }) {
-  // When opened inside Telegram's plain in-app browser (a raw https link), the
-  // WebApp bridge is absent so this page is shown. Deep-link straight back into
-  // the Mini App (tmaLink) which DOES have the bridge — otherwise we'd loop back
-  // to the bot chat. Outside Telegram, point at the bot.
-  const target = inTelegramBrowser ? tmaLink : botLink;
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.location.href = target;
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [target]);
-
+  // This page is shown when there is no real Telegram WebApp bridge (e.g. the
+  // page was opened as a plain link inside Telegram's in-app browser, or
+  // outside Telegram entirely). We deliberately do NOT auto-redirect anywhere:
+  //   * a t.me/<bot>/rewards deep link shows "Opening the rewards mini app…"
+  //     and hangs forever when it isn't the configured Main Web App;
+  //   * redirecting to the bot chat just reloads and re-blocks (loop).
+  // The only reliable launch is the bot's 🎁 Rewards menu button, which BotFather
+  // / setChatMenuButton points at the full HTTPS URL. So we show a static page
+  // and a manual link to the bot chat.
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
       <Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin text-[#D4AF37]" />
       <h1 className="text-xl font-semibold">UniUI Rewards</h1>
       <p className="mt-2 max-w-sm text-sm text-white/60">
         {inTelegramBrowser
-          ? 'Opening the Rewards Mini App…'
-          : 'This page only works inside Telegram. Redirecting…'}
+          ? 'This page only opens inside the Mini App. In the @UniUIRewardsBot chat, tap the 🎁 Rewards button (the menu at the bottom-left) to launch it.'
+          : 'This page only works inside the Telegram Mini App. Open the @UniUIRewardsBot bot and tap 🎁 Rewards.'}
       </p>
       <a
-        href={target}
+        href={botLink}
         target="_blank"
         rel="noreferrer"
         className="mt-6 rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-semibold text-black"
       >
-        Open in Telegram
+        Go to the bot
       </a>
     </div>
   );

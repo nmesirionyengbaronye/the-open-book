@@ -72,10 +72,14 @@ export async function POST(req: NextRequest) {
 // ---------------------------------------------------------------------------
 
 const BOT_USERNAME = (process.env.TELEGRAM_BOT_USERNAME || 'UniUIRewardsBot').replace(/^@/, '');
-// Deep link that opens the Mini App INSIDE Telegram (loads window.Telegram.WebApp).
-// A raw https URL would open in Telegram's plain in-app browser, where the
-// WebApp bridge is absent and the page blocks itself ("redirect to Telegram").
-const TMA_LINK = `https://t.me/${BOT_USERNAME}/rewards`;
+// The bot has has_main_web_app: true. The ONLY reliable way to launch the Mini
+// App with the WebApp bridge present is the bot's menu button (🎁 Rewards),
+// which BotFather / setChatMenuButton points at the full HTTPS URL
+// https://waitlist.uniui.com.ng/rewards. We must NOT send a t.me/<bot>/rewards
+// deep link in replies: inside Telegram that shows "Opening the rewards mini
+// app…" and hangs forever when the deep-link path isn't the configured Main
+// Web App. So all replies point users to the bot chat + the menu button.
+const BOT_CHAT = `https://t.me/${BOT_USERNAME}`;
 const APP_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://waitlist.uniui.com.ng').replace(/\/$/, '');
 
 async function handleCommand(
@@ -100,14 +104,13 @@ async function handleCommand(
       return reply(
         `🎁 <b>Welcome to UniUI Rewards</b>, ${escapeHtml(firstName || 'there')}!\n\n` +
           `This is the Uni UI student giveaway bot. Verify your Telegram number to unlock spins, mystery boxes and cash prizes.\n\n` +
-          `▶️ <b>Open the Rewards Mini App:</b>\n${TMA_LINK}\n\n` +
-          `Inside the Mini App, tap <b>“Share Phone Number”</b> to verify. Everything else (profile, referrals, wallet) lives there too.`
+          `▶️ <b>Open the Rewards Mini App:</b> tap the <b>“🎁 Rewards”</b> button in the menu at the bottom of this chat, then tap <b>“Share Phone Number”</b> to verify. Everything else (profile, referrals, wallet) lives there too.`
       );
 
     case '/verify':
       return reply(
         `🔐 <b>Verify your account</b>\n\n` +
-          `Open the Mini App and tap <b>“Share Phone Number”</b>:\n${TMA_LINK}\n\n` +
+          `Open the Mini App (tap the <b>“🎁 Rewards”</b> menu button at the bottom of this chat) and tap <b>“Share Phone Number”</b>.\n\n` +
           `We use Telegram’s secure contact share — no typing, no faking.`
       );
 
@@ -163,7 +166,8 @@ async function handleCommand(
 
     case '/spin':
       return reply(
-        `🎰 <b>Spin the wheel inside the Mini App</b>\n\nOpen it here:\n${TMA_LINK}\n\n` +
+        `🎰 <b>Spin the wheel inside the Mini App</b>\n\n` +
+          `Open it via the <b>“🎁 Rewards”</b> menu button at the bottom of this chat.\n\n` +
           `You need spin tickets (earned from verified referrals) to play.`
       );
 
@@ -175,7 +179,7 @@ async function handleCommand(
           `• Mystery boxes (1/2/5 tickets) unlock every 7-referral milestone.\n` +
           `• Referrals must be real, verified people.\n` +
           `• One account per person. Abuse = disqualification.\n\n` +
-          `Full rules: ${TMA_LINK}`
+          `Full rules live inside the Mini App (tap 🎁 Rewards).`
       );
 
     case '/help':
@@ -190,12 +194,12 @@ async function handleCommand(
           `/rewards — boxes & spin tickets\n` +
           `/wallet — your cash balance\n` +
           `/rules — giveaway rules\n\n` +
-          `▶️ Best experience: open the Mini App → ${TMA_LINK}`
+          `▶️ Best experience: tap the <b>“🎁 Rewards”</b> menu button in this chat to open the Mini App.`
       );
 
     default:
       return reply(
-        `I didn't recognise that. Try /start to open the Rewards Mini App, or /help for the command list.`
+        `I didn't recognise that. Try /start, or tap the <b>“🎁 Rewards”</b> menu button to open the Mini App.`
       );
   }
 }
@@ -203,7 +207,7 @@ async function handleCommand(
 function notVerified(reply: (s: string) => Promise<unknown>) {
   return reply(
     `🔐 You haven’t verified your Telegram number yet.\n\n` +
-      `Open the Mini App and tap <b>“Share Phone Number”</b>:\n${TMA_LINK}\n\n` +
+      `Open the Mini App (tap <b>“🎁 Rewards”</b> in the menu at the bottom of this chat) and tap <b>“Share Phone Number”</b>.\n\n` +
       `Your waitlist account must already exist (join at ${APP_URL} if not).`
   );
 }
