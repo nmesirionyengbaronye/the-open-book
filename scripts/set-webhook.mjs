@@ -23,7 +23,7 @@ try {
 
 const token = process.env.BOT_TOKEN;
 const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-const base = process.env.NEXT_PUBLIC_APP_URL;
+const base = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL;
 
 const api = (method, params = {}) =>
   fetch(`https://api.telegram.org/bot${token}/${method}`, {

@@ -27,7 +27,6 @@ export default function RewardsMiniApp() {
   const [agreed, setAgreed] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [autoPlayMusic, setAutoPlayMusic] = useState(false);
-  const [telegramBrowserNoApp, setTelegramBrowserNoApp] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const verifyingRef = useRef(false);
 
@@ -54,8 +53,6 @@ export default function RewardsMiniApp() {
             /* noop */
           }
           setTg(tw);
-        } else {
-          setTelegramBrowserNoApp(true);
         }
         setPhase('verify');
         return;
@@ -155,27 +152,28 @@ export default function RewardsMiniApp() {
   function shareContact() {
     if (requesting) return;
     if (!tg) {
-      toast.error('Open this page from the bot menu — not by browsing directly.');
+      setVerifyMsg('Open this page from the bot menu → "My Rewards" button, not by browsing directly. The contact popup only works inside Telegram\'s Mini App.');
       return;
     }
     setRequesting(true);
     setVerifyMsg('Tap "Allow" in Telegram to share your number. We use it only to match your waitlist account — it can’t be faked.');
 
-    let didCallback = false;
-    // If the requestContact callback doesn't fire within 5s, start
-    // verification anyway — the server will retry as contact_pending.
-    const fallback = setTimeout(() => {
-      if (!didCallback) startVerify();
-    }, 5000);
+    // Fallback: if requestContact callback doesn't fire within 6s (user
+    // dismissed the native dialog), still attempt verification. The server
+    // will return contact_pending if the contact hasn't arrived yet.
+    let callbackCalled = false;
+    const fallbackTimeout = setTimeout(() => {
+      if (!callbackCalled) startVerify();
+    }, 6000);
 
     try {
       tg.requestContact(() => {
-        didCallback = true;
-        clearTimeout(fallback);
+        callbackCalled = true;
+        clearTimeout(fallbackTimeout);
         startVerify();
       });
     } catch {
-      clearTimeout(fallback);
+      clearTimeout(fallbackTimeout);
       // requestContact not supported — try verification directly.
       startVerify();
     }
@@ -309,14 +307,6 @@ export default function RewardsMiniApp() {
         <Gift className="mx-auto mb-3 h-9 w-9 text-[#D4AF37]" />
         <h1 className="text-lg font-semibold">Welcome to UniUI Rewards</h1>
         <p className="mt-2 text-sm text-white/60">{verifyMsg}</p>
-
-        {!tg && telegramBrowserNoApp && (
-          <div className="mt-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
-            <p className="text-[11px] text-yellow-300">
-              Open this page from the bot's menu button in Telegram — don't browse here directly.
-            </p>
-          </div>
-        )}
 
         <button
           onClick={shareContact}
