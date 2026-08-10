@@ -133,27 +133,43 @@ export default function RewardsMiniApp() {
 
   useEffect(() => {
     if (!tg) return;
-    // tg.requestContact() callback fires once the user shares their contact —
-    // that's where we kick off verification (see shareContact). We don't need
-    // the separate 'contactRequested' event listener, which can double-fire.
+    // Backup: tg.requestContact() callback fires when the user shares their
+    // contact. In some Telegram versions the callback doesn't fire but the
+    // 'contactRequested' event does — listen for both as a safety net.
+    // startVerify() is guarded by verifyingRef so double-fire is harmless.
+    const handler = () => startVerify();
+    tg.onEvent?.('contactRequested', handler);
     return () => {
+      tg.offEvent?.('contactRequested', handler);
       if (pollRef.current) clearTimeout(pollRef.current);
     };
   }, [tg]);
 
   function shareContact() {
     if (!tg) return;
+    if (requesting) return; // prevent double-click
     setRequesting(true);
     setVerifyMsg('Tap “Allow” in Telegram to share your number. We use it only to match your waitlist account — it can’t be faked.');
+
+    let didCallback = false;
+    // Fallback: if the contact callback doesn't fire within 5s, start
+    // verification anyway. The server will return contact_pending if the
+    // contact hasn't arrived yet, and client will poll until it shows up.
+    const fallback = setTimeout(() => {
+      if (!didCallback) startVerify();
+    }, 5000);
+
     try {
       tg.requestContact(() => {
+        didCallback = true;
+        clearTimeout(fallback);
         // Contact was shared by the user — now we can start verifying.
         startVerify();
       });
     } catch {
-      setRequesting(false);
-      setVerifyMsg('Contact sharing isn’t available here. Open the app from Telegram and tap Share.');
-      return;
+      clearTimeout(fallback);
+      // requestContact not available — try verification directly.
+      startVerify();
     }
   }
 
