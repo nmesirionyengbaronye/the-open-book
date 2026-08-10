@@ -40,10 +40,13 @@ export default function RewardsMiniApp() {
       const tgObj = (window as any).Telegram;
       const tw = tgObj?.WebApp;
 
-      // Only trust the real Telegram WebApp bridge — no UA sniffing.
-      // If it's missing, the page is being opened outside a proper Mini App
-      // (e.g. bot web_app URL misconfigured as a relative path). Block it.
-      if (tw) {
+      // Trust the bridge ONLY when it carries a real Telegram session.
+      // We load telegram-web-app.js ourselves, so `window.Telegram.WebApp`
+      // exists even on a plain browser — but there `initData` is empty, so we
+      // must require it to be populated (Telegram fills it inside a real Mini App).
+      // If it's missing/empty, the page is opened outside a proper Mini App → block.
+      const hasSession = !!tw && typeof tw.initData === 'string' && tw.initData.length > 0;
+      if (hasSession) {
         try {
           tw.ready?.();
           tw.expand?.();

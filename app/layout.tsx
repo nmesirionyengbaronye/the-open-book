@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Navbar } from '@/components/Navbar';
 import Footer02 from '@/components/Footer02';
 import { WhatsAppBubble } from '@/components/WhatsAppBubble';
@@ -93,6 +94,12 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        {/* Telegram Mini App bridge. Required so window.Telegram.WebApp exists
+            when the Rewards Mini App is opened inside Telegram. */}
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
         />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
