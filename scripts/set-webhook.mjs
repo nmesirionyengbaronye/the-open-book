@@ -15,9 +15,11 @@
 // Reads BOT_TOKEN / TELEGRAM_WEBHOOK_SECRET / NEXT_PUBLIC_SITE_URL from
 // the environment, or from a local .env file if present.
 //
-// NOTE: setMyMenuButton returns 404 for some bots — we use setChatMenuButton
-// with the bot's own user ID instead (set via getMe). This is the reliable
-// way to configure the bot's menu button.
+// NOTE: setMyMenuButton returns 404 for this bot, so we set the bot's menu
+// button via setChatMenuButton with NO chat_id — that sets the GLOBAL default
+// button every user sees when they open the bot. Passing chat_id = bot user ID
+// would only configure the bot's OWN chat and users would still see the
+// `commands` menu. (getMe is no longer needed for the menu button.)
 
 import { readFileSync } from 'node:fs';
 
@@ -70,21 +72,13 @@ async function setMenuButton() {
     process.exit(1);
   }
   const webAppUrl = `${base.replace(/\/$/, '')}/rewards`;
-  console.log('Setting menu button web_app URL:', webAppUrl);
+  console.log('Setting global menu button web_app URL:', webAppUrl);
 
-  // Get the bot's user ID — setChatMenuButton requires it to set the bot's
-  // own menu button (chat_id = bot user ID, NOT 0).
-  const me = await api('getMe');
-  if (!me.ok) {
-    console.error('✗ Could not get bot info:', me.description);
-    process.exit(1);
-  }
-  const botUserId = me.result.id;
-  console.log('Bot user ID:', botUserId);
-
-  // setMyMenuButton returns 404 for some bots — use setChatMenuButton instead.
+  // setMyMenuButton returns 404 for this bot, so we use setChatMenuButton with
+  // NO chat_id — that sets the default button shown to every user who opens
+  // the bot. (Do NOT pass chat_id here; that would only affect the bot's own
+  // chat and users would keep seeing the `commands` menu.)
   const result = await api('setChatMenuButton', {
-    chat_id: botUserId,
     menu_button: {
       type: 'web_app',
       text: '🎁 Rewards',
@@ -107,8 +101,8 @@ async function showStatus() {
 
   console.log('\nWebhook info:');
   console.log(await api('getWebhookInfo'));
-  console.log('\nMenu button:');
-  console.log(await api('getChatMenuButton', { chat_id: botUserId }));
+  console.log('\nGlobal menu button (what users see):');
+  console.log(await api('getChatMenuButton'));
 }
 
 if (cmd === 'status') {
