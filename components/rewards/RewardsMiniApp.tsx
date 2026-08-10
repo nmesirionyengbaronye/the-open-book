@@ -40,13 +40,19 @@ export default function RewardsMiniApp() {
       const tgObj = (window as any).Telegram;
       const tw = tgObj?.WebApp;
 
-      // Trust the bridge ONLY when it carries a real Telegram session.
-      // We load telegram-web-app.js ourselves, so `window.Telegram.WebApp`
-      // exists even on a plain browser — but there `initData` is empty, so we
-      // must require it to be populated (Telegram fills it inside a real Mini App).
-      // If it's missing/empty, the page is opened outside a proper Mini App → block.
-      const hasSession = !!tw && typeof tw.initData === 'string' && tw.initData.length > 0;
-      if (hasSession) {
+      const hasInitData = !!tw && typeof tw.initData === 'string' && tw.initData.length > 0;
+      const platform = tw?.platform;
+      // On a plain non-Telegram browser, telegram-web-app.js reports
+      // platform === 'unknown'. Inside a real Mini App it is the actual OS
+      // ('android' | 'ios' | 'web' | 'tdesktop' | 'macos' | 'wn' ...). This is
+      // available synchronously and is a reliable "are we in a Mini App" signal,
+      // independent of initData which some clients populate a tick later.
+      const inRealMiniApp = !!tw && platform && platform !== 'unknown';
+
+      // Trust the bridge when it carries a real Telegram session (initData) OR
+      // when the SDK reports a real platform (we loaded the script ourselves, so
+      // platform 'unknown' on a plain browser must NOT be trusted).
+      if (hasInitData || inRealMiniApp) {
         try {
           tw.ready?.();
           tw.expand?.();
@@ -68,6 +74,14 @@ export default function RewardsMiniApp() {
         if (/Telegram/i.test(navigator.userAgent)) {
           setInTelegramBrowser(true);
         }
+        // Expose diagnostics so we can tell why detection failed.
+        (window as any).__uniuiTmaDiag = {
+          hasTelegram: !!tgObj,
+          hasWebApp: !!tw,
+          platform: platform ?? null,
+          initDataLen: tw?.initData?.length ?? 0,
+          ua: navigator.userAgent,
+        };
         setPhase('blocked');
       }
     };
@@ -364,6 +378,7 @@ function BlockedPage({
   // The only reliable launch is the bot's 🎁 Rewards menu button, which BotFather
   // / setChatMenuButton points at the full HTTPS URL. So we show a static page
   // and a manual link to the bot chat.
+  const diag = (typeof window !== 'undefined' ? (window as any).__uniuiTmaDiag : null) || null;
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
       <Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin text-[#D4AF37]" />
@@ -381,6 +396,11 @@ function BlockedPage({
       >
         Go to the bot
       </a>
+      {diag && (
+        <pre className="mt-6 max-w-sm whitespace-pre-wrap break-all rounded-lg border border-white/10 bg-white/[0.03] p-3 text-left text-[10px] text-white/40">
+          {JSON.stringify(diag, null, 2)}
+        </pre>
+      )}
     </div>
   );
 }
