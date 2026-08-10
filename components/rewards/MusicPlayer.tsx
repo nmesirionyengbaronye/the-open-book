@@ -15,9 +15,15 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
   const [trackIndex, setTrackIndex] = useState(0);
   const [ready, setReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Mirror of the current track so the 'ended' handler (registered once) can
+  // advance without going stale.
+  const trackIndexRef = useRef(0);
 
+  // Create the Audio element exactly ONCE. Putting `playing`/`trackIndex` in
+  // here would tear down and rebuild the element on every play/pause, which
+  // stopped playback cold. State changes only drive play/pause/src below.
   useEffect(() => {
-    const audio = new Audio();
+    const audio = new Audio(TRACKS[0]);
     audio.loop = false;
     audio.volume = 0.15;
     audio.preload = 'auto';
@@ -25,22 +31,16 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
 
     const onCanPlay = () => setReady(true);
     const onEnded = () => {
-      setTrackIndex((prev) => {
-        const next = (prev + 1) % TRACKS.length;
-        if (audioRef.current) {
-          audioRef.current.src = TRACKS[next];
-          audioRef.current.load();
-          if (playing) {
-            audioRef.current.play().catch(() => {});
-          }
-        }
-        return next;
-      });
+      const next = (trackIndexRef.current + 1) % TRACKS.length;
+      trackIndexRef.current = next;
+      setTrackIndex(next);
+      audio.src = TRACKS[next];
+      audio.load();
+      audio.play().catch(() => {});
     };
+
     audio.addEventListener('canplay', onCanPlay);
     audio.addEventListener('ended', onEnded);
-    audio.src = TRACKS[trackIndex];
-    audio.load();
 
     return () => {
       audio.removeEventListener('canplay', onCanPlay);
@@ -48,16 +48,21 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
       audio.pause();
       audioRef.current = null;
     };
-  }, [playing, trackIndex]);
+  }, []);
 
-  // Attempt to autoplay when ready and autoPlay is requested.
-  // This works because the user just interacted with the Share button,
-  // which counts as a user gesture in Telegram's WebView.
+  useEffect(() => {
+    trackIndexRef.current = trackIndex;
+  }, [trackIndex]);
+
+  // Autoplay once the first track is ready. This is safe because the user has
+  // already performed a gesture (tapping Share / the rules modal) by the time
+  // the dashboard mounts, which satisfies the browser's autoplay policy.
   useEffect(() => {
     if (ready && autoPlay && !playing) {
       startPlay();
     }
-  }, [ready, autoPlay]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready, autoPlay, playing]);
 
   const startPlay = useCallback(async () => {
     const audio = audioRef.current;
@@ -66,7 +71,7 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
       await audio.play();
       setPlaying(true);
     } catch {
-      // autoplay blocked
+      /* autoplay blocked — user can tap the button */
     }
   }, []);
 
@@ -82,7 +87,7 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
       await audio.play();
       setPlaying(true);
     } catch {
-      // autoplay blocked — silently do nothing; user must click again
+      /* blocked — silently ignore */
     }
   }, [playing]);
 
@@ -98,4 +103,3 @@ export default function MusicPlayer({ autoPlay = false }: { autoPlay?: boolean }
     </button>
   );
 }
-
