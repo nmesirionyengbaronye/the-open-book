@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { Navbar } from '@/components/Navbar';
 import Footer02 from '@/components/Footer02';
 import { WhatsAppBubble } from '@/components/WhatsAppBubble';
@@ -96,11 +95,13 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {/* Telegram Mini App bridge. Required so window.Telegram.WebApp exists
-            when the Rewards Mini App is opened inside Telegram. */}
-        <Script
-          src="https://telegram.org/js/telegram-web-app.js"
-          strategy="beforeInteractive"
-        />
+            when the Rewards Mini App is opened inside Telegram. Loaded as a plain
+            blocking <script> in <head> (NOT next/script / beforeInteractive): the
+            Telegram SDK must run as a normal synchronous script so window.Telegram
+            is present before the page's own JS executes. next/script's
+            beforeInteractive is injected by the Next runtime and does not reliably
+            run first inside the Mini App WebView, leaving window.Telegram undefined. */}
+        <script src="https://telegram.org/js/telegram-web-app.js" async={false} />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <CursorTrail />
