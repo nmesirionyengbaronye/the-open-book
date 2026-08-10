@@ -27,6 +27,7 @@ export default function RewardsMiniApp() {
   const [agreed, setAgreed] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [autoPlayMusic, setAutoPlayMusic] = useState(false);
+  const [telegramBrowserNoApp, setTelegramBrowserNoApp] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const verifyingRef = useRef(false);
 
@@ -53,6 +54,10 @@ export default function RewardsMiniApp() {
             /* noop */
           }
           setTg(tw);
+        } else {
+          // In Telegram's browser but not as a Mini App (no WebApp object).
+          // The user needs to open via the bot's web_app button.
+          setTelegramBrowserNoApp(true);
         }
         setPhase('verify');
         return;
@@ -152,10 +157,7 @@ export default function RewardsMiniApp() {
   function shareContact() {
     if (requesting) return;
     if (!tg) {
-      toast('Open this page from the UniUI Rewards bot in Telegram for full access.', {
-        duration: 4000,
-      });
-      setVerifyMsg('Open this page from the UniUI Rewards bot in Telegram. Tap the bot menu → "My Rewards" to launch inside Telegram.');
+      toast.error('Open this page from the bot menu — not by browsing directly.');
       return;
     }
     setRequesting(true);
@@ -182,13 +184,16 @@ export default function RewardsMiniApp() {
   if (phase === 'blocked') {
     const bot = process.env.NEXT_PUBLIC_BOT_USERNAME || 'UniUIRewardsBot';
     const botLink = `https://t.me/${bot.replace(/^@/, '')}`;
+    const envUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || '';
+    // Fall back to the page's own origin if env vars aren't set
+    const appUrl = envUrl || (typeof window !== 'undefined' ? window.location.origin : '');
 
     return (
       <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
-        <Loader2 className="mb-4 h-8 w-8 animate-spin text-[#D4AF37]" />
+        <Gift className="mx-auto mb-3 h-9 w-9 text-[#D4AF37]" />
         <h1 className="text-xl font-semibold">UniUI Rewards</h1>
         <p className="mt-2 max-w-sm text-sm text-white/60">
-          This page only works inside Telegram. Open the bot below to access your rewards.
+          This page only works inside Telegram as a Mini App. Open the bot below to access your rewards.
         </p>
         <a
           href={botLink}
@@ -198,6 +203,12 @@ export default function RewardsMiniApp() {
         >
           Open in Telegram
         </a>
+        {appUrl && (
+          <p className="mt-4 max-w-sm text-[11px] text-white/40">
+            Bot <span className="font-medium">Menu Button → Edit → Web App URL</span> must be:{' '}
+            <span className="text-[#D4AF37] break-all">{appUrl}/rewards</span>
+          </p>
+        )}
       </div>
     );
   }
@@ -290,6 +301,14 @@ export default function RewardsMiniApp() {
         <Gift className="mx-auto mb-3 h-9 w-9 text-[#D4AF37]" />
         <h1 className="text-lg font-semibold">Welcome to UniUI Rewards</h1>
         <p className="mt-2 text-sm text-white/60">{verifyMsg}</p>
+
+        {!tg && telegramBrowserNoApp && (
+          <div className="mt-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3">
+            <p className="text-[11px] text-yellow-300">
+              Open this page from the bot's menu button in Telegram — don't browse here directly.
+            </p>
+          </div>
+        )}
 
         <button
           onClick={shareContact}
