@@ -197,23 +197,7 @@ export default function RewardsMiniApp() {
     const botLink = `https://t.me/${bot.replace(/^@/, '')}`;
 
     return (
-      <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
-        <Gift className="mx-auto mb-3 h-9 w-9 text-[#D4AF37]" />
-        <h1 className="text-xl font-semibold">UniUI Rewards</h1>
-        <p className="mt-2 max-w-sm text-sm text-white/60">
-          {inTelegramBrowser
-            ? 'This page must be opened from the bot menu. Tap "Open in Telegram" below, then open the bot and tap "My Rewards".'
-            : 'This page only works inside the UniUI Rewards bot. Open the bot below to access your rewards.'}
-        </p>
-        <a
-          href={botLink}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-6 rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-semibold text-black"
-        >
-          Open in Telegram
-        </a>
-      </div>
+      <BlockedPage botLink={botLink} inTelegramBrowser={inTelegramBrowser} />
     );
   }
 
@@ -357,6 +341,36 @@ export default function RewardsMiniApp() {
           </div>
         </div>
       )}
+     </div>
+   );
+}
+
+function BlockedPage({ botLink, inTelegramBrowser }: { botLink: string; inTelegramBrowser: boolean }) {
+  useEffect(() => {
+    // Auto-redirect to the bot (matches original behavior)
+    const timer = setTimeout(() => {
+      window.location.href = botLink;
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [botLink]);
+
+  return (
+    <div className="flex min-h-[100dvh] flex-col items-center justify-start px-6 pt-[25vh] text-center">
+      <Loader2 className="mx-auto mb-3 h-5 w-5 animate-spin text-[#D4AF37]" />
+      <h1 className="text-xl font-semibold">UniUI Rewards</h1>
+      <p className="mt-2 max-w-sm text-sm text-white/60">
+        {inTelegramBrowser
+          ? 'Redirecting to the bot to unlock your rewards…'
+          : 'This page only works inside Telegram. Redirecting…'}
+      </p>
+      <a
+        href={botLink}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-6 rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-semibold text-black"
+      >
+        Open in Telegram
+      </a>
     </div>
   );
 }
