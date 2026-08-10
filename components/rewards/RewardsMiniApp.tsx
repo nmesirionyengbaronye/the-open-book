@@ -86,7 +86,7 @@ export default function RewardsMiniApp() {
         }
         verifyingRef.current = false;
         setRequesting(false);
-        setVerifyMsg('Still waiting for your contact from Telegram. Tap Share and choose Allow, then try again.');
+        setVerifyMsg('Still waiting for your contact from Telegram. Tap Share and choose Allow, then try again. By sharing, you agree to the giveaway terms.');
         return;
       }
       if (!res.ok) {
@@ -133,10 +133,10 @@ export default function RewardsMiniApp() {
 
   useEffect(() => {
     if (!tg) return;
-    const handler = () => startVerify();
-    tg.onEvent?.('contactRequested', handler);
+    // tg.requestContact() callback fires once the user shares their contact —
+    // that's where we kick off verification (see shareContact). We don't need
+    // the separate 'contactRequested' event listener, which can double-fire.
     return () => {
-      tg.offEvent?.('contactRequested', handler);
       if (pollRef.current) clearTimeout(pollRef.current);
     };
   }, [tg]);
@@ -146,14 +146,15 @@ export default function RewardsMiniApp() {
     setRequesting(true);
     setVerifyMsg('Tap “Allow” in Telegram to share your number. We use it only to match your waitlist account — it can’t be faked.');
     try {
-      tg.requestContact(() => startVerify());
+      tg.requestContact(() => {
+        // Contact was shared by the user — now we can start verifying.
+        startVerify();
+      });
     } catch {
       setRequesting(false);
       setVerifyMsg('Contact sharing isn’t available here. Open the app from Telegram and tap Share.');
       return;
     }
-    // Fallback: start verification immediately; server will ask for retry if contact is still in flight.
-    startVerify();
   }
 
   if (phase === 'loading') {
@@ -279,11 +280,15 @@ export default function RewardsMiniApp() {
         <button
           onClick={shareContact}
           disabled={requesting}
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold text-black disabled:opacity-60"
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold text-black transition hover:bg-yellow-300 disabled:opacity-60"
         >
           {requesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PhoneCall className="h-4 w-4" />}
           Share Phone Number
         </button>
+
+        <p className="mt-4 text-center text-[11px] text-white/50">
+          By sharing your number you agree to the <span className="text-[#D4AF37]">giveaway terms</span>. We never store or share your number beyond matching your waitlist account.
+        </p>
       </div>
     </div>
   );

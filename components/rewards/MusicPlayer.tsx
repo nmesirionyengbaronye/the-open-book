@@ -13,7 +13,6 @@ const TRACKS = [
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false);
   const [trackIndex, setTrackIndex] = useState(0);
-  const [ready, setReady] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -23,47 +22,29 @@ export default function MusicPlayer() {
     audio.preload = 'auto';
     audioRef.current = audio;
 
-    const onCanPlay = () => setReady(true);
     const onEnded = () => {
       setTrackIndex((prev) => {
         const next = (prev + 1) % TRACKS.length;
         if (audioRef.current) {
           audioRef.current.src = TRACKS[next];
           audioRef.current.load();
-          audioRef.current.play().catch(() => {});
+          if (playing) {
+            audioRef.current.play().catch(() => {});
+          }
         }
         return next;
       });
     };
-    audio.addEventListener('canplay', onCanPlay);
     audio.addEventListener('ended', onEnded);
-    audio.src = TRACKS[0];
+    audio.src = TRACKS[trackIndex];
     audio.load();
 
     return () => {
-      audio.removeEventListener('canplay', onCanPlay);
       audio.removeEventListener('ended', onEnded);
       audio.pause();
       audioRef.current = null;
     };
-  }, []);
-
-  const playNow = useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    try {
-      await audio.play();
-      setPlaying(true);
-    } catch {
-      try {
-        audio.load();
-        await audio.play();
-        setPlaying(true);
-      } catch {
-        // blocked or unavailable
-      }
-    }
-  }, []);
+  }, [playing, trackIndex]);
 
   const toggle = useCallback(async () => {
     const audio = audioRef.current;
@@ -73,14 +54,13 @@ export default function MusicPlayer() {
       setPlaying(false);
       return;
     }
-    await playNow();
-  }, [playing, playNow]);
-
-  useEffect(() => {
-    if (ready) {
-      playNow().catch(() => {});
+    try {
+      await audio.play();
+      setPlaying(true);
+    } catch {
+      // autoplay blocked — silently do nothing; user must click again
     }
-  }, [ready, playNow]);
+  }, [playing]);
 
   return (
     <button
