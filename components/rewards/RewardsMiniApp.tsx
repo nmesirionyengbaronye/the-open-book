@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, PhoneCall, Gift, ShieldCheck } from 'lucide-react';
+import { Loader2, PhoneCall, Gift, ShieldCheck, X } from 'lucide-react';
 import { toast } from 'sonner';
 import RewardsHub from './RewardsHub';
 import MiniJoin from './MiniJoin';
@@ -25,6 +25,7 @@ export default function RewardsMiniApp() {
   const [requesting, setRequesting] = useState(false);
   const [verifyMsg, setVerifyMsg] = useState('Share your Telegram number to unlock your rewards.');
   const [agreed, setAgreed] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const verifyingRef = useRef(false);
 
@@ -33,24 +34,18 @@ export default function RewardsMiniApp() {
     let tries = 0;
     let timer: ReturnType<typeof setTimeout>;
     const check = () => {
-      const inTelegram =
-        typeof window !== 'undefined' &&
-        (!!(window as any).Telegram?.WebApp ||
-          /Telegram/i.test(navigator.userAgent) ||
-          !!document.querySelector('script[src*="telegram-web-app.js"]'));
-      if (inTelegram) {
-        const tw = (window as any).Telegram?.WebApp;
-        if (tw) {
-          try {
-            tw.ready();
-            tw.expand();
-            tw.setHeaderColor?.('#0A0A0F');
-            tw.setBackgroundColor?.('#0A0A0F');
-          } catch {
-            /* noop */
-          }
-          setTg(tw);
+      if (typeof window === 'undefined') return;
+      const tw = (window as any).Telegram?.WebApp;
+      if (tw) {
+        try {
+          tw.ready();
+          tw.expand();
+          tw.setHeaderColor?.('#0A0A0F');
+          tw.setBackgroundColor?.('#0A0A0F');
+        } catch {
+          /* noop */
         }
+        setTg(tw);
         setPhase('verify');
         return;
       }
@@ -295,7 +290,7 @@ export default function RewardsMiniApp() {
 
         <button
           onClick={shareContact}
-          disabled={requesting}
+          disabled={requesting || !tg}
           className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-semibold text-black transition hover:bg-yellow-300 disabled:opacity-60"
         >
           {requesting ? <Loader2 className="h-4 w-4 animate-spin" /> : <PhoneCall className="h-4 w-4" />}
@@ -303,9 +298,47 @@ export default function RewardsMiniApp() {
         </button>
 
         <p className="mt-4 text-center text-[11px] text-white/50">
-          By sharing your number you agree to the <span className="text-[#D4AF37]">giveaway terms</span>. We never store or share your number beyond matching your waitlist account.
+          By sharing your number you agree to the{' '}
+          <button
+            type="button"
+            onClick={() => setShowTerms(true)}
+            className="text-[#D4AF37] underline decoration-[#D4AF37]/40 underline-offset-2 hover:decoration-[#D4AF37]"
+          >
+            giveaway terms
+          </button>
+          {'. We never store or share your number beyond matching your waitlist account.'}
         </p>
       </div>
+
+      {/* Terms modal */}
+      {showTerms && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          onClick={() => setShowTerms(false)}
+        >
+          <div
+            className="max-w-sm rounded-2xl border border-[#D4AF37]/30 bg-[#0A0A0F] p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold text-white">Giveaway rules</h2>
+              <button
+                onClick={() => setShowTerms(false)}
+                className="rounded-full p-1 text-white/50 hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <ul className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
+              {RULES.map((r, i) => (
+                <li key={i} className="text-[11px] leading-relaxed text-white/70">
+                  {r}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
