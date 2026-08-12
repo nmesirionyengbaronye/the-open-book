@@ -399,7 +399,7 @@ function Progress({ step }: { step: number }) {
 
 function SuccessCard({ entry, total }: { entry: { fullName: string; position: number; referralCode: string }; total: number }) {
   const [copied, setCopied] = useState(false);
-  const url = typeof window !== "undefined" ? `${window.location.origin}/r/${entry.referralCode}` : `/r/${entry.referralCode}`;
+  const url = typeof window !== "undefined" ? `${window.location.origin}/join?ref=${entry.referralCode}` : `/join?ref=${entry.referralCode}`;
   const share = () => {
     const text = `I just joined the Uni UI waitlist (#${entry.position}). Join with my link, we both jump the queue: ${url}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");

@@ -142,7 +142,7 @@ async function handleCommand(
           `Verified: <b>${profile.effectiveReferrals}</b>\n` +
           `Joined via link: ${profile.joinedCount}\n` +
           `Every 7 verified referrals = 1 mystery box + 1 spin.\n\n` +
-          `🔗 Your link: ${APP_URL}/r/${profile.referralCode}`
+          `🔗 Your link: ${APP_URL}/join?ref=${profile.referralCode}`
       );
     }
 
@@ -150,7 +150,7 @@ async function handleCommand(
       const profile = await profileByTelegram(telegramId);
       if (!profile) return notVerified(reply);
       return reply(
-        `🔗 <b>Share your link</b>\n\n${APP_URL}/r/${profile.referralCode}\n\n` +
+        `🔗 <b>Share your link</b>\n\n${APP_URL}/join?ref=${profile.referralCode}\n\n` +
           `Share it on status, groups or DMs. Each verified friend unlocks more rewards for you.`
       );
     }

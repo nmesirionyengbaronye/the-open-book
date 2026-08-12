@@ -68,7 +68,9 @@ export async function GET(request: NextRequest) {
     const badges = getEarnedBadges(ctx);
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://waitlist.uniui.com.ng';
-    const referralLink = `${baseUrl}/?ref=${referrer.referral_code}`;
+    // Land the referral on the join page (pre-filled with the referrer code),
+    // so anyone scanning the QR or opening the link signs up through /join.
+    const referralLink = `${baseUrl}/join?ref=${referrer.referral_code}`;
 
     const inviteParam = request.nextUrl.searchParams.get('invites');
     const streakParam = request.nextUrl.searchParams.get('streak');

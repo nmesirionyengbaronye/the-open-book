@@ -245,7 +245,7 @@ export default function RewardsHub({
             <LinkExpiryWarning
               expiresAt={new Date(profile.referralLinkExpiresAt)}
               onShare={() => {
-                navigator.clipboard.writeText(`${window.location.origin}/r/${profile.referralCode}`);
+                navigator.clipboard.writeText(`${window.location.origin}/join?ref=${profile.referralCode}`);
                 toast.success('Link copied');
               }}
             />
