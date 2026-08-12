@@ -4,13 +4,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { Share2, Trophy, Users, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
+const BASE_URL = 'https://waitlist.uniui.com.ng';
+const REFERRAL_LINK = `${BASE_URL}/join?ref=`;
+
 const templates = {
   whatsapp: (code: string, name: string) =>
-    `Hey! I'm joining the UniUI waitlist and I thought you might want in too. Use my link to get early access: https://uniuiapp.com/r/${code} — ${name}`,
+    `Hey! I'm joining the UniUI waitlist and I thought you might want in too. Use my link to get early access: ${REFERRAL_LINK}${code} — ${name}`,
   instagram: (code: string) =>
-    `Early access unlocked 🎟️ Join me on the UniUI waitlist and let's both move up faster:\nhttps://uniuiapp.com/r/${code}`,
+    `Early access unlocked 🎟️ Join me on the UniUI waitlist and let's both move up faster:\n${REFERRAL_LINK}${code}`,
   twitter: (code: string) =>
-    `I just joined the UniUI waitlist. If you’re a student who hates clunky school tools, you’ll want in too:\nhttps://uniuiapp.com/r/${code}`,
+    `I just joined the UniUI waitlist. If you’re a student who hates clunky school tools, you’ll want in too:\n${REFERRAL_LINK}${code}`,
 };
 
 export default function ShareTemplates({ code, fullName }: { code: string; fullName: string }) {

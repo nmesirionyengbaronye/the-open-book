@@ -9,7 +9,7 @@ export function generateShareImage(params: {
   milestone: number;
 }) {
   const { name, referrals, rank, milestone } = params;
-  const shareText = `🏆 ${name} on UniUI\n📊 ${referrals} verified referrals\n🏅 Rank: ${rank ? `#${rank}` : 'Unranked'}\n🎯 ${milestone} milestone reached\n\nJoin me: https://uniuiapp.com`;
+  const shareText = `🏆 ${name} on UniUI\n📊 ${referrals} verified referrals\n🏅 Rank: ${rank ? `#${rank}` : 'Unranked'}\n🎯 ${milestone} milestone reached\n\nJoin me: https://waitlist.uniui.com.ng`;
 
   if (typeof window === 'undefined') return shareText;
 
