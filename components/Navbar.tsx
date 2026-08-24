@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 
 const LINKS = [
@@ -14,7 +14,7 @@ const LINKS = [
   { id: "milestones", label: "Milestones", path: "/milestones" },
   { id: "dashboard", label: "Dashboard", path: "/dashboard" },
   { id: "winners", label: "Winners", path: "/winners" },
-  { id: "recommendations", label: "Feedback", path: "/" },
+  { id: "feedback", label: "Feedback", path: "/feedback" },
 ];
 
 export function Navbar() {
@@ -53,13 +53,13 @@ export function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
          <button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2 group">
-           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow">
-             <BookOpen className="w-5 h-5 text-background" strokeWidth={2.5} />
-           </div>
-           <span className="font-display text-lg tracking-tight">
-             UNI <span className="text-gold">UI</span>
-           </span>
-         </button>
+            <div className="w-11 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow">
+              <img src="/logo.png" alt="Uni UI" className="h-6 w-auto object-contain" />
+            </div>
+            <span className="font-display text-lg tracking-tight">
+              UNI <span className="text-gold">UI</span>
+            </span>
+          </button>
 
         <nav className="hidden md:flex items-center gap-1">
           {LINKS.map((l) => (

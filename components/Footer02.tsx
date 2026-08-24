@@ -28,7 +28,7 @@ export default function Footer02() {
               <li><Link href="/about" className="hover:text-gold transition">About</Link></li>
               <li><Link href="/leaderboard" className="hover:text-gold transition">Leaderboard</Link></li>
               <li><Link href="/winners" className="hover:text-gold transition">Winners</Link></li>
-              <li><Link href="/recommendations" className="hover:text-gold transition">Recommendations</Link></li>
+              <li><Link href="/feedback" className="hover:text-gold transition">Feedback</Link></li>
             </ul>
           </div>
           <div>

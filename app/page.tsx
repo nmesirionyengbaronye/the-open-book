@@ -1,6 +1,6 @@
 'use client';
 
-import { WhatIs, Features, HowItWorks, RolloutRoadmap, Testimonials, FAQ, Recommendations } from '@/components/Sections';
+import { WhatIs, Features, HowItWorks, RolloutRoadmap, Testimonials, FAQ } from '@/components/Sections';
 import { JoinForm } from '@/components/JoinForm';
 import { Retrieve } from '@/components/Retrieve';
 import { Leaderboard } from '@/components/Leaderboard';
@@ -32,7 +32,6 @@ export default function Home() {
         <RolloutRoadmap />
         <Testimonials />
         <FAQ />
-        <Recommendations />
         <SocialProof />
         <ReferralTips />
         <ReferralContest />

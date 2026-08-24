@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, MessageSquare, LogOut, BookOpen, Gift, Wallet, Coins } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, LogOut, Gift, Wallet, Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -31,7 +31,7 @@ export function AdminNavbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center gap-8">
             <Link href="/admin" className="flex items-center gap-2">
-              <BookOpen className="w-6 h-6 text-gold" />
+              <img src="/logo.png" alt="Uni UI" className="h-6 w-auto object-contain" />
               <span className="font-display font-bold text-xl tracking-tight">
                 Uni<span className="text-gold">UI</span> Admin
               </span>
