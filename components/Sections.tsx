@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Upload, ShieldCheck, Sparkles, Brain, FileSearch, MessageSquare, Award, ChevronDown, MessageCircle, Share2 } from "lucide-react";
+import { WAITLIST_ROADMAP, WAITLIST_FULL_COVERAGE_DATE } from '@/lib/links';
 
 const spring = { type: 'spring', stiffness: 100, damping: 12, mass: 0.5 } as const;
 
@@ -191,8 +192,8 @@ const FAQS = [
       a: "YOU WILL HAVE A GENEROUS FREE TIER BUT AT THE END YOU WILL PAY CONSIDERABLY CHEAP AMOUNT.",
     },
   {
-    q: "WHICH UNIVERSITIES AND COURSES ARE SUPPORTED AT LAUNCH?",
-    a: "AT LAUNCH, WE’RE FOCUSED ON FUTO (FEDERAL UNIVERSITY OF TECHNOLOGY, OWERRI) FOR ENGINEERING, SCIENCE, AND TECHNOLOGY COURSES. WE PLAN TO EXPAND TO UNILAG, UI, UNN, ABU, OAU, UNIBEN, FUTA, AND UNIPORT IN PHASES BASED ON WAITLIST DEMAND. IF YOU’RE FROM ANOTHER SCHOOL, JOIN THE WAITLIST ANYWAY—WE’LL PRIORITIZE SCHOOLS WITH THE MOST SIGNUPS.",
+                       q: "WHICH UNIVERSITIES AND COURSES ARE SUPPORTED AT LAUNCH?",
+                       a: "AT LAUNCH, UNI UI IS LIVE FOR FUTO (FEDERAL UNIVERSITY OF TECHNOLOGY, OWERRI) — GO TO app.uniui.com.ng TO START USING IT TODAY. THE WAITLIST IS OPEN FOR STUDENTS AT EVERY GOVERNMENT-OWNED UNIVERSITY, STATE UNIVERSITY, AND POLYTECHNIC ACROSS SOUTHERN NIGERIA (ABIA, IMO, LAGOS, OGUN, OSUN, ONDO, EDO, DELTA, RIVERS, CROSS RIVER, AKWA IBOM, OYO, EKITI, ANAMBRA, ENUGU, EBONYI, BAYELSA) AND WILL REMAIN OPEN TILL AUGUST 2027. WE OPEN SCHOOLS IN WAVES — THE FIRST 6 UNIVERSITIES GO LIVE IN NOVEMBER 2026, THEN 3 MORE UNIVERSITIES EVERY MONTH TILL FULL COVERAGE — JOIN NOW AND MOVE UP THE QUEUE.",
   },
     {
       q: "WHAT YEAR/LEVEL OF STUDENTS CAN JOIN?",
@@ -204,7 +205,7 @@ const FAQS = [
     },
     {
       q: "WHEN WILL THE PLATFORM BE FULLY AVAILABLE?",
-      a: "IT WILL BE OPEN FOR ALL FUTO STUDENTS AS A WEB APP FOR 2025/2026 ACADEMIC SECTION, THEN THE APP WILL BE AVAILABLE BY NEXT SEMESTER, EXPANSION WILL BEGIN AT SECOND SEMESTER OF 2026/2027.",
+       a: "FUTO STUDENTS CAN USE THE APP LIVE NOW AT app.uniui.com.ng. FOR ALL OTHER SOUTHERN-NIGERIA SCHOOLS, THE WAITLIST OPENS UNIVERSITIES IN WAVES — THE FIRST 6 GO LIVE NOVEMBER 2026, THEN 3 MORE UNIVERSITIES EACH MONTH THROUGH JULY 2027, WITH FULL SOUTHERN COVERAGE BY AUGUST 2027. WE’LL WHATSAPP YOU WHEN YOUR SCHOOL’S BETA OPENS.",
     },
   {
     q: "WHAT MATERIALS SHOULD I UPLOAD?",
@@ -350,3 +351,76 @@ const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   show: (i: number = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const } }),
 };
+
+/**
+ * Progressive rollout timeline surfaced on the landing page so waitlist hopefuls
+ * can see exactly when their university comes online — 6 universities land in
+ * the first wave (November 2026), then 3 more go live every month through
+ * August 2027, when the full Southern-Nigeria lineup is live.
+ */
+export function RolloutRoadmap() {
+  return (
+    <section id="roadmap" className="py-20 px-5">
+      <div className="max-w-4xl mx-auto">
+        <motion.div
+          initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}
+          variants={fadeUp} transition={spring}
+          className="text-center mb-12"
+        >
+          <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">Rollout</div>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold">
+            WHEN DOES <span className="text-gold">MY UNIVERSITY</span> GO LIVE?
+          </h2>
+          <p className="mt-3 max-w-2xl mx-auto text-sm text-muted-foreground">
+            Uni UI is live for FUTO today. The waitlist opens universities in waves &mdash; 6 go
+            live November 2026, then 3 more every month until full Southern coverage by{' '}
+            <span className="text-gold">{WAITLIST_FULL_COVERAGE_DATE}</span>.
+          </p>
+        </motion.div>
+
+        <div className="relative pl-4">
+          <div className="absolute left-[17px] top-0 bottom-0 w-px bg-white/10" />
+          <div className="space-y-3">
+            {WAITLIST_ROADMAP.map((phase, i) => {
+              const isFirst = i === 0;
+              const isComplete = phase.complete;
+              const dotColor = isFirst
+                ? 'bg-emerald-400'
+                : isComplete
+                  ? 'bg-gold'
+                  : 'bg-white/20';
+              const plus = phase.universities > 0
+                ? `+${phase.universities} university${phase.universities > 1 ? 's' : ''}`
+                : 'complete';
+              return (
+                <motion.div
+                  key={phase.key}
+                  initial={{ opacity: 0, x: -8 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ ...spring, delay: i * 0.05 }}
+                  className="relative flex items-start gap-3"
+                >
+                  <span className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 rounded-full ${dotColor}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="text-sm font-medium text-foreground">{phase.month}</span>
+                      <span className={isComplete ? 'text-[10px] uppercase tracking-wider text-gold/80' : 'text-xs text-white/40'}>{plus}</span>
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      {isComplete
+                        ? `All Southern-Nigeria universities live by ${WAITLIST_FULL_COVERAGE_DATE}`
+                        : isFirst
+                          ? 'First wave of 6 universities goes live'
+                          : '3 more universities go live'}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

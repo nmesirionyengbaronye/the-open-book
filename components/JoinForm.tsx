@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, AlertCircle, Copy, Share2, ArrowRight, ArrowLeft, Loader2, MessageCircle, Sparkles, WifiOff } from "lucide-react";
-import { INSTITUTIONS } from "@/lib/institutions";
+import { INSTITUTIONS, isLiveInstitution } from "@/lib/institutions";
 import { normalizeWhatsApp } from "@/lib/validation";
 import useSound from "@/hooks/useSound";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
 import { ReferralDashboard } from "@/components/ReferralDashboard";
-import { WHATSAPP_URL } from "@/lib/links";
+import { WaitlistRoadmap } from "@/components/WaitlistRoadmap";
+import { WHATSAPP_URL, APP_URL, WAITLIST_TARGET_DATE } from "@/lib/links";
 import { useOfflineQueue } from "@/lib/offline-queue";
 
 function normalizeNG(input: string): string | null {
@@ -81,6 +82,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const normalized = useMemo(() => normalizeNG(form.whatsapp), [form.whatsapp]);
   const institutionObj = useMemo(() => INSTITUTIONS.find((i) => i.code === form.institution), [form.institution]);
   const schoolObj = useMemo(() => institutionObj?.schools.find((s) => s.name === form.school), [institutionObj, form.school]);
+  const isLiveSchool = useMemo(() => isLiveInstitution(form.institution), [form.institution]);
 
   const step1Valid = form.fullName.trim().length >= 2 && !!normalized;
   const step2Valid = !!form.institution && !!form.school && !!form.department && !!form.level && !!form.semester && form.hardestCourse.trim().length >= 3;
@@ -168,10 +170,16 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                  <div className="w-16 h-16 mx-auto rounded-full bg-gold/20 grid place-items-center">
                    <Check className="w-8 h-8 text-gold" />
                  </div>
-                  <h3 className="mt-5 text-2xl font-display font-bold">You&apos;re in, {result.fullName.split(" ")[0]}.</h3>
-                  <p className="mt-2 text-muted-foreground text-sm">We&apos;ll WhatsApp you when your school&apos;s beta opens.</p>
+<h3 className="mt-5 text-2xl font-display font-bold">You&apos;re in, {result.fullName.split(" ")[0]}.</h3>
+                    <p className="mt-2 text-muted-foreground text-sm">
+                      {institutionObj?.live
+                        ? `Go to ${APP_URL} to start uploading your materials now.`
+                        : `We'll WhatsApp you when access for ${institutionObj?.name || "your school"} opens. The first wave of universities goes live November 2026, with new schools going live every month through August 2027.`}
+                    </p>
 
-                  <div className="mt-6 flex flex-col gap-3">
+                    {!institutionObj?.live && <WaitlistRoadmap />}
+
+                   <div className="mt-6 flex flex-col gap-3">
                     <a href={WHATSAPP_URL} target="_blank" rel="noreferrer"
                        className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover">
                       <MessageCircle className="w-5 h-5" /> Join WhatsApp Community
@@ -266,12 +274,29 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                      )}
                      {step === 1 && (
                        <div className="space-y-4">
-                         <Field label="Institution">
-                           <select value={form.institution} onChange={(e) => { setForm(prev => ({ ...prev, institution: e.target.value, school: "", department: "" })); }} className={inputCls}>
-                             <option value="">Select your school</option>
-                             {INSTITUTIONS.map((i) => <option key={i.code} value={i.code}>{i.name}</option>)}
-                           </select>
-                         </Field>
+                          <Field label="Institution">
+                            <select value={form.institution} onChange={(e) => { setForm(prev => ({ ...prev, institution: e.target.value, school: "", department: "" })); }} className={inputCls}>
+                              <option value="">Select your school</option>
+                              {INSTITUTIONS.map((i) => <option key={i.code} value={i.code}>{i.name}</option>)}
+                            </select>
+                          </Field>
+
+                          {institutionObj && (
+                            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                              className="text-[11px] flex items-center gap-1.5 px-1">
+                              {institutionObj.live ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                  <span className="text-emerald-300">Uni UI is <span className="font-semibold">live</span> for {institutionObj.name} at {APP_URL}.</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-gold" />
+                                  <span className="text-gold/80">{institutionObj.name} is on the waitlist. First wave opens November 2026; new universities go live each month through {WAITLIST_TARGET_DATE}.</span>
+                                </>
+                              )}
+                            </motion.div>
+                          )}
 
                           <Field label="School / Faculty">
                             <select value={form.school} onChange={(e) => { setForm(prev => ({ ...prev, school: e.target.value, department: "" })); }} disabled={!institutionObj} className={inputCls}>

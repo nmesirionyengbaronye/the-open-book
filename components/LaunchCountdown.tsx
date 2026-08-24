@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { WAITLIST_FULL_COVERAGE_DATE } from '@/lib/links';
 
 export default function LaunchCountdown() {
   const [timeLeft, setTimeLeft] = useState({
@@ -12,7 +13,7 @@ export default function LaunchCountdown() {
 
   useEffect(() => {
     const launchDate = new Date(
-      process.env.NEXT_PUBLIC_LAUNCH_DATE || '2026-07-10'
+      process.env.NEXT_PUBLIC_LAUNCH_DATE || '2026-11-01'
     ).getTime();
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -68,8 +69,7 @@ export default function LaunchCountdown() {
       </div>
       <div className="mt-8 text-center max-w-md">
         <p className="text-xs text-muted-foreground leading-relaxed tracking-wide">
-          Deploying <span className="text-gold">University Uploaded Intelligence</span> tailored for your second‑semester exams. 
-          Queue is moving fast.
+          Uni UI is <span className="text-gold">live for FUTO students now</span> at app.uniui.com.ng. The first waitlist wave — 6 more universities — launches November 2026, with 3 universities added each month through {WAITLIST_FULL_COVERAGE_DATE}.
         </p>
       </div>
     </div>

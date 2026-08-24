@@ -27,8 +27,8 @@ export default {
         border: "rgba(255, 255, 255, 0.1)",
       },
       fontFamily: {
-        heading: ["var(--font-heading)", "Space Grotesk", "sans-serif"],
-        body: ["var(--font-body)", "Inter", "sans-serif"],
+        heading: ["Bebas Neue"],
+        body: ["Syne"],
         mono: ["var(--font-mono)", "JetBrains Mono", "monospace"],
         handwriting: ["var(--font-handwriting)", "Caveat", "cursive"],
       },

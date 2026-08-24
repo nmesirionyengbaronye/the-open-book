@@ -5,6 +5,8 @@ import { Loader2, Check, AlertCircle } from 'lucide-react';
 import { INSTITUTIONS } from '@/lib/institutions';
 import { normalizeWhatsApp } from '@/lib/validation';
 import { toast } from 'sonner';
+import { APP_URL, WAITLIST_TARGET_DATE } from '@/lib/links';
+import { WaitlistRoadmap } from '@/components/WaitlistRoadmap';
 
 const inputCls =
   'w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder-white/40 focus:border-[#D4AF37] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/20';
@@ -145,6 +147,18 @@ export default function MiniJoin({ onJoined }: { onJoined: () => void }) {
                   </option>
                 ))}
               </select>
+              {institutionObj && (
+                <p className="mt-1 text-[10px] text-white/40">
+                  {institutionObj.live ? (
+                    <span className="text-emerald-300">Uni UI is live for {institutionObj.name} — go to {APP_URL}.</span>
+                  ) : (
+                    <>
+                      <span className="text-gold/80">{institutionObj.name} is on the waitlist until {WAITLIST_TARGET_DATE}.</span>
+                      <span className="mt-1.5 block text-[10px] text-white/40">First wave opens November 2026; new universities go live each month.</span>
+                    </>
+                  )}
+                </p>
+              )}
             </div>
             <div>
               <label className="mb-1 block text-[11px] uppercase tracking-wider text-white/50">School / Faculty</label>
