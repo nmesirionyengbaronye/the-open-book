@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { isValidSession } from '@/lib/admin-session';
 
 function toCSV(rows: Record<string, any>[], columns: string[]): string {
   const escape = (v: unknown) => {
@@ -49,7 +50,7 @@ const TABLES: Record<string, { table: string; columns: string[] }> = {
 
 export async function GET(req: NextRequest) {
   const session = req.cookies.get('admin_session');
-  if (session?.value !== 'authenticated') {
+  if (!isValidSession(session?.value)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const table = req.nextUrl.searchParams.get('table') || 'users';

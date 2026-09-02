@@ -1,35 +1,36 @@
-/**
- * Admin session management using secure random tokens.
- *
- * Tokens are stored server-side in memory. This is suitable for a single
- * Next.js instance; for multi-instance deployments, replace the in-memory
- * store with Redis or a database table.
- */
-
+import crypto from 'crypto';
 import { cookies } from 'next/headers';
 
 const SESSION_COOKIE = 'admin_session';
 const SESSION_TTL_MS = 60 * 60 * 24 * 1000; // 24 hours
 
-/**
- * In-memory session store: token -> expiry timestamp.
- * WARNING: this resets on server restart. For multi-instance or persistent
- * deployments, move this to Redis or a database.
- */
-const sessions = new Map<string, number>();
+// Signing secret for admin sessions. Prefer ADMIN_SESSION_SECRET; fall back to
+// ADMIN_PASSWORD so no extra config is needed. This value is server-only and
+// is never shipped to the browser.
+const SESSION_SECRET = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD || '';
 
-function cleanupExpired(): void {
-  const now = Date.now();
-  for (const [token, expiry] of sessions.entries()) {
-    if (expiry <= now) sessions.delete(token);
-  }
+/**
+ * Stateless admin sessions.
+ *
+ * The previous implementation kept session tokens in an in-memory Map, which
+ * does not survive Vercel serverless invocations (cold starts / separate
+ * containers), so every protected request looked unauthenticated. The cookie
+ * value is now an HMAC-signed token: `<expiryEpochMs>.<hex(signature)>`.
+ * Verification is self-contained (signature + expiry), so it works identically
+ * across serverless invocations, Node API routes, and the Edge middleware.
+ */
+
+function sign(payload: string): string {
+  return crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex');
 }
 
-export function createSession(): { token: string; cookie: { name: string; value: string; options: Record<string, any> } } {
-  cleanupExpired();
-  const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
-  const expiry = Date.now() + SESSION_TTL_MS;
-  sessions.set(token, expiry);
+export function createSession(): {
+  token: string;
+  cookie: { name: string; value: string; options: Record<string, any> };
+} {
+  const exp = Date.now() + SESSION_TTL_MS;
+  const payload = String(exp);
+  const token = `${payload}.${sign(payload)}`;
   return {
     token,
     cookie: {
@@ -52,17 +53,22 @@ export async function getSessionToken(): Promise<string | undefined> {
 }
 
 export function isValidSession(token: string | undefined): boolean {
-  if (!token) return false;
-  cleanupExpired();
-  const expiry = sessions.get(token);
-  if (!expiry) return false;
-  if (expiry <= Date.now()) {
-    sessions.delete(token);
-    return false;
-  }
-  return true;
+  if (!token || !SESSION_SECRET) return false;
+  const dot = token.lastIndexOf('.');
+  if (dot === -1) return false;
+  const payload = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  const exp = Number(payload);
+  if (!Number.isFinite(exp) || exp <= Date.now()) return false;
+  const expected = sign(payload);
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  // constant-time comparison to avoid timing side channels
+  return crypto.timingSafeEqual(a, b);
 }
 
 export function destroySession(token: string): void {
-  sessions.delete(token);
+  // Stateless: there is nothing server-side to delete. The client clears the
+  // cookie (see /api/admin/logout), which is sufficient.
 }

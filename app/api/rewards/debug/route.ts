@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { MILESTONE } from '@/lib/referral-counts';
+import { isValidSession } from '@/lib/admin-session';
 
 export const runtime = 'nodejs';
 
 function adminOnly(req: NextRequest) {
   const session = req.cookies.get('admin_session');
-  return session?.value === 'authenticated';
+  return isValidSession(session?.value);
 }
 
 export async function GET(req: NextRequest) {
