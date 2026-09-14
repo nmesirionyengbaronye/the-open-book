@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Users, TrendingUp, Flame, Trophy } from 'lucide-react';
 
 export function SocialProof() {
-  const [stats, setStats] = useState({ total: 0, today: 0, week: 0, topReferrer: 0 });
+  const [stats, setStats] = useState({ total: 0, today: 0, week: 0, topReferrer: 0, verified: 0 });
 
   useEffect(() => {
     let cancelled = false;
@@ -18,6 +18,7 @@ export function SocialProof() {
             today: data?.today || 0,
             week: data?.week || 0,
             topReferrer: data?.topReferrers?.[0]?.count || 0,
+            verified: data?.verified || 0,
           });
         }
       })
@@ -54,6 +55,11 @@ export function SocialProof() {
             <Trophy className="w-6 h-6 text-gold mx-auto mb-2" />
             <div className="text-2xl font-display font-bold text-gold">{stats.topReferrer}</div>
             <div className="text-xs text-muted-foreground">Top referrer count</div>
+          </div>
+          <div className="glass rounded-2xl p-6 text-center">
+            <Users className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
+            <div className="text-2xl font-display font-bold text-emerald-400">{stats.verified.toLocaleString()}</div>
+            <div className="text-xs text-muted-foreground">Verified for rewards</div>
           </div>
         </div>
       </div>

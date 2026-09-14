@@ -47,6 +47,14 @@ export async function GET() {
       .select('*', { count: 'exact', head: true })
       .not('referred_by', 'is', null);
 
+    // Telegram-verified signups = students who are eligible for the rewards
+    // engine (spins, boxes, leaderboard). Surface this alongside total signups
+    // so the waitlist page can show both "X on the waitlist" and "Y ready for rewards".
+    const { count: verifiedCount } = await supabaseAdmin
+      .from('waitlist')
+      .select('*', { count: 'exact', head: true })
+      .eq('telegram_verified', true);
+
     const { data: hardest } = await supabaseAdmin.from('waitlist').select('hardest_course');
     const courseCounts = new Map<string, number>();
     (hardest || []).forEach((e: any) => {
@@ -73,6 +81,7 @@ export async function GET() {
     return NextResponse.json({
       total: total || 0,
       totalReferrals: totalReferrals || 0,
+      verified: verifiedCount || 0,
       today: today || 0,
       week: week || 0,
       recentNames: recent,

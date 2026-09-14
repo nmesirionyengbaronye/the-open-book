@@ -39,6 +39,8 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
     hardestCourse: "",
   });
   const [offline, setOffline] = useState(false);
+  const [liveTotal, setLiveTotal] = useState<number | null>(null);
+  const [liveVerified, setLiveVerified] = useState<number | null>(null);
 
   useEffect(() => {
     setOffline(!navigator.onLine);
@@ -46,7 +48,19 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
     const handleOffline = () => setOffline(true);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+
+    let cancelled = false;
+    fetch('/api/waitlist/stats')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) {
+          setLiveTotal(typeof d.total === 'number' ? d.total : null);
+          setLiveVerified(typeof d.verified === 'number' ? d.verified : null);
+        }
+      })
+      .catch(() => {});
     return () => {
+      cancelled = true;
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
@@ -202,9 +216,18 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                <h2 className="mt-3 text-3xl sm:text-5xl font-display font-bold">
                  Get on the <span className="text-gold">WAITLIST</span>.
                </h2>
-               <p className="mt-3 text-muted-foreground">
-                 We're letting students in by school. Earlier signups = earlier access.
-               </p>
+                <p className="mt-3 text-muted-foreground">
+                  We're letting students in by school. Earlier signups = earlier access.
+                </p>
+                {liveTotal != null && (
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    <span className="text-gold font-semibold">{liveTotal.toLocaleString()}</span> students on the waitlist ·{' '}
+                    <span className="text-emerald-400 font-semibold">{liveVerified == null ? '—' : `${liveVerified.toLocaleString()}`}</span> verified for rewards
+                  </p>
+                )}
+                {!liveTotal && (
+                  <p className="mt-3 text-sm text-muted-foreground">Loading waitlist count…</p>
+                )}
              </div>
 
               {verifyingRef && (
