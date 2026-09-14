@@ -92,7 +92,7 @@ function Cover({ progress, side }: { progress: MotionValue<number>; side: "left"
           <div>
             <div className="text-gold font-display text-base leading-tight">University Uploaded Intelligence</div>
             <div className="mt-2 h-px bg-gold/40" />
-            <div className="text-gold/60 text-[10px] mt-2">Semester I · {side === "left" ? "Vol. I" : "Vol. II"}</div>
+            <div className="text-gold/60 text-[10px] mt-2">FUTO Live · Semester Materials</div>
           </div>
         </div>
       </div>
@@ -190,7 +190,7 @@ export default function Hero() {
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-muted-foreground">
             UPLOAD YOUR COURSE MATERIALS. GET ACCURATE ANSWERS SOURCED FROM YOUR OWN NOTES.
-            BUILT BY A FUTO STUDENT WHO GOT TIRED OF FAILING.
+            BUILT BY NIGERIAN STUDENTS, FOR NIGERIAN STUDENTS. STARTED AT FUTO.
           </p>
           <motion.button
             style={{ opacity: buttonOpacity }}
@@ -201,9 +201,9 @@ export default function Hero() {
           </motion.button>
           <motion.div
             style={{ opacity: scrollPromptOpacity }}
-            className="mt-6 text-[10px] tracking-[0.3em] text-muted-foreground/60 uppercase animate-pulse"
+            className="mt-6 text-[10px] tracking-[0.3em] text-muted-foreground/60 uppercase"
           >
-            SCROLL TO READ MY STORY
+            'Uni UI — live at FUTO now'
           </motion.div>
         </motion.div>
       </div>

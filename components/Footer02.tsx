@@ -6,7 +6,7 @@ export default function Footer02() {
   return (
     <footer className="border-t border-white/10 bg-background/80 backdrop-blur">
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           <div>
             <div className="font-display text-lg font-bold tracking-tight">Uni <span className="text-gold">UI</span></div>
             <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
@@ -29,6 +29,14 @@ export default function Footer02() {
               <li><Link href="/leaderboard" className="hover:text-gold transition">Leaderboard</Link></li>
               <li><Link href="/winners" className="hover:text-gold transition">Winners</Link></li>
               <li><Link href="/feedback" className="hover:text-gold transition">Feedback</Link></li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Legal</div>
+            <ul className="space-y-2 text-sm text-white/70">
+              <li><Link href="/privacy" className="hover:text-gold transition">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-gold transition">Terms of Service</Link></li>
+              <li><Link href="/data-deletion" className="hover:text-gold transition">Delete My Data</Link></li>
             </ul>
           </div>
           <div>

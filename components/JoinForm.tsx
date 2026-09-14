@@ -41,6 +41,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const [offline, setOffline] = useState(false);
   const [liveTotal, setLiveTotal] = useState<number | null>(null);
   const [liveVerified, setLiveVerified] = useState<number | null>(null);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   useEffect(() => {
     setOffline(!navigator.onLine);
@@ -99,7 +100,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
   const isLiveSchool = useMemo(() => isLiveInstitution(form.institution), [form.institution]);
 
   const step1Valid = form.fullName.trim().length >= 2 && !!normalized;
-  const step2Valid = !!form.institution && !!form.school && !!form.department && !!form.level && !!form.semester && form.hardestCourse.trim().length >= 3;
+  const step2Valid = !!form.institution && !!form.school && !!form.department && !!form.level && !!form.semester && form.hardestCourse.trim().length >= 3 && consentChecked;
 
   const next = () => { play('ding'); setDirection(1); setStep((s) => s + 1); };
   const back = () => { play('ding'); setDirection(-1); setStep((s) => s - 1); };
@@ -134,33 +135,30 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
         body: JSON.stringify(payload),
       });
 
-     setSubmitting(false);
+      setSubmitting(false);
 
-     if (!res.ok) {
-       play('error');
-       const err = await res.json();
-       console.log('Server response:', err);
-       // Show the error from the server in an alert for debugging
-       alert(`Error from server: ${JSON.stringify(err)}`);
-       if (res.status === 409) {
-         setError(`This number is already on the waitlist! ${err.code ? `Your code: ${err.code}` : ''}`);
-         toast.error("", {
-           description: (
-             <>
-               This WhatsApp number is already on the waitlist!{' '}
-               <a href="/retrieve" className="underline cursor-pointer text-gold">
-                 Retrieve your referral link here
-               </a>
-             </>
-           ),
-           id: "duplicate"
-         });
-       } else {
-         setError(err.error || "Submission failed");
-         toast.error("Error", { description: err.error, id: "join-error" });
-       }
-       return;
-     }
+      if (!res.ok) {
+        play('error');
+        const err = await res.json();
+        console.log('Server response:', err);
+        setError(err.error || "Submission failed");
+        if (res.status === 409) {
+          toast.error("", {
+            description: (
+              <>
+                This WhatsApp number is already on the waitlist!{' '}
+                <a href="/retrieve" className="underline cursor-pointer text-gold">
+                  Retrieve your referral link here
+                </a>
+              </>
+            ),
+            id: "duplicate"
+          });
+        } else {
+          toast.error("Error", { description: err.error, id: "join-error" });
+        }
+        return;
+      }
 
      const data = await res.json();
      play('success');
@@ -372,36 +370,57 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                          <ReviewRow k="Level / Semester" v={`${form.level} · ${form.semester}`} />
                          <ReviewRow k="Hardest Course" v={form.hardestCourse} />
                          {refCode && <ReviewRow k="Referred by" v={refCode} accent />}
-                         {error && (
-                           <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
-                             <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-                             <div className="text-xs leading-relaxed">{error}</div>
-                           </div>
-                         )}
+                          {error && (
+                            <div className="mt-4 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
+                              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                              <div className="text-xs leading-relaxed">{error}</div>
+                            </div>
+                          )}
+                          <div className="mt-4 flex items-start gap-2">
+                            <input
+                              type="checkbox"
+                              id="consent"
+                              checked={consentChecked}
+                              onChange={(e) => setConsentChecked(e.target.checked)}
+                              className="mt-0.5 w-4 h-4 accent-gold"
+                              required
+                            />
+                            <label htmlFor="consent" className="text-xs text-muted-foreground leading-relaxed">
+                              I agree to Uni UI collecting my WhatsApp number and details for waitlist purposes,
+                              notifications, and referral tracking. I've read and understood the{' '}
+                              <a href="/privacy" className="text-gold underline">Privacy Policy</a> and{' '}
+                              <a href="/terms" className="text-gold underline">Terms of Service</a>.
+                            </label>
+                          </div>
                        </div>
                      )}
                    </motion.div>
                  </AnimatePresence>
                </div>
 
-               <div className="mt-6 flex items-center justify-between gap-3">
-                 <button onClick={back} disabled={step === 0}
-                   className="px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-gold disabled:opacity-30 inline-flex items-center gap-2">
-                   <ArrowLeft className="w-4 h-4" /> Back
-                 </button>
-                 {step < 2 ? (
-                   <button onClick={next}
-                     disabled={(step === 0 && !step1Valid) || (step === 1 && !step2Valid)}
-                     className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold disabled:opacity-40 inline-flex items-center gap-2 gold-glow-hover">
-                     Continue <ArrowRight className="w-4 h-4" />
-                   </button>
-                 ) : (
-                   <button onClick={submit} disabled={submitting}
-                     className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold inline-flex items-center gap-2 gold-glow-hover disabled:opacity-60">
-                     {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : <>Claim my spot <Sparkles className="w-4 h-4" /></>}
-                   </button>
-                 )}
-               </div>
+                <div className="mt-6 flex items-center justify-between gap-3">
+                  <button onClick={back} disabled={step === 0}
+                    className="px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-gold disabled:opacity-30 inline-flex items-center gap-2">
+                    <ArrowLeft className="w-4 h-4" /> Back
+                  </button>
+                  {step < 2 ? (
+                    <button onClick={next}
+                      disabled={(step === 0 && !step1Valid) || (step === 1 && !step2Valid)}
+                      className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold disabled:opacity-40 inline-flex items-center gap-2 gold-glow-hover">
+                      Continue <ArrowRight className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button onClick={submit} disabled={submitting}
+                      className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold inline-flex items-center gap-2 gold-glow-hover disabled:opacity-60">
+                      {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting…</> : <>Claim my spot <Sparkles className="w-4 h-4" /></>}
+                    </button>
+                  )}
+                </div>
+                <p className="mt-3 text-center text-[10px] text-muted-foreground/60">
+                  By joining you agree to be notified about Uni UI. See{' '}
+                  <a href="/privacy" className="underline hover:text-gold">Privacy Policy</a> and{' '}
+                  <a href="/terms" className="underline hover:text-gold">Terms</a>.
+                </p>
              </div>
            </div>
          </section>

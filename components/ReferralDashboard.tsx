@@ -63,7 +63,7 @@ const SHARE_TEMPLATES = [
     id: 'linkedin',
     label: 'LinkedIn',
     icon: Linkedin,
-    text: (data: DashboardData) => `Excited to join the Uni UI waitlist! 🚀\n\nUni UI is building AI-powered exam prep from students' own course materials—no hallucinations, just your notes.\n\nIf you're a student, join my waitlist and we both move up the queue: ${data.referralLink}`,
+    text: (data: DashboardData) => `Excited to join the Uni UI waitlist! 🚀\n\nUni UI answers from students' own course materials — cited and sourced, not generic.\n\nIf you're a student, join my waitlist and we both move up the queue: ${data.referralLink}`,
   },
   {
     id: 'facebook',

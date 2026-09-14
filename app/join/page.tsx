@@ -30,7 +30,7 @@ export default function JoinPage() {
   return (
     <>
       <section className="py-10 px-5 text-center">
-        <div className="max-w-3xl mx-auto inline-flex items-center gap-3 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-sm">
+        <div className="max-w-3xl mx-auto inline-flex flex-wrap items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-sm">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <GraduationCap className="w-4 h-4" />
           <span>Uni UI is <span className="text-emerald-200 font-semibold">live at FUTO</span> right now.</span>
@@ -42,6 +42,8 @@ export default function JoinPage() {
           >
             Use the app now <ArrowRight className="w-3.5 h-3.5" />
           </Link>
+          <span className="text-white/30 mx-1">|</span>
+          <span className="text-white/60">Expanding to more schools through August 2027</span>
         </div>
       </section>
       <JoinForm />

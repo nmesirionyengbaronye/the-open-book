@@ -12,7 +12,7 @@ export default function AboutClient() {
             About Uni UI
           </h1>
           <p className="mt-4 text-muted-foreground max-w-2xl mx-auto">
-            Built in a FUTO hostel room by a student who refused to fail.
+            Built by Nigerian students, for Nigerian students. Started at FUTO.
           </p>
         </div>
         
@@ -68,11 +68,9 @@ export default function AboutClient() {
                   THE SOLUTION
                 </h2>
                 <p className="mt-2 text-muted-foreground leading-relaxed">
-                  Uni UI flips the script: YOU upload your course materials, and our AI structures 
-                  them into a personal, searchable knowledge base. Ask any question in plain English 
-                  (or Pidgin), and get answers traced back to YOUR notes, slides, or past papers—no 
-                  internet noise, no hallucinations. It's like having your lecturer's brain, tuned 
-                  to your exact course, in your pocket.
+                  Uni UI flips the script: YOU upload your course materials, and our AI structures
+                  them into a personal, searchable knowledge base. Ask any question in plain English
+                  (or Pidgin), and get answers traced back to YOUR notes, slides, or past papers—each one cited to its source.
                 </p>
               </div>
             </motion.div>

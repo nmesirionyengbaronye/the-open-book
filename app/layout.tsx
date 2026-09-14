@@ -26,26 +26,26 @@ export const metadata: Metadata = {
     apple: '/favicon.jpg',
   },
   openGraph: {
-    title: 'Uni UI \u2013 Your Semester, Uploaded',
-    description: 'Join the waitlist. Real answers from your own course materials.',
+    title: 'Uni UI – Your Semester, Uploaded',
+    description: 'Join the waitlist. Real answers from your own course materials. Live at FUTO now.',
     url: '/',
     siteName: 'Uni UI',
     images: [
       {
-        url: '/favicon.jpg',
-        width: 256,
-        height: 256,
-        alt: 'Uni UI \u2013 University Uploaded Intelligence',
+        url: '/og-image.png',
+        width: 640,
+        height: 360,
+        alt: 'Uni UI – University Uploaded Intelligence',
       },
     ],
     locale: 'en_NG',
     type: 'website',
   },
   twitter: {
-    card: 'summary',
-    title: 'Uni UI \u2013 Your Semester, Uploaded',
-    description: 'Join the waitlist. Real answers from your own course materials.',
-    images: ['/favicon.jpg'],
+    card: 'summary_large_image',
+    title: 'Uni UI – Your Semester, Uploaded',
+    description: 'Join the waitlist. Real answers from your own course materials. Live at FUTO now.',
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
@@ -102,6 +102,7 @@ export default function RootLayout({
             beforeInteractive is injected by the Next runtime and does not reliably
             run first inside the Mini App WebView, leaving window.Telegram undefined. */}
         <script src="https://telegram.org/js/telegram-web-app.js" async={false} />
+        <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <CursorTrail />
