@@ -9,6 +9,7 @@ const LINKS = [
   { id: "hero", label: "Home", path: "/" },
   { id: "about", label: "About", path: "/about" },
   { id: "join", label: "Join", path: "/join" },
+  { id: "creators", label: "Creators", path: "/creators" },
   { id: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
   { id: "status", label: "Status", path: "/status" },
   { id: "milestones", label: "Milestones", path: "/milestones" },
@@ -52,14 +53,21 @@ export function Navbar() {
       className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled ? "glass-strong border-b border-gold/20" : "bg-transparent"}`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-         <button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2 group">
-            <div className="w-11 h-7 rounded-lg bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow">
-              <img src="/logo.png" alt="Uni UI" className="h-6 w-auto object-contain" />
-            </div>
-            <span className="font-display text-lg tracking-tight">
-              UNI <span className="text-gold">UI</span>
-            </span>
-          </button>
+<button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2.5 group">
+             {/* logo.png is already a solid brand tile, so it must not be wrapped
+                 in a gold box — stacking one yellow field on another is what
+                 read as a smudge behind the mark. */}
+             <img
+               src="/logo.png"
+               alt="Uni UI"
+               width={64}
+               height={36}
+               className="h-7 w-auto rounded-md ring-1 ring-gold/20 group-hover:ring-gold/50 transition"
+             />
+             <span className="font-display text-lg tracking-tight">
+               UNI <span className="text-gold">UI</span>
+             </span>
+           </button>
 
         <nav className="hidden md:flex items-center gap-1">
           {LINKS.map((l) => (

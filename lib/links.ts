@@ -48,7 +48,11 @@ export const WAITLIST_ROADMAP: RoadmapPhase[] = [
 ];
 
 /** Contact / social handles (live accounts). */
-export const SUPPORT_EMAIL = 'support@uniui.com.ng';
+/**
+ * Single official contact address for the whole platform.
+ * Support, partnerships and general enquiries all land here.
+ */
+export const SUPPORT_EMAIL = 'sofia@uniui.com.ng';
 export const X_URL = 'https://x.com/1stuniui_com_ng';
 export const TIKTOK_URL = 'https://tiktok.com/@1stuniui_com_ng';
 

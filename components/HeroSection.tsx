@@ -185,12 +185,18 @@ export default function Hero() {
           style={{ opacity: headlineOpacity }}
           className="absolute inset-x-0 bottom-10 sm:bottom-16 z-30 px-5 text-center will-change-transform"
         >
-          <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-bold text-gold leading-[1.05]">
+          {/* V2 announcement. This is the reason the page exists now, so it
+              sits above the brand line rather than buried under it. */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/12 border border-gold/35 text-gold text-[10px] sm:text-[11px] uppercase tracking-[0.22em]">
+            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+            V2 is coming — and it is coming to every Southern Nigerian university
+          </div>
+          <h1 className="mt-5 font-display text-4xl sm:text-6xl md:text-7xl font-bold text-gold leading-[1.05]">
             YOUR SEMESTER, <span className="text-gold-bright">UPLOADED.</span>
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-muted-foreground">
-            UPLOAD YOUR COURSE MATERIALS. GET ACCURATE ANSWERS SOURCED FROM YOUR OWN NOTES.
-            BUILT BY NIGERIAN STUDENTS, FOR NIGERIAN STUDENTS. STARTED AT FUTO.
+            THE NEXT VERSION OF UNI UI IS BEING BUILT WITH STUDENT CREATORS ACROSS NIGERIA.
+            FIRST WAVE: 6 UNIVERSITIES IN NOVEMBER 2026. JOIN THE WAITLIST TO GET YOUR CAMPUS IN.
           </p>
           <motion.button
             style={{ opacity: buttonOpacity }}
@@ -203,7 +209,7 @@ export default function Hero() {
             style={{ opacity: scrollPromptOpacity }}
             className="mt-6 text-[10px] tracking-[0.3em] text-muted-foreground/60 uppercase"
           >
-            'Uni UI — live at FUTO now'
+            'Live at FUTO now · Full Southern Nigeria coverage by August 2027'
           </motion.div>
         </motion.div>
       </div>

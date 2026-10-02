@@ -2,8 +2,14 @@ import { Metadata } from 'next';
 import { Status } from '@/components/Status';
 
 export const metadata: Metadata = {
-  title: 'Live Waitlist Status \u2013 Uni UI',
-  description: 'Real-time signup numbers, recent joiners, and growth charts.',
+  title: 'Rollout Status',
+  description:
+    'Live rollout status for Uni UI — which Nigerian universities have access and when the next wave lands.',
+  keywords: [
+    'Uni UI status', 'rollout status', 'which universities have Uni UI', 'launch schedule',
+    'Southern Nigeria expansion', 'Uni UI November 2026',
+  ],
+  alternates: { canonical: '/status' },
 };
 
 export default function StatusPage() {

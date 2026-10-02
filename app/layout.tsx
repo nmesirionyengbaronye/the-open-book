@@ -6,19 +6,22 @@ import CursorTrail from '@/components/CursorTrail';
 import { Toaster } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import './globals.css';
+import { jsonLdScript } from '@/lib/seo';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://waitlist.uniui.com.ng';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'Uni UI \u2013 University Uploaded Intelligence | Your Semester, Uploaded',
+    default: 'Uni UI V2 – Your Semester, Uploaded | Join the Waitlist',
     template: '%s | Uni UI',
   },
-  description: 'Join the Uni UI waitlist. Upload your course materials, get AI-powered answers from your own notes, and ace your exams. Built by a FUTO student for Nigerian universities.',
+  description:
+    'Uni UI V2 is coming, and it is coming to every Southern Nigerian university. Join the waitlist to get your campus in the first wave — early signups get priority access and free first-semester materials.',
   keywords: [
-    'Uni UI', 'uploaded intelligence', 'FUTO', 'exam preparation', 'AI tutor',
-    'Nigerian students', 'waitlist', 'semester notes', 'past questions', 'Pantero'
+    'Uni UI', 'Uni UI V2', 'uploaded intelligence', 'FUTO', 'exam preparation', 'AI tutor',
+    'Nigerian students', 'waitlist', 'semester notes', 'past questions', 'Pantero',
+    'Southern Nigeria universities', 'course-grounded AI', 'university expansion',
   ],
   icons: {
     icon: '/favicon.jpg',
@@ -26,8 +29,9 @@ export const metadata: Metadata = {
     apple: '/favicon.jpg',
   },
   openGraph: {
-    title: 'Uni UI – Your Semester, Uploaded',
-    description: 'Join the waitlist. Real answers from your own course materials. Live at FUTO now.',
+    title: 'Uni UI V2 – Your Semester, Uploaded',
+    description:
+      'V2 is coming, and it is coming to every Southern Nigerian university. Join the waitlist to get your campus in the first wave. Live at FUTO now.',
     url: '/',
     siteName: 'Uni UI',
     images: [
@@ -43,8 +47,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Uni UI – Your Semester, Uploaded',
-    description: 'Join the waitlist. Real answers from your own course materials. Live at FUTO now.',
+    title: 'Uni UI V2 – Your Semester, Uploaded',
+    description:
+      'V2 is coming to every Southern Nigerian university. Join the waitlist to get your campus in the first wave.',
     images: ['/og-image.png'],
   },
   robots: {
@@ -74,11 +79,28 @@ const jsonLd = [
     applicationCategory: 'EducationalApplication',
     operatingSystem: 'All',
     description: 'Upload your course materials and get accurate, source-cited answers to exam questions.',
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'NGN',
-    },
+    // Real prices. A `price: '0'` Offer here would be a factual error that
+    // contradicts the pricing on /join, and search engines surface offers.
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Scholar',
+        description: 'Subscription plan. Earns creator commission on first payment and six recurring months.',
+        price: '2500',
+        priceCurrency: 'NGN',
+        availability: 'https://schema.org/PreOrder',
+        url: `${baseUrl}/join`,
+      },
+      {
+        '@type': 'Offer',
+        name: 'Deep Study',
+        description: 'One-time purchase. No recurring commission.',
+        price: '10000',
+        priceCurrency: 'NGN',
+        availability: 'https://schema.org/PreOrder',
+        url: `${baseUrl}/join`,
+      },
+    ],
   },
 ];
 
@@ -88,11 +110,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en-NG" className="dark">
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          // Escapes "<" so the payload cannot terminate the script tag early.
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
         />
         {/* Telegram Mini App bridge. Required so window.Telegram.WebApp exists
             when the Rewards Mini App is opened inside Telegram. Loaded as a plain

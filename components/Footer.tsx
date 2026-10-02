@@ -1,6 +1,6 @@
 import { Mail, MessageCircle, Award } from "lucide-react";
 
-const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "1stuniui@gmail.com";
+const EMAIL = process.env.NEXT_PUBLIC_EMAIL || "sofia@uniui.com.ng";
 const WA = process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || "https://chat.whatsapp.com/uniui-community";
 
 export function Footer() {

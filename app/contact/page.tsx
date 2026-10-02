@@ -1,8 +1,15 @@
 import { Metadata } from 'next';
+import { SUPPORT_EMAIL, TIKTOK_URL, X_URL } from '@/lib/links';
 
 export const metadata: Metadata = {
-  title: 'Contact | UniUI',
-  description: 'Contact UniUI for support, partnerships, or general inquiries.',
+  title: 'Contact',
+  description:
+    'Contact Uni UI for support, partnerships, creator programme enquiries, or general questions.',
+  keywords: [
+    'contact Uni UI', 'Uni UI support', 'Uni UI partnerships',
+    'creator programme contact', 'Uni UI help',
+  ],
+  alternates: { canonical: '/contact' },
 };
 
 export default function ContactPage() {
@@ -13,23 +20,44 @@ export default function ContactPage() {
 
       <div className="mt-8 space-y-6 text-sm text-white/80">
         <section>
-          <h2 className="text-lg font-semibold text-white">Support</h2>
-          <p>For support inquiries, reach out via our WhatsApp channel or email.</p>
+          <h2 className="text-lg font-semibold text-white">One email address</h2>
+          <p>
+            Support, partnerships and general enquiries all reach the same inbox:{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-[#D4AF37] hover:underline">
+              sofia@uniui.com.ng
+            </a>
+          </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">Partnerships</h2>
-          <p>Interested in partnering with UniUI? Contact us at <span className="text-[#D4AF37]">partnerships@uniuiapp.com</span></p>
+          <h2 className="text-lg font-semibold text-white">Faster than email</h2>
+          <p>
+            For anything urgent — a wrong referral count, a creator payout question, or a claim
+            that needs checking before you post — use the WhatsApp channel. Creator questions are
+            fastest in the UNIUI Creators group.
+          </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">General Inquiries</h2>
-          <p>Email us at <span className="text-[#D4AF37]">hello@uniuiapp.com</span></p>
+          <h2 className="text-lg font-semibold text-white">Follow the build</h2>
+          <p>
+            Uni UI is on{' '}
+            <a href={X_URL} target="_blank" rel="noreferrer" className="text-[#D4AF37] hover:underline">
+              X
+            </a>{' '}
+            and{' '}
+            <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="text-[#D4AF37] hover:underline">
+              TikTok
+            </a>{' '}
+            as{' '}
+            <span className="text-[#D4AF37]">@1stuniui_com_ng</span> for V2 progress and rollout
+            announcements.
+          </p>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">Response Time</h2>
-          <p>We typically respond within 24-48 hours during business days.</p>
+          <h2 className="text-lg font-semibold text-white">Response time</h2>
+          <p>We typically respond within 24–48 hours during business days.</p>
         </section>
       </div>
     </div>

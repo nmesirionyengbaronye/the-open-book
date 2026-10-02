@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | UniUI',
-  description: 'Privacy policy for UniUI waitlist and rewards program.',
+  title: 'Privacy Policy',
+  description:
+    'How Uni UI collects, uses and protects your personal data across the waitlist and creator programme.',
+  keywords: ['Uni UI privacy policy', 'data protection', 'NDPA', 'Uni UI data deletion'],
+  alternates: { canonical: '/privacy' },
 };
 
 export default function PrivacyPage() {

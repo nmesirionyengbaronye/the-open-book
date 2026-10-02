@@ -9,8 +9,12 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { code } = await params;
   return {
-    title: `Join with ${code} – Uni UI`,
+    title: 'Join with a referral link',
     description: 'Join the Uni UI waitlist using a referral link.',
+    // Referral landing pages are a near-infinite set of near-identical URLs —
+    // one per code. They must never be indexed or they cannibalise /join and
+    // dilute the whole domain. Follow is kept so link equity still passes.
+    robots: { index: false, follow: true },
   };
 }
 

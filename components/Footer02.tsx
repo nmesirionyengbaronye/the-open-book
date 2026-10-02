@@ -26,6 +26,7 @@ export default function Footer02() {
             <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Community</div>
             <ul className="space-y-2 text-sm text-white/70">
               <li><Link href="/about" className="hover:text-gold transition">About</Link></li>
+              <li><Link href="/creators" className="hover:text-gold transition">Creator Network</Link></li>
               <li><Link href="/leaderboard" className="hover:text-gold transition">Leaderboard</Link></li>
               <li><Link href="/winners" className="hover:text-gold transition">Winners</Link></li>
               <li><Link href="/feedback" className="hover:text-gold transition">Feedback</Link></li>

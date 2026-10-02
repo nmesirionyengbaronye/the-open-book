@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | UniUI',
-  description: 'Terms of service for UniUI waitlist and rewards program.',
+  title: 'Terms of Service',
+  description:
+    'The terms governing use of the Uni UI website, waitlist, rewards and creator programme.',
+  keywords: ['Uni UI terms', 'terms of service', 'Uni UI creator programme terms'],
+  alternates: { canonical: '/terms' },
 };
 
 export default function TermsPage() {

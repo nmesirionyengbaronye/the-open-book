@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Users, MessageSquare, LogOut, Gift, Wallet, Coins } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, LogOut, Gift, Wallet, Coins, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { label: 'Overview', href: '/admin', icon: LayoutDashboard },
   { label: 'Waitlist', href: '/admin/waitlist', icon: Users },
+  { label: 'Creators', href: '/admin/creators', icon: Sparkles },
   { label: 'Recommendations', href: '/admin/recommendations', icon: MessageSquare },
   { label: 'Prizes', href: '/admin/prizes', icon: Gift },
   { label: 'Payments', href: '/admin/payments', icon: Wallet },
@@ -31,7 +32,13 @@ export function AdminNavbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center gap-8">
             <Link href="/admin" className="flex items-center gap-2">
-              <img src="/logo.png" alt="Uni UI" className="h-6 w-auto object-contain" />
+              <img
+                src="/logo.png"
+                alt="Uni UI"
+                width={64}
+                height={36}
+                className="h-7 w-auto rounded-md ring-1 ring-gold/20"
+              />
               <span className="font-display font-bold text-xl tracking-tight">
                 Uni<span className="text-gold">UI</span> Admin
               </span>

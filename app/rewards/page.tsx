@@ -1,8 +1,10 @@
 import RewardsMiniApp from '@/components/rewards/RewardsMiniApp';
 
 export const metadata = {
-  title: 'UniUI Rewards',
+  title: 'Uni UI Rewards',
+  // An interactive mini-app behind a login, not a content page.
   robots: { index: false, follow: false },
+  alternates: { canonical: '/rewards' },
 };
 
 export default function RewardsPage() {
