@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Github, Twitter, Linkedin, Mail } from 'lucide-react';
-import { X_URL, TIKTOK_URL, SUPPORT_EMAIL } from '@/lib/links';
+import { Twitter, Instagram, Mail } from 'lucide-react';
+import { X_URL, TIKTOK_URL, INSTAGRAM_URL, SUPPORT_EMAIL } from '@/lib/links';
 
 export default function Footer02() {
   return (
@@ -45,10 +45,10 @@ export default function Footer02() {
              <ul className="space-y-2 text-sm text-black/70">
                <li><Link href="/contact" className="hover:text-black transition">Contact</Link></li>
                <li><a href="https://wa.me/2348105799378" target="_blank" rel="noreferrer" className="hover:text-black transition">WhatsApp</a></li>
-               <li><a href={X_URL} target="_blank" rel="noreferrer" className="hover:text-black transition">X</a></li>
-               <li><a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="hover:text-black transition">TikTok</a></li>
-               <li><a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-black transition">Email</a></li>
-               <li><a href="https://github.com/Panther0508/the-open-book" target="_blank" rel="noreferrer" className="hover:text-black transition">Open Source</a></li>
+                <li><a href={X_URL} target="_blank" rel="noreferrer" className="hover:text-black transition">X</a></li>
+                <li><a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="hover:text-black transition">TikTok</a></li>
+                <li><a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="hover:text-black transition">Instagram</a></li>
+                <li><a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-black transition">Email</a></li>
              </ul>
            </div>
          </div>
@@ -57,24 +57,21 @@ export default function Footer02() {
             &copy; {new Date().getFullYear()} Uni UI. All rights reserved.
           </div>
           <div className="flex items-center gap-4">
-             <a href="https://github.com/Panther0508/the-open-book" target="_blank" rel="noreferrer" aria-label="GitHub" className="text-black/60 hover:text-black transition">
-              <Github className="h-4 w-4" />
-            </a>
-             <a href={X_URL} target="_blank" rel="noreferrer" aria-label="X / Twitter" className="text-black/60 hover:text-black transition">
-              <Twitter className="h-4 w-4" />
-            </a>
-            <a href={TIKTOK_URL} target="_blank" rel="noreferrer" aria-label="TikTok" className="text-black/60 hover:text-black transition">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-4 w-4">
-                <path fillRule="evenodd" d="M12 0C5.371 0 0 5.371 0 12s5.371 12 12 12 12-5.371 12-12S18.629 0 12 0zm4.479 9.42c-.159.023-3.096.372-6.125.753-.23-.4.417-.562.49-.578.375-.054 3.311-.463 3.64-.518.037-.232.062-.477.062-.713 0-.806-1.356-1.855-2.24-2.43-.296.385-.595.728-.967 1.002-.069.05-.149.112-.281.112-.103 0-.227-.057-.291-.138-.098-.123-1.356-1.855-1.356-1.855-.007.14-.018.291-.018.441 0 1.189.741 2.217 1.002 2.649.314.525.816 1.188 1.035 1.416l.029.03c.118.117.258.313.258.549 0 .062-.008.117-.02.166-1.561-.195-2.824-.372-3.857-.539-.674-.112-1.356-.232-1.775-.341a1.73 1.73 0 0 1-.593-.337.414.414 0 0 1-.153-.337c0-.305.337-.549.813-.549.307 0 1.02.184 1.79.43a35.08 35.08 0 0 0 4.724 0c.77-.246 1.483-.43 1.79-.43.476 0 .813.244.813.549 0 .133-.105.263-.296.337-.219.099-1.429.343-2.67.508 0 .209.011.424.031.637.019.191 2.258.39 2.673.39.149 0 .293-.008.426-.024.378-.045.752-.117 1.013-.203.054-.145.093-.296.093-.449 0-.55-.375-.962-1.389-1.509a5.328 5.328 0 0 1-.026-.015l-.002.002c-.007-.005-.014-.011-.02-.016z" clipRule="evenodd" />
-              </svg>
-            </a>
-             <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn" className="text-black/60 hover:text-black transition">
-              <Linkedin className="h-4 w-4" />
-            </a>
+              <a href={X_URL} target="_blank" rel="noreferrer" aria-label="X / Twitter" className="text-black/60 hover:text-black transition">
+               <Twitter className="h-4 w-4" />
+             </a>
+             <a href={TIKTOK_URL} target="_blank" rel="noreferrer" aria-label="TikTok" className="text-black/60 hover:text-black transition">
+               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="h-4 w-4">
+                 <path fillRule="evenodd" d="M12 0C5.371 0 0 5.371 0 12s5.371 12 12 12 12-5.371 12-12S18.629 0 12 0zm4.479 9.42c-.159.023-3.096.372-6.125.753-.23-.4.417-.562.49-.578.375-.054 3.311-.463 3.64-.518.037-.232.062-.477.062-.713 0-.806-1.356-1.855-2.24-2.43-.296.385-.595.728-.967 1.002-.069.05-.149.112-.281.112-.103 0-.227-.057-.291-.138-.098-.123-1.356-1.855-1.356-1.855-.007.14-.018.291-.018.441 0 1.189.741 2.217 1.002 2.649.314.525.816 1.188 1.035 1.416l.029.03c.118.117.258.313.258.549 0 .062-.008.117-.02.166-1.561-.195-2.824-.372-3.857-.539-.674-.112-1.356-.232-1.775-.341a1.73 1.73 0 0 1-.593-.337.414.414 0 0 1-.153-.337c0-.305.337-.549.813-.549.307 0 1.02.184 1.79.43a35.08 35.08 0 0 0 4.724 0c.77-.246 1.483-.43 1.79-.43.476 0 .813.244.813.549 0 .133-.105.263-.296.337-.219.099-1.429.343-2.67.508 0 .209.011.424.031.637.019.191 2.258.39 2.673.39.149 0 .293-.008.426-.024.378-.045.752-.117 1.013-.203.054-.145.093-.296.093-.449 0-.55-.375-.962-1.389-1.509a5.328 5.328 0 0 1-.026-.015l-.002.002c-.007-.005-.014-.011-.02-.016z" clipRule="evenodd" />
+               </svg>
+             </a>
+             <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" aria-label="Instagram" className="text-black/60 hover:text-black transition">
+               <Instagram className="h-4 w-4" />
+             </a>
              <a href={`mailto:${SUPPORT_EMAIL}`} aria-label="Email" className="text-black/60 hover:text-black transition">
-              <Mail className="h-4 w-4" />
-            </a>
-          </div>
+               <Mail className="h-4 w-4" />
+             </a>
+           </div>
         </div>
       </div>
     </footer>

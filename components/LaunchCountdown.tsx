@@ -13,7 +13,7 @@ export default function LaunchCountdown() {
 
   useEffect(() => {
     const launchDate = new Date(
-      process.env.NEXT_PUBLIC_LAUNCH_DATE || '2026-11-30'
+      process.env.NEXT_PUBLIC_V2_LAUNCH_DATE || '2026-11-29'
     ).getTime();
     const updateCountdown = () => {
       const now = new Date().getTime();

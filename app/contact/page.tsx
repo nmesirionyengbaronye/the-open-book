@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { SUPPORT_EMAIL, TIKTOK_URL, X_URL } from '@/lib/links';
+import { SUPPORT_EMAIL, TIKTOK_URL, X_URL, INSTAGRAM_URL } from '@/lib/links';
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -51,14 +51,14 @@ export default function ContactPage() {
             Uni UI is on{' '}
             <a href={X_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
               X
-            </a>{' '}
-            and{' '}
+            </a>,{' '}
             <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
               TikTok
+            </a>, and{' '}
+            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
+              Instagram
             </a>{' '}
-            as{' '}
-            <span className="font-semibold">@1stuniui_com_ng</span> for V2 progress and rollout
-            announcements.
+            for V2 progress and rollout announcements.
           </p>
         </section>
 
