@@ -1,97 +1,92 @@
-@import url("https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&display=swap");
-@import "./originkit-section-themes.css";
-@import url("https://fonts.googleapis.com/css2?family=Audiowide&family=DM+Mono:wght@400;500&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Hedvig+Letters+Serif:opsz=12..24&family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital,wght@0,700;1,700&family=Inter+Tight:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=Lato:wght@400;700&family=Manrope:wght@400;500;600;700&family=Monda:wght@400;500;600;700&family=Outfit:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&family=Rethink+Sans:wght@400;500;600;700&family=Tillana:wght@400;500;600;700&family=Urbanist:wght@400;500;600;700&display=swap");
-@import "./originkit-section-theme.css";
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Bebas+Neue&family=Caveat:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=Bebas+Neue&family=Caveat:wght@400;600;700&display=swap');
 
 @layer base {
   * { border-color: var(--border); }
   html {
     scroll-behavior: smooth;
-    scrollbar-color: #D4AF37 #0A0A0F;
+    scrollbar-color: #FFD93D #000000;
+    scrollbar-width: thin;
+    padding-top: 64px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   body {
-    background-color: #0A0A0F;
-    color: #FFFFFF;
-    font-family: 'Syne';
+    background-color: #FFD93D;
+    color: #000000;
+    font-family: 'Syne', sans-serif;
     background-image:
-      radial-gradient(circle at 20% 10%, rgba(212, 175, 55, 0.07), transparent 40%),
-      radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.05), transparent 40%);
+      radial-gradient(circle at 20% 10%, rgba(0, 0, 0, 0.06), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(0, 0, 0, 0.05), transparent 40%);
   }
-   h1, h2, h3, h4 { font-family: 'Bebas Neue'; letter-spacing: -0.02em; }
+
+  /* Scrollbar is hidden by default, only visible while scrolling. */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 3px;
+    height: 3px;
   }
   ::-webkit-scrollbar-track {
-    background: #0A0A0F;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #D4AF37 0%, #B8860B 100%);
-    border: 2px solid #0A0A0F;
-    border-radius: 10px;
-    transition: background 0.3s;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
   }
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #FFD700 0%, #D4AF37 100%);
+  html.scroll-active::-webkit-scrollbar-thumb {
+    background: #FFD93D;
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+  html::-webkit-scrollbar-thumb:start {
+    background: transparent;
+    border: none;
+  }
+  html::-webkit-scrollbar-thumb:end {
+    background: transparent;
+    border: none;
   }
 
   /* Firefox scrollbar */
-  * {
+  html:not(.scroll-active) * {
+    scrollbar-width: none;
+  }
+  html.scroll-active * {
     scrollbar-width: thin;
-    scrollbar-color: #D4AF37 #0A0A0F;
-  }
-
-  /* Improve scrollbar visibility */
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: #0A0A0F;
-    border-radius: 10px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #D4AF37 0%, #B8860B 100%);
-    border: 2px solid #0A0A0F;
-    border-radius: 10px;
-    transition: background 0.3s;
+    scrollbar-color: #FFD93D #000000;
   }
 }
 
 @layer utilities {
-  .font-display { font-family: 'Bebas Neue'; }
+  .font-display { font-family: 'Bebas Neue', sans-serif; }
   .font-hand { font-family: 'Caveat', cursive; }
-  .text-gold { color: #D4AF37; }
-  .text-gold-bright { color: #FFD700; }
-  .bg-gold { background-color: #D4AF37; }
-  .bg-surface { background-color: #13131A; }
-  .border-gold { border-color: #D4AF37; }
+  .text-gold { color: #000000; }
+  .text-gold-bright { color: #000000; }
+  .bg-gold { background-color: #FFD93D; }
+  .bg-surface { background-color: #000000; }
+  .border-gold { border-color: #000000; }
 
   .glass {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+    background: rgba(255, 255, 255, 0.35);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.12);
   }
   .glass-strong {
-    background: rgba(19, 19, 26, 0.7);
+    background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.15);
   }
   .gold-glow {
-    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.3), 0 10px 40px -10px rgba(212, 175, 55, 0.4);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25), 0 10px 40px -10px rgba(0, 0, 0, 0.35);
   }
   .gold-glow-hover { transition: box-shadow 0.3s, transform 0.3s; }
   .gold-glow-hover:hover {
-    box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.6), 0 14px 50px -10px rgba(212, 175, 55, 0.6);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), 0 14px 50px -10px rgba(0, 0, 0, 0.45);
     transform: translateY(-2px);
   }
 
@@ -131,14 +126,14 @@
     100% { background-position: 100% 50%; }
   }
   .animate-gold-border {
-    background: conic-gradient(from 0deg at center, #D4AF37, #FFD700, #D4AF37);
+    background: conic-gradient(from 0deg at center, #000000, #FFD93D, #000000);
     background-size: 200% 200%;
     animation: gold-border-spin 3s linear infinite;
     padding: 1px;
     border-radius: 1rem;
   }
   .animate-gold-border > * {
-    background: #0A0A0F;
+    background: #FFD93D;
     border-radius: calc(1rem - 1px);
   }
 }

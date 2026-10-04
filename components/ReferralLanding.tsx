@@ -47,15 +47,15 @@ export function ReferralLanding({ code }: ReferralLandingProps) {
   };
 
   return (
-    <main className="min-h-[70vh] flex items-center justify-center px-5 py-20">
+    <main className="min-h-[70vh] flex items-center justify-center px-5 py-20 bg-[#FFD93D] text-black font-body antialiased">
       <div className="max-w-2xl w-full">
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass-strong rounded-2xl p-8 sm:p-10 border border-gold/20 text-center"
+          className="rounded-2xl p-8 sm:p-10 border border-black/10 bg-black/5 shadow-[4px_4px_0px_rgba(0,0,0,0.25)] text-center"
         >
-          <div className="mx-auto w-14 h-14 rounded-full bg-gold/15 grid place-items-center">
-            <Trophy className="w-7 h-7 text-gold" />
+          <div className="mx-auto w-14 h-14 rounded-full bg-black text-[#FFD93D] grid place-items-center">
+            <Trophy className="w-7 h-7" />
           </div>
 
           {loading ? (
@@ -66,49 +66,49 @@ export function ReferralLanding({ code }: ReferralLandingProps) {
           ) : referrer ? (
             <>
               <h1 className="mt-5 text-2xl sm:text-4xl font-display font-bold">
-                You were invited by <span className="text-gold">{referrer.full_name.split(' ')[0]}</span>
+                You were invited by <span className="underline decoration-black/40 underline-offset-4">{referrer.full_name.split(' ')[0]}</span>
               </h1>
-              <p className="mt-3 text-muted-foreground">
+              <p className="mt-3 text-black/70">
                 Join the waitlist with their referral link and you both move up the queue.
               </p>
 
               <div className="mt-6 grid grid-cols-2 gap-3">
-                <div className="glass rounded-xl p-4">
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Referrer</div>
-                  <div className="mt-1 text-lg font-display font-bold">{referrer.full_name.split(' ')[0]}</div>
+                <div className="rounded-xl border border-black/10 bg-black/5 p-4">
+                  <div className="text-[10px] uppercase tracking-widest text-black/80">Referrer</div>
+                  <div className="mt-1 text-lg font-display font-bold text-black">{referrer.full_name.split(' ')[0]}</div>
                 </div>
-                <div className="glass rounded-xl p-4">
-                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Their referrals</div>
-                  <div className="mt-1 text-lg font-display font-bold text-gold">{referrer.referral_count}</div>
+                <div className="rounded-xl border border-black/10 bg-black/5 p-4">
+                  <div className="text-[10px] uppercase tracking-widest text-black/80">Their referrals</div>
+                  <div className="mt-1 text-lg font-display font-bold text-black">{referrer.referral_count}</div>
                 </div>
               </div>
 
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
                 <a
                   href={ctaHref}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold"
                 >
                   <MessageCircle className="w-4 h-4" /> Join with their link
                 </a>
                 <button
                   onClick={shareWhatsApp}
-                  className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl glass border-gold/40 text-gold font-medium hover:bg-gold/10"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl border border-black/10 bg-black/5 text-black font-medium hover:bg-black/10"
                 >
                   <Share2 className="w-4 h-4" /> Share invite
                 </button>
               </div>
 
-              <p className="mt-4 text-[11px] text-muted-foreground">
-                Code: <span className="font-mono text-gold">{code}</span>
+              <p className="mt-4 text-[11px] text-black/70">
+                Code: <span className="font-mono text-black">{code}</span>
               </p>
             </>
           ) : (
             <>
               <h1 className="mt-5 text-2xl sm:text-4xl font-display font-bold">This referral link is invalid</h1>
-              <p className="mt-3 text-muted-foreground">
-                The code <span className="font-mono text-gold">{code}</span> could not be found.
+              <p className="mt-3 text-black/70">
+                The code <span className="font-mono text-black">{code}</span> could not be found.
               </p>
-              <a href="/join" className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-gold text-background font-semibold">
+              <a href="/join" className="mt-6 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold">
                 Join the waitlist
               </a>
             </>

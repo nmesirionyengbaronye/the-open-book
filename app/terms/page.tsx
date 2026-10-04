@@ -10,13 +10,18 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-white">Terms of Service</h1>
-      <p className="mt-2 text-sm text-white/60">Last updated: August 2026</p>
+      <div className="mx-auto max-w-3xl px-4 py-12 bg-[#FFD93D] text-black font-body antialiased">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black text-[#FFD93D] shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.25em]">Legal</span>
+        </div>
+        <h1 className="mt-6 text-4xl sm:text-5xl font-display font-bold uppercase tracking-tight leading-[0.95]">
+          Terms of Service
+        </h1>
+        <p className="mt-3 text-sm text-black/60">Last updated: August 2026</p>
 
-      <div className="prose prose-invert mt-8 space-y-6 text-sm text-white/80">
+        <div className="mt-10 space-y-6 text-sm leading-relaxed text-black/80">
         <section>
-          <h2 className="text-lg font-semibold text-white">1. Acceptance of Terms</h2>
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">1. Acceptance of Terms</h2>
           <p>
             By joining the UniUI waitlist or participating in the rewards program, you agree to these terms.
             If you do not agree, please do not use our services.
@@ -24,7 +29,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">2. Eligibility</h2>
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">2. Eligibility</h2>
           <p>
             You must be at least 13 years old to join. If you are under 18, you must have permission
             from a parent or guardian. You must provide accurate information during signup.
@@ -32,7 +37,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">3. Referral Program</h2>
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">3. Referral Program</h2>
           <p>
             Referral rewards are subject to verification. We reserve the right to disqualify accounts
             that engage in spam, fraud, or abuse of the referral system. Payouts are processed at our
@@ -41,7 +46,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">4. Code of Conduct</h2>
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">4. Code of Conduct</h2>
           <p>
             Users must not create multiple accounts, use bots, or manipulate the referral system.
             Violations may result in disqualification and forfeiture of rewards.
@@ -49,7 +54,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">5. Changes to Terms</h2>
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">5. Changes to Terms</h2>
           <p>
             We may update these terms at any time. Continued use of the service after changes
             constitutes acceptance of the new terms.
@@ -57,7 +62,7 @@ export default function TermsPage() {
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-white">6. Contact</h2>
+          <h2 className="font-display text-lg font-bold uppercase tracking-tight">6. Contact</h2>
           <p>
             For questions about these terms, contact us through our official channels.
           </p>

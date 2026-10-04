@@ -128,17 +128,17 @@ export default function CreatorsPage() {
             <Rocket className="w-3.5 h-3.5" />
             {FOUNDING_NETWORK_SIZE} founding spots
           </div>
-          <h1 className="mt-5 text-4xl sm:text-6xl font-display font-bold tracking-tight leading-tight">
+          <h1 className="mt-5 text-4xl sm:text-6xl font-display font-bold tracking-tight leading-tight text-white">
             You are not promoting a product.
             <br />
             <span className="text-gold">You are building a network.</span>
           </h1>
-          <p className="mt-5 text-lg text-muted-foreground max-w-2xl">
+          <p className="mt-5 text-lg text-white/80 max-w-2xl">
             We are building a network of {FOUNDING_NETWORK_SIZE} Nigerian student creators. You get
             tools, status and a share of what the network earns. You start now. You build your
             audience. When Uni UI V2 launches, you are already positioned.
           </p>
-          <p className="mt-4 text-sm text-muted-foreground max-w-2xl">
+          <p className="mt-4 text-sm text-white/70 max-w-2xl">
             You own a piece of it — your slug, your audience, your earnings, your status, your place
             in the founding record.
           </p>

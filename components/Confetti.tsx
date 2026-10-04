@@ -7,7 +7,7 @@ export default function triggerConfetti() {
     particleCount: 140,
     spread: 80,
     origin: { y: 0.6 },
-    colors: ['#D4AF37', '#FFD700', '#FFFFFF'],
+    colors: ['#FFD93D', '#000000', '#FFFFFF'],
   });
 }
 

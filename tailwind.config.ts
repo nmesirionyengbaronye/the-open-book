@@ -16,15 +16,15 @@ export default {
     },
     extend: {
       colors: {
-        background: "#0A0A0F",
-        foreground: "#FFFFFF",
+        background: "#FFD93D",
+        foreground: "#000000",
         gold: {
-          DEFAULT: "#D4AF37",
-          light: "#FFD700",
-          glow: "rgba(212, 175, 55, 0.3)",
+          DEFAULT: "#FFD93D",
+          light: "#FFE066",
+          glow: "rgba(255, 217, 61, 0.35)",
         },
-        surface: "#13131A",
-        border: "rgba(255, 255, 255, 0.1)",
+        surface: "#000000",
+        border: "rgba(255, 255, 255, 0.18)",
       },
       fontFamily: {
         heading: ["Bebas Neue"],

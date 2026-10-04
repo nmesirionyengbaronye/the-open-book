@@ -116,21 +116,21 @@ export default function RewardsHub({
 
   if (loading) {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 pt-12 text-center text-white/50 [padding-top:max(3rem,env(safe-area-inset-top))]">
-        <Loader2 className="mx-auto h-6 w-6 animate-spin text-[#D4AF37]" />
-        <p className="mt-3 text-sm">Loading your rewards…</p>
+      <div className="mx-auto w-full max-w-lg px-4 pt-12 text-center text-black/70 [padding-top:max(3rem,env(safe-area-inset-top))]">
+        <Loader2 className="mx-auto h-6 w-6 animate-spin text-black" />
+        <p className="mt-3 text-sm text-black">Loading your rewards…</p>
       </div>
     );
   }
   if (error || !profile) {
     return (
       <div className="mx-auto w-full max-w-lg px-4 pt-12 [padding-top:max(3rem,env(safe-area-inset-top))]">
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center text-sm text-red-300">
+        <div className="rounded-2xl border border-red-600/30 bg-red-600/10 p-6 text-center text-sm text-red-600">
           <AlertCircle className="mx-auto mb-2 h-6 w-6" />
           {error || 'Rewards unavailable'}
           <button
             onClick={loadAll}
-            className="mt-4 block w-full rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-semibold text-[#0A0A0F]"
+            className="mt-4 block w-full rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-[#FFD93D]"
           >
             Try again
           </button>
@@ -147,57 +147,57 @@ export default function RewardsHub({
     }`}>
       {!inTelegram && (
         <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#D4AF37] text-sm font-bold text-[#0A0A0F]">
-              U
+            <div className="flex items-center gap-2.5">
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-black text-[#FFD93D] text-sm font-bold">
+                U
+              </div>
+              <div className="leading-tight">
+                <div className="text-sm font-semibold text-black">UniUI Rewards</div>
+                <div className="text-[10px] uppercase tracking-widest text-black/60">Student giveaway</div>
+              </div>
             </div>
-            <div className="leading-tight">
-              <div className="text-sm font-semibold text-white">UniUI Rewards</div>
-              <div className="text-[10px] uppercase tracking-widest text-white/40">Student giveaway</div>
-            </div>
-          </div>
-          <button
-            onClick={loadAll}
-            aria-label="Refresh"
-            className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/60 transition hover:text-[#D4AF37]"
-          >
-            <RotateCw className="h-4 w-4" />
-          </button>
+            <button
+              onClick={loadAll}
+              aria-label="Refresh"
+              className="grid h-9 w-9 place-items-center rounded-xl border border-black/10 bg-black/5 text-black/70 transition hover:text-black"
+            >
+              <RotateCw className="h-4 w-4" />
+            </button>
         </div>
       )}
 
       {/* Identity / hero */}
-      <div className="mt-5 overflow-hidden rounded-3xl border border-[#D4AF37]/30 bg-gradient-to-br from-[#D4AF37]/10 to-white/[0.02] p-5">
+      <div className="mt-5 overflow-hidden rounded-3xl border border-black/10 bg-black/5 p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-[11px] uppercase tracking-widest text-white/40">Welcome back</div>
-            <div className="text-2xl font-bold text-white">{firstName} 👋</div>
+            <div className="text-[11px] uppercase tracking-widest text-black/70">Welcome back</div>
+            <div className="text-2xl font-bold text-black">{firstName} 👋</div>
           </div>
           {profile.telegramVerified ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#D4AF37]/15 px-2.5 py-1 text-[11px] font-medium text-[#D4AF37]">
+            <span className="inline-flex items-center gap-1 rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-medium text-black">
               <BadgeCheck className="h-3.5 w-3.5" /> Verified
             </span>
           ) : (
-            <span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] text-white/50">Unverified</span>
+            <span className="rounded-full bg-black/5 px-2.5 py-1 text-[11px] text-black/70">Unverified</span>
           )}
         </div>
 
         <div className="mt-4">
-          <div className="text-[10px] uppercase tracking-widest text-white/40">Your referral code</div>
+          <div className="text-[10px] uppercase tracking-widest text-black/80">Your referral code</div>
           <button
             onClick={copyCode}
-            className="group mt-1 flex w-full items-center justify-between rounded-2xl border border-white/10 bg-[#0A0A0F]/60 px-4 py-3 text-left transition hover:border-[#D4AF37]/50"
+            className="group mt-1 flex w-full items-center justify-between rounded-2xl border border-black/10 bg-white px-4 py-3 text-left transition hover:border-black/40"
           >
-            <span className="font-mono text-lg font-semibold tracking-wider text-[#D4AF37]">
+            <span className="font-mono text-lg font-semibold tracking-wider text-black">
               {profile.referralCode}
             </span>
             {copied ? (
-              <Check className="h-4 w-4 text-[#D4AF37]" />
+              <Check className="h-4 w-4 text-black" />
             ) : (
-              <Copy className="h-4 w-4 text-white/40 transition group-hover:text-[#D4AF37]" />
+              <Copy className="h-4 w-4 text-black/60 transition group-hover:text-black" />
             )}
           </button>
-          <p className="mt-2 text-[11px] text-white/40">
+          <p className="mt-2 text-[11px] text-black/70">
             Share this code to earn referrals and unlock rewards.
           </p>
         </div>
@@ -259,8 +259,8 @@ export default function RewardsHub({
       {/* Referral progress */}
       <SectionTitle icon={<Gift className="h-4 w-4" />} title="Referral progress" />
       <div className="mt-2 space-y-3">
-        <div className="glass rounded-xl p-4 border border-white/10">
-          <div className="text-xs text-white/50 mb-2">
+        <div className="rounded-xl border border-black/10 bg-black/5 p-4">
+          <div className="text-xs text-black/70 mb-2">
             Verified referrals unlock boxes and spins. Pending referrals don’t count until they verify.
           </div>
           <div className="flex flex-wrap gap-2">
@@ -273,14 +273,14 @@ export default function RewardsHub({
                   key={milestone}
                   className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium border ${
                     unlocked
-                      ? 'bg-[#D4AF37]/15 border-[#D4AF37]/40 text-[#D4AF37]'
+                      ? 'bg-black/10 border-black/30 text-black'
                       : isNext
-                        ? 'bg-white/10 border-white/20 text-white'
-                        : 'bg-white/5 border-white/10 text-white/40'
+                        ? 'bg-black/5 border-black/20 text-black'
+                        : 'bg-black/5 border-black/10 text-black/60'
                   }`}
                 >
                   <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center text-[10px] font-bold ${
-                    unlocked ? 'bg-[#D4AF37] text-black' : 'bg-white/10 text-white/60'
+                    unlocked ? 'bg-black text-[#FFD93D]' : 'bg-black/10 text-black/60'
                   }`}>
                     {unlocked ? '✓' : i + 1}
                   </span>
@@ -306,19 +306,19 @@ export default function RewardsHub({
             {referrals.referrals.slice(0, 8).map((rf, i) => (
               <li
                 key={i}
-                className="flex items-center justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5"
+                className="flex items-center justify-between rounded-xl border border-black/10 bg-black/5 px-4 py-2.5"
               >
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-white">{rf.name}</div>
-                  <div className="text-[11px] text-white/40">
+                  <div className="truncate text-sm font-medium text-black">{rf.name}</div>
+                  <div className="text-[11px] text-black/60">
                     Joined {new Date(rf.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <span
                   className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] ${
                     rf.status === 'verified'
-                      ? 'bg-[#D4AF37]/15 text-[#D4AF37]'
-                      : 'bg-white/5 text-white/50'
+                      ? 'bg-black/10 text-black'
+                      : 'bg-black/5 text-black/70'
                   }`}
                 >
                   {rf.status === 'verified' ? 'Verified' : 'Pending'}
@@ -327,7 +327,7 @@ export default function RewardsHub({
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-[11px] text-white/40">No referrals yet — share your code to start.</p>
+          <p className="mt-2 text-[11px] text-black/70">No referrals yet — share your code to start.</p>
         )}
       </div>
 
@@ -356,13 +356,13 @@ export default function RewardsHub({
             {winners.slice(0, 6).map((wn, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-2.5"
+                className="flex items-center justify-between rounded-2xl border border-black/10 bg-black/5 px-4 py-2.5"
               >
                  <div className="min-w-0">
-                   <div className="truncate text-sm font-medium text-white">{wn.name}</div>
-                   <div className="text-[10px] text-white/40">{wn.referrals} verified referrals</div>
+                   <div className="truncate text-sm font-medium text-black">{wn.name}</div>
+                   <div className="text-[10px] text-black/60">{wn.referrals} verified referrals</div>
                  </div>
-                <div className="ml-2 shrink-0 font-mono text-sm font-semibold text-[#D4AF37]">
+                <div className="ml-2 shrink-0 font-mono text-sm font-semibold text-black">
                   ₦{wn.winnings.toLocaleString()}
                 </div>
               </div>
@@ -378,9 +378,9 @@ export default function RewardsHub({
 
 function SectionTitle({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <div className="mt-6 flex items-center gap-2 text-[#D4AF37]">
+    <div className="mt-6 flex items-center gap-2 text-black">
       {icon}
-      <h3 className="text-sm font-semibold tracking-wide">{title}</h3>
+      <h3 className="text-sm font-semibold tracking-wide text-black">{title}</h3>
     </div>
   );
 }
@@ -395,12 +395,12 @@ function Stat({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5">
-      <div className="flex items-center justify-between text-white/45">
+    <div className="rounded-2xl border border-black/10 bg-black/5 p-3.5">
+      <div className="flex items-center justify-between text-black/70">
         <span className="text-[9px] uppercase tracking-widest">{label}</span>
-        <span className="text-[#D4AF37]">{icon}</span>
+        <span className="text-black">{icon}</span>
       </div>
-      <div className="mt-1.5 text-lg font-bold text-white">{value}</div>
+      <div className="mt-1.5 text-lg font-bold text-black">{value}</div>
     </div>
   );
 }

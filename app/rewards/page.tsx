@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function RewardsPage() {
   return (
-    <main className="min-h-screen bg-[#0A0A0F] text-white">
+    <main className="min-h-screen bg-[#FFD93D] text-black font-body antialiased">
       <RewardsMiniApp />
     </main>
   );

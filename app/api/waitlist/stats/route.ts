@@ -4,6 +4,12 @@ import { getRankedReferrers } from '@/lib/referral-counts';
 
 export async function GET() {
   try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const secret = process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !secret) {
+      return NextResponse.json({ total: 0, totalReferrals: 0, verified: 0, today: 0, week: 0, recentNames: [], topReferrers: [], hardestCourses: [], dailyData: [] });
+    }
+
     const now = new Date();
     const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
     const startOfWeek = new Date(now.getTime() - 7 * 86400000).toISOString();
@@ -31,8 +37,6 @@ export async function GET() {
 
     const { data: all } = await supabaseAdmin.from('waitlist').select('referral_code');
 
-    // Canonical leaderboard — same board the rewards leaderboard and rank use,
-    // so the homepage can never show a different order or different numbers.
     const board = await getRankedReferrers();
     const topReferrers = board.slice(0, 10).map((r) => ({
       code: r.referralCode,
@@ -40,16 +44,11 @@ export async function GET() {
       count: r.count,
     }));
 
-    // Real referral total: people who joined via someone's link. Previously the
-    // contest UI displayed `total` (the whole waitlist) as "total referrals".
     const { count: totalReferrals } = await supabaseAdmin
       .from('waitlist')
       .select('*', { count: 'exact', head: true })
       .not('referred_by', 'is', null);
 
-    // Telegram-verified signups = students who are eligible for the rewards
-    // engine (spins, boxes, leaderboard). Surface this alongside total signups
-    // so the waitlist page can show both "X on the waitlist" and "Y ready for rewards".
     const { count: verifiedCount } = await supabaseAdmin
       .from('waitlist')
       .select('*', { count: 'exact', head: true })
@@ -91,6 +90,6 @@ export async function GET() {
     });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ total: 0, totalReferrals: 0, verified: 0, today: 0, week: 0, recentNames: [], topReferrers: [], hardestCourses: [], dailyData: [] });
   }
 }

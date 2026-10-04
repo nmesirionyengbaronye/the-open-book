@@ -33,22 +33,26 @@ export function Retrieve() {
   };
 
   return (
-    <section className="py-20 px-5 bg-surface/30">
+    <section className="py-20 px-5 bg-[#FFD93D]/10">
       <div className="max-w-xl mx-auto">
         <div className="text-center mb-8">
-          <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">ALREADY JOINED?</div>
-          <h2 className="mt-3 text-2xl sm:text-4xl font-display font-bold">Recover your referral link</h2>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black text-[#FFD93D] shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.25em]">Waitlist</span>
+          </div>
+          <h2 className="mt-6 text-3xl sm:text-4xl font-display font-bold uppercase tracking-tight leading-[0.95]">
+            Recover your<br className="hidden sm:block" /> referral link
+          </h2>
         </div>
-        <form onSubmit={submit} className="glass-strong rounded-2xl p-6">
+        <form onSubmit={submit} className="rounded-2xl border border-black/10 bg-black/5 p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
           <div className="flex flex-col sm:flex-row gap-3">
             <input
               value={phone} onChange={(e) => setPhone(e.target.value)}
               placeholder="Your WhatsApp number"
-              className="flex-1 bg-background/60 border border-gold/20 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-gold"
+              className="flex-1 bg-white border border-black/10 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-black/40 transition-colors"
               required
             />
             <button type="submit" disabled={state === "loading" || !phone}
-              className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-40">
+              className="px-5 py-2.5 rounded-lg bg-black text-[#FFD93D] font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-40">
               {state === "loading" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
               Find link
             </button>
@@ -62,23 +66,23 @@ export function Retrieve() {
             )}
             {state === "found" && (
               <motion.div key="f" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="mt-5 glass rounded-lg p-4">
-                <div className="text-xs text-emerald-400 mb-2">Found it!</div>
+                className="mt-5 rounded-lg border border-black/10 bg-black/5 p-4">
+                <div className="text-xs text-black/80 mb-2">Found it!</div>
                 <div className="flex items-center gap-2">
-                  <code className="flex-1 text-xs text-foreground/80 font-mono break-all">{foundLink}</code>
+                  <code className="flex-1 text-xs text-black/80 font-mono break-all">{foundLink}</code>
                   <button type="button" onClick={() => { navigator.clipboard.writeText(foundLink); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
-                    className="p-2 rounded-md glass border-gold/40">
-                    {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-gold" />}
+                    className="p-2 rounded-md border border-black/10">
+                    {copied ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-black" />}
                   </button>
                 </div>
               </motion.div>
             )}
             {state === "missing" && (
               <motion.div key="m" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="mt-5 glass rounded-lg p-4 text-center">
-                <Frown className="w-8 h-8 mx-auto text-muted-foreground" />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  I couldn't find that number. Want to <a href="/join" className="text-gold underline">join the waitlist</a> instead?
+                className="mt-5 rounded-lg border border-black/10 bg-black/5 p-4 text-center">
+                <Frown className="w-8 h-8 mx-auto text-black/60" />
+                <p className="mt-2 text-sm text-black/70">
+                  I couldn't find that number. Want to <a href="/join" className="text-black underline underline-offset-2">join the waitlist</a> instead?
                 </p>
               </motion.div>
             )}

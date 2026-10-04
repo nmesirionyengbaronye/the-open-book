@@ -38,28 +38,30 @@ export function ReferralFAQ() {
     <section className="py-20 px-5">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
-          <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">FAQ</div>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold">
-            Referral <span className="text-gold">questions</span>, answered
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black text-[#FFD93D] shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.25em]">FAQ</span>
+          </div>
+          <h2 className="mt-6 text-3xl sm:text-4xl font-display font-bold uppercase tracking-tight leading-[0.95]">
+            Referral <span className="underline decoration-black/40 underline-offset-4">questions</span>, answered
           </h2>
         </div>
         <div className="space-y-3">
           {FAQS.map((f, i) => {
             const active = open === i;
             return (
-              <div key={i} className={`glass rounded-xl overflow-hidden transition-colors ${active ? 'border-gold/60' : ''}`}>
+              <div key={i} className={`rounded-xl overflow-hidden transition-colors border ${active ? 'border-black/60 bg-black/5' : 'border-black/10 bg-black/5'}`}>
                 <button
                   onClick={() => setOpen(active ? null : i)}
                   className="w-full text-left px-5 py-4 flex items-center justify-between gap-4"
                 >
-                  <span className="font-medium text-foreground flex items-center gap-2">
-                    <HelpCircle className="w-4 h-4 text-gold shrink-0" />
+                  <span className="font-medium text-black flex items-center gap-2">
+                    <HelpCircle className="w-4 h-4 text-black shrink-0" />
                     {f.q}
                   </span>
-                  <span className="text-gold text-xs">{active ? '−' : '+'}</span>
+                  <span className="text-black text-xs">{active ? '−' : '+'}</span>
                 </button>
                 {active && (
-                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-5 pb-5 text-sm text-black/70 leading-relaxed">
                     {f.a}
                   </motion.p>
                 )}

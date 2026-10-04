@@ -38,5 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page('/contact', 0.5, 'monthly'),
     page('/terms', 0.3, 'monthly'),
     page('/privacy', 0.3, 'monthly'),
+    page('/feedback', 0.4, 'weekly'),
+    page('/data-deletion', 0.3, 'monthly'),
   ];
 }

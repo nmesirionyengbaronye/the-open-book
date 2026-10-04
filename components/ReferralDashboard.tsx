@@ -285,11 +285,13 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
     <section id="referral-dashboard" className="py-20 px-5">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-10">
-          <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">Growth Engine</div>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold">
-            Your <span className="text-gold">Referral</span> Dashboard
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black text-[#FFD93D] shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.25em]">Growth Engine</span>
+          </div>
+          <h2 className="mt-6 text-3xl sm:text-4xl font-display font-bold uppercase tracking-tight leading-[0.95]">
+            Your <span className="underline decoration-black/40 underline-offset-4">Referral</span> Dashboard
           </h2>
-          <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+          <p className="mt-3 text-black/70 max-w-xl mx-auto">
             Track your queue position, share your link, earn badges, and climb the leaderboard.
           </p>
         </div>
@@ -301,25 +303,25 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
-              className="max-w-lg mx-auto glass-strong rounded-2xl p-6 border border-gold/20"
+              className="max-w-lg mx-auto rounded-2xl border border-black/10 bg-black/5 p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]"
             >
               <form onSubmit={handleLookup} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5 ml-1">
+                  <label className="block text-[10px] uppercase tracking-widest text-black/80 mb-1.5 ml-1">
                     Referral code or WhatsApp number
                   </label>
                   <input
                     value={lookup}
                     onChange={(e) => setLookup(e.target.value)}
                     placeholder="e.g. UNI-1A2B3C or +2348012345678"
-                    className="w-full bg-background/60 border border-gold/20 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-gold"
+                    className="w-full bg-white border border-black/10 rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:border-black/40"
                     required
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="w-full py-3 rounded-xl bg-black text-[#FFD93D] font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {loading ? 'Looking up…' : 'Open dashboard'}
                 </button>
@@ -335,15 +337,15 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
             >
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
-                  <div className="text-xs uppercase tracking-widest text-muted-foreground">Welcome back</div>
+                  <div className="text-xs uppercase tracking-widest text-black/80">Welcome back</div>
                   <h3 className="text-2xl font-display font-bold">{data.fullName.split(' ')[0]}</h3>
-                  <div className="mt-1 text-sm text-muted-foreground">
-                    Code: <span className="font-mono text-gold">{data.referralCode}</span>
+                  <div className="mt-1 text-sm text-black/70">
+                    Code: <span className="font-mono text-black">{data.referralCode}</span>
                   </div>
                 </div>
                 <button
                   onClick={reset}
-                  className="text-xs text-muted-foreground hover:text-gold underline underline-offset-4"
+                  className="text-xs text-black/70 hover:text-black underline underline-offset-4"
                 >
                   Look up another
                 </button>
@@ -356,8 +358,8 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
               </div>
 
               {/* Milestone ladder — 7 verified referrals = 1 spin, 14 = 2 spins, etc. */}
-              <div className="glass rounded-xl p-4 border border-gold/20">
-                <div className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Spin milestones</div>
+              <div className="rounded-xl border border-black/10 bg-black/5 p-4">
+                <div className="text-xs uppercase tracking-widest text-black/80 mb-3">Spin milestones</div>
                 <div className="flex flex-wrap gap-2">
                   {Array.from({ length: Math.max(3, Math.ceil(data.referralCount / MILESTONE) + 1) }).map((_, i) => {
                     const milestone = (i + 1) * MILESTONE;
@@ -367,12 +369,12 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                         key={milestone}
                         className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium border ${
                           unlocked
-                            ? 'bg-gold/15 border-gold/40 text-gold'
-                            : 'bg-white/5 border-white/10 text-muted-foreground'
+                            ? 'bg-black/10 border-black/30 text-black'
+                            : 'bg-black/5 border-black/10 text-black/60'
                         }`}
                       >
                         <span className={`w-5 h-5 rounded-full inline-flex items-center justify-center text-[10px] font-bold ${
-                          unlocked ? 'bg-gold text-background' : 'bg-white/10 text-muted-foreground'
+                          unlocked ? 'bg-black text-[#FFD93D]' : 'bg-black/10 text-black/60'
                         }`}>
                           {unlocked ? '✓' : i + 1}
                         </span>
@@ -381,7 +383,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                     );
                   })}
                 </div>
-                <p className="mt-2 text-[10px] text-muted-foreground">
+                <p className="mt-2 text-[10px] text-black/70">
                   Pending referrals don’t count. Only verified referrals unlock spins.
                 </p>
               </div>
@@ -389,8 +391,8 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
               {/* Referrer join indicator — shows when someone joins via this link */}
               <div className={`rounded-xl border p-4 text-sm flex items-center gap-3 ${
                 invites.length > 0
-                  ? 'border-gold/30 bg-gold/10 text-gold'
-                  : 'border-white/10 bg-white/5 text-muted-foreground'
+                  ? 'border-black/30 bg-black/10 text-black'
+                  : 'border-black/10 bg-black/5 text-black/70'
               }`}>
                 <Users className="w-5 h-5 shrink-0" />
                 {invites.length > 0 ? (
@@ -404,16 +406,16 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
               </div>
 
               {nextBadge && referralsToNext !== null && referralsToNext > 0 && (
-                <div className="glass rounded-xl p-4 border border-gold/20 text-sm text-muted-foreground">
-                  You need <span className="text-gold font-semibold">{referralsToNext}</span> more verified referral
-                  {referralsToNext === 1 ? '' : 's'} to unlock <span className="text-foreground font-medium">{nextBadge.name}</span>.
+                <div className="rounded-xl border border-black/10 bg-black/5 p-4 text-sm text-black/70">
+                  You need <span className="text-black font-semibold">{referralsToNext}</span> more verified referral
+                  {referralsToNext === 1 ? '' : 's'} to unlock <span className="text-black font-medium">{nextBadge.name}</span>.
                 </div>
               )}
 
               {streak > 0 && (
-                <div className="glass rounded-xl p-4 border border-gold/20 text-sm text-muted-foreground inline-flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-gold" />
-                  <span>You have a <span className="text-gold font-semibold">{streak}-day</span> referral streak!</span>
+                <div className="rounded-xl border border-black/10 bg-black/5 p-4 text-sm text-black/70 inline-flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-black" />
+                  <span>You have a <span className="text-black font-semibold">{streak}-day</span> referral streak!</span>
                 </div>
               )}
 
@@ -431,22 +433,22 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                   />
                 </div>
 
-                <div className="glass-strong rounded-2xl p-6 border border-gold/20 flex flex-col gap-4">
+                <div className="rounded-2xl border border-black/10 bg-black/5 p-6 flex flex-col gap-4">
                   <div>
-                    <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Your referral link</div>
+                    <div className="text-xs uppercase tracking-widest text-black/80 mb-2">Your referral link</div>
                     <div className="flex gap-2">
                       <input readOnly value={data.referralLink} className={inputCls + ' font-mono text-xs'} />
-                      <button onClick={copyLink} className="px-3 rounded-lg glass border-gold/40 hover:bg-gold/10" aria-label="Copy">
-                        {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4 text-gold" />}
+                      <button onClick={copyLink} className="px-3 rounded-lg border border-black/10 hover:bg-black/5" aria-label="Copy">
+                        {copied ? <Check className="w-4 h-4 text-black" /> : <Copy className="w-4 h-4 text-black" />}
                       </button>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <button onClick={shareWhatsApp} className="w-full py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover inline-flex items-center justify-center gap-2">
+                    <button onClick={shareWhatsApp} className="w-full py-3 rounded-xl bg-black text-[#FFD93D] font-semibold inline-flex items-center justify-center gap-2">
                       <MessageCircle className="w-4 h-4" /> Share on WhatsApp
                     </button>
-                    <button onClick={() => setShowTemplates((v) => !v)} className="w-full py-3 rounded-xl glass border-gold/40 text-gold font-medium inline-flex items-center justify-center gap-2 hover:bg-gold/10">
+                    <button onClick={() => setShowTemplates((v) => !v)} className="w-full py-3 rounded-xl border border-black/10 bg-black/5 text-black font-medium inline-flex items-center justify-center gap-2 hover:bg-black/10">
                       <Share2 className="w-4 h-4" /> Share everywhere
                     </button>
                   </div>
@@ -460,9 +462,9 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                             <button
                               key={template.id}
                               onClick={() => shareViaTemplate(template.id)}
-                              className="w-full py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-foreground hover:bg-gold/10 hover:border-gold/30 inline-flex items-center gap-2"
+                              className="w-full py-2 rounded-lg bg-black/5 border border-black/10 text-sm text-black hover:bg-black/10 hover:border-black/30 inline-flex items-center gap-2"
                             >
-                              <Icon className="w-4 h-4 text-gold" />
+                              <Icon className="w-4 h-4 text-black" />
                               {activeTemplate === template.id ? 'Shared!' : template.label}
                             </button>
                           );
@@ -472,11 +474,11 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                   </AnimatePresence>
 
                   <div>
-                    <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Badges</div>
+                    <div className="text-xs uppercase tracking-widest text-black/80 mb-2">Badges</div>
                     <div className="flex flex-wrap gap-2">
                       <AnimatePresence>
                         {data.badges.length === 0 ? (
-                          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-muted-foreground">
+                          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-black/70">
                             Share your link to unlock your first badge.
                           </motion.span>
                         ) : (
@@ -487,7 +489,7 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
                                 key={b.id}
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-medium"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/10 border border-black/30 text-black text-xs font-medium"
                               >
                                 <Icon className="w-3.5 h-3.5" /> {b.name}
                               </motion.span>
@@ -500,56 +502,56 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs uppercase tracking-widest text-muted-foreground">Next badge</span>
-                      <span className="text-xs text-gold font-semibold">{Math.round(badgeProgress)}%</span>
+                      <span className="text-xs uppercase tracking-widest text-black/80">Next badge</span>
+                      <span className="text-xs text-black font-semibold">{Math.round(badgeProgress)}%</span>
                     </div>
-                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div className="h-2 rounded-full bg-black/10 overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${badgeProgress}%` }}
                         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                        className="h-full bg-gradient-to-r from-gold to-gold-bright"
+                        className="h-full bg-black"
                       />
                     </div>
                     {nextBadge && (
-                      <div className="mt-1 text-[10px] text-muted-foreground">
+                      <div className="mt-1 text-[10px] text-black/70">
                         {nextBadge.name} — {referralsToNext !== null && referralsToNext > 0 ? `${referralsToNext} more` : 'Unlocked!'}
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Rewards</div>
+                    <div className="text-xs uppercase tracking-widest text-black/80 mb-2">Rewards</div>
                     <div className="space-y-2">
                       {rewards.earned.length === 0 && rewards.available.length === 0 && (
-                        <div className="text-xs text-muted-foreground">Rewards will appear here as you refer more friends.</div>
+                        <div className="text-xs text-black/70">Rewards will appear here as you refer more friends.</div>
                       )}
                       {rewards.earned.map((r) => (
-                        <div key={r.type} className="flex items-center justify-between rounded-lg bg-gold/10 border border-gold/30 px-3 py-2 text-xs">
-                          <span className="text-gold font-medium">{r.title || r.type}</span>
-                          <span className="text-emerald-400">Earned</span>
+                        <div key={r.type} className="flex items-center justify-between rounded-lg bg-black/10 border border-black/30 px-3 py-2 text-xs">
+                          <span className="text-black font-medium">{r.title || r.type}</span>
+                          <span className="text-emerald-600">Earned</span>
                         </div>
                       ))}
                       {rewards.available.map((r) => {
                         const isGiveaway = r.type === 'giveaway_entry';
                         return (
-                          <div key={r.type} className="flex items-center justify-between rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-xs">
+                          <div key={r.type} className="flex items-center justify-between rounded-lg bg-black/5 border border-black/10 px-3 py-2 text-xs">
                             <div>
-                              <div className="text-foreground font-medium">{r.title}</div>
-                              <div className="text-muted-foreground">{r.threshold} referrals</div>
+                              <div className="text-black font-medium">{r.title}</div>
+                              <div className="text-black/70">{r.threshold} referrals</div>
                               {isGiveaway && (
-                                <div className="text-gold mt-1">Come to WhatsApp and claim your prize</div>
+                                <div className="text-black mt-1">Come to WhatsApp and claim your prize</div>
                               )}
                             </div>
                             {isGiveaway ? (
-                              <button onClick={shareWhatsApp} className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold">
+                              <button onClick={shareWhatsApp} className="px-3 py-1.5 rounded-lg bg-black text-[#FFD93D] text-[10px] font-semibold">
                                 Go to WhatsApp
                               </button>
                             ) : (
                               <button
                                 onClick={() => claimReward(r.type)}
                                 disabled={claiming === r.type}
-                                className="px-3 py-1.5 rounded-lg bg-gold text-background text-[10px] font-semibold disabled:opacity-60"
+                                className="px-3 py-1.5 rounded-lg bg-black text-[#FFD93D] text-[10px] font-semibold disabled:opacity-60"
                               >
                                 {claiming === r.type ? 'Claiming…' : 'Claim'}
                               </button>
@@ -562,12 +564,12 @@ export function ReferralDashboard({ initialCode }: { initialCode?: string } = {}
 
                   {invites.length > 0 && (
                     <div>
-                      <div className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Recent joins</div>
+                      <div className="text-xs uppercase tracking-widest text-black/80 mb-2">Recent joins</div>
                       <div className="space-y-2">
                         {invites.slice(0, 10).map((inv, i) => (
                           <div key={i} className="flex items-center justify-between text-xs">
-                            <span className="text-foreground/90">{inv.full_name || 'A friend'}</span>
-                            <span className="text-muted-foreground">{new Date(inv.created_at).toLocaleDateString()}</span>
+                            <span className="text-black/90">{inv.full_name || 'A friend'}</span>
+                            <span className="text-black/70">{new Date(inv.created_at).toLocaleDateString()}</span>
                           </div>
                         ))}
                       </div>
@@ -596,23 +598,23 @@ function RulesGate({ onAccept }: { onAccept: () => void }) {
   const rules = REFERRAL_RULES;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-5 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-gold/30 bg-[#0A0A0F] p-6 shadow-2xl">
+      <div className="w-full max-w-lg rounded-2xl border border-black/10 bg-[#FFD93D] p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
         <div className="mb-4 text-center">
-          <div className="text-xs uppercase tracking-[0.3em] text-gold/80">Read first</div>
-          <h3 className="mt-2 font-display text-2xl font-bold text-white">How the Referral Program Works</h3>
-          <p className="mt-2 text-xs text-white/50">You must accept these rules to enter your dashboard.</p>
+          <div className="text-xs uppercase tracking-[0.3em] text-black/80">Read first</div>
+          <h3 className="mt-2 font-display text-2xl font-bold text-black">How the Referral Program Works</h3>
+          <p className="mt-2 text-xs text-black/70">You must accept these rules to enter your dashboard.</p>
         </div>
         <ul className="space-y-3">
           {rules.map((r, i) => (
-            <li key={i} className="flex gap-3 text-sm text-white/80">
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold/15 text-[10px] font-bold text-gold">{i + 1}</span>
+            <li key={i} className="flex gap-3 text-sm text-black/80">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-black text-[#FFD93D] text-[10px] font-bold">{i + 1}</span>
               <span>{r}</span>
             </li>
           ))}
         </ul>
         <button
           onClick={onAccept}
-          className="mt-6 w-full rounded-xl bg-gold py-3 text-center font-semibold text-background gold-glow-hover"
+          className="mt-6 w-full rounded-xl bg-black py-3 text-center font-semibold text-[#FFD93D]"
         >
           I Understand — Enter Dashboard
         </button>
@@ -623,11 +625,11 @@ function RulesGate({ onAccept }: { onAccept: () => void }) {
 
 function StatBox({ label, value }: { label: string; value: string }) {
   return (
-    <div className="glass rounded-xl p-4">
-      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
-      <div className="mt-1 text-2xl font-display font-bold text-gold">{value}</div>
+    <div className="rounded-xl border border-black/10 bg-black/5 p-4 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+      <div className="text-[10px] uppercase tracking-widest text-black/80">{label}</div>
+      <div className="mt-1 text-2xl font-display font-bold text-black">{value}</div>
     </div>
   );
 }
 
-const inputCls = 'w-full bg-background/60 border border-gold/20 rounded-lg px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 transition';
+const inputCls = 'w-full bg-white border border-black/10 rounded-lg px-3.5 py-2.5 text-sm text-black placeholder:text-black/60 focus:outline-none focus:border-black/40 transition';

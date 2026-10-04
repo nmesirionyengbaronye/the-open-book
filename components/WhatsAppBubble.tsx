@@ -16,11 +16,11 @@ export function WhatsAppBubble() {
       <motion.div
         animate={{ scale: [1, 1.08, 1] }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="w-14 h-14 rounded-full bg-gradient-to-br from-gold to-gold-bright grid place-items-center gold-glow"
+        className="w-14 h-14 rounded-full bg-black grid place-items-center shadow-[4px_4px_0px_rgba(0,0,0,0.25)]"
       >
-        <MessageCircle className="w-6 h-6 text-background" strokeWidth={2.5} />
+        <MessageCircle className="w-6 h-6 text-[#FFD93D]" strokeWidth={2.5} />
       </motion.div>
-      <span className="absolute inset-0 rounded-full bg-gold/40 animate-ping -z-10" />
+      <span className="absolute inset-0 rounded-full bg-black/40 animate-ping -z-10" />
     </motion.a>
   );
 }

@@ -1,2 +1,11 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /retrieve
+Disallow: /rewards
+Disallow: /r/
+Disallow: /data-deletion
+
+Sitemap: https://waitlist.uniui.com.ng/sitemap.xml

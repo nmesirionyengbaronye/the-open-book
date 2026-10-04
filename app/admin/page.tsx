@@ -10,7 +10,7 @@ export default function AdminOverview() {
   if (!isAuthChecked || loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 text-gold animate-spin" />
+        <Loader2 className="w-8 h-8 text-black animate-spin" />
       </div>
     );
   }
@@ -20,8 +20,8 @@ export default function AdminOverview() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-3xl font-bold tracking-tight">Admin Overview</h1>
-        <p className="text-muted-foreground">Real-time statistics and system performance.</p>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-black">Admin Overview</h1>
+        <p className="text-black/70">Real-time statistics and system performance.</p>
       </div>
       <DashboardOverview data={data} />
     </div>

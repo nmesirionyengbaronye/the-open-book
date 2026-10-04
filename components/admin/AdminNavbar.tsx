@@ -27,7 +27,7 @@ export function AdminNavbar() {
   if (pathname === '/admin/login') return null;
 
   return (
-    <nav className="border-b border-gold/20 bg-[#0A0A0F]/80 backdrop-blur-md sticky top-0 z-50">
+    <nav className="border-b border-black/10 bg-[#FFD93D] backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center gap-8">
@@ -37,10 +37,10 @@ export function AdminNavbar() {
                 alt="Uni UI"
                 width={64}
                 height={36}
-                className="h-7 w-auto rounded-md ring-1 ring-gold/20"
+                className="h-7 w-auto rounded-md ring-1 ring-black/10"
               />
-              <span className="font-display font-bold text-xl tracking-tight">
-                Uni<span className="text-gold">UI</span> Admin
+              <span className="font-display font-bold text-xl tracking-tight text-black">
+                Uni<span className="underline decoration-black/40 underline-offset-4">UI</span> Admin
               </span>
             </Link>
             
@@ -55,8 +55,8 @@ export function AdminNavbar() {
                     className={cn(
                       "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                       isActive 
-                        ? "bg-gold/10 text-gold" 
-                        : "text-muted-foreground hover:text-white hover:bg-white/5"
+                        ? "bg-black/10 text-black" 
+                        : "text-black/70 hover:text-black hover:bg-black/5"
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -70,7 +70,7 @@ export function AdminNavbar() {
           <div className="flex items-center">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-black/70 hover:text-black hover:bg-black/5 transition-colors"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline">Logout</span>
@@ -80,7 +80,7 @@ export function AdminNavbar() {
       </div>
       
       {/* Mobile nav */}
-      <div className="sm:hidden flex items-center justify-center gap-4 py-2 border-t border-gold/10 overflow-x-auto">
+      <div className="sm:hidden flex items-center justify-center gap-4 py-2 border-t border-black/10 overflow-x-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href;
@@ -90,7 +90,7 @@ export function AdminNavbar() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center gap-1 px-3 py-1 rounded-lg text-[10px] font-medium transition-colors",
-                isActive ? "text-gold" : "text-muted-foreground"
+                isActive ? "text-black" : "text-black/70"
               )}
             >
               <Icon className="w-4 h-4" />

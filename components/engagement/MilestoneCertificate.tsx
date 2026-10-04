@@ -39,26 +39,26 @@ export default function MilestoneCertificate({
   };
 
   return (
-    <div className="mt-5 overflow-hidden rounded-2xl border border-[#D4AF37]/30 bg-gradient-to-br from-[#D4AF37]/10 to-white/[0.02] p-6 text-center">
-      <Trophy className="mx-auto h-10 w-10 text-[#D4AF37]" />
-      <h3 className="mt-3 text-xl font-bold text-white">Milestone Reached!</h3>
-      <p className="mt-1 text-sm text-white/70">
+    <div className="mt-5 overflow-hidden rounded-2xl border border-black/10 bg-black/5 p-6 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+      <Trophy className="mx-auto h-10 w-10 text-black" />
+      <h3 className="mt-3 text-xl font-bold text-black">Milestone Reached!</h3>
+      <p className="mt-1 text-sm text-black/70">
         {name} achieved {milestone} verified referrals
       </p>
-      <div className="mt-4 flex items-center justify-center gap-4 text-sm text-white/60">
+      <div className="mt-4 flex items-center justify-center gap-4 text-sm text-black/70">
         <div>
-          <div className="text-lg font-bold text-white">{referrals}</div>
-          <div className="text-[10px] uppercase tracking-widest">Referrals</div>
+          <div className="text-lg font-bold text-black">{referrals}</div>
+          <div className="text-[10px] uppercase tracking-widest text-black/80">Referrals</div>
         </div>
-        <div className="h-8 w-px bg-white/10" />
+        <div className="h-8 w-px bg-black/10" />
         <div>
-          <div className="text-lg font-bold text-white">{rank ? `#${rank}` : '—'}</div>
-          <div className="text-[10px] uppercase tracking-widest">Rank</div>
+          <div className="text-lg font-bold text-black">{rank ? `#${rank}` : '—'}</div>
+          <div className="text-[10px] uppercase tracking-widest text-black/80">Rank</div>
         </div>
       </div>
       <button
         onClick={handleShare}
-        className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#D4AF37] px-5 py-2.5 text-sm font-semibold text-black"
+        className="mt-4 inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-semibold text-[#FFD93D]"
       >
         <Users className="h-4 w-4" /> Share achievement
       </button>

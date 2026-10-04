@@ -59,7 +59,6 @@ export async function POST(request: NextRequest) {
   const requestId = Math.random().toString(36).substring(7);
   console.log(`[JoinAPI][${requestId}] Inbound request received.`);
 
-  // Rate limit by IP + action
   const forwarded = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
   const ip = forwarded.split(',')[0]?.trim() || 'unknown';
   const { allowed, remaining, resetAt } = rateLimit(ip, 'join', 5);
@@ -71,6 +70,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const secret = process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !secret) {
+      return NextResponse.json({ error: 'Waitlist is temporarily unavailable.' }, { status: 503 });
+    }
+
     const body = await request.json();
     
     // --- Step 1: Detailed Field-Level Validation ---

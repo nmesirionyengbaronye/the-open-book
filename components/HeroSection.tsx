@@ -47,17 +47,17 @@ function Page({
       className="absolute left-1/2 top-1/2 paper-page rounded-sm shadow-2xl"
     >
       <div
-        className="w-[140px] h-[190px] sm:w-[170px] sm:h-[230px] p-3 -translate-x-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-zinc-700/80 font-mono"
+        className="w-[140px] h-[190px] sm:w-[170px] sm:h-[230px] p-3 -translate-x-1/2 -translate-y-1/2 text-[10px] sm:text-xs text-black/70 font-mono"
         style={{ transform: `translate(-50%,-50%)` }}
       >
-        <div className="font-bold text-zinc-900 mb-2">{snippet[0]}</div>
+        <div className="font-bold text-black mb-2">{snippet[0]}</div>
         <div className="mb-1">{snippet[1]}</div>
         <div className="opacity-70">{snippet[2]}</div>
         <div className="mt-3 space-y-1 opacity-50">
-          <div className="h-px bg-zinc-700/30" />
-          <div className="h-px bg-zinc-700/30 w-4/5" />
-          <div className="h-px bg-zinc-700/30 w-2/3" />
-          <div className="h-px bg-zinc-700/30 w-3/4" />
+          <div className="h-px bg-black/20" />
+          <div className="h-px bg-black/20 w-4/5" />
+          <div className="h-px bg-black/20 w-2/3" />
+          <div className="h-px bg-black/20 w-3/4" />
         </div>
       </div>
     </motion.div>
@@ -82,17 +82,17 @@ function Cover({ progress, side }: { progress: MotionValue<number>; side: "left"
         }`}
         style={{
           background:
-            "linear-gradient(135deg, oklch(0.28 0.04 50), oklch(0.18 0.03 40))",
-          borderLeft: side === "right" ? "3px solid oklch(0.78 0.13 85)" : undefined,
-          borderRight: side === "left" ? "3px solid oklch(0.78 0.13 85)" : undefined,
+            "linear-gradient(135deg, #000000, #000000)",
+          borderLeft: side === "right" ? "3px solid #FFD93D" : undefined,
+          borderRight: side === "left" ? "3px solid #FFD93D" : undefined,
         }}
       >
         <div className="h-full w-full p-5 flex flex-col justify-between">
-          <div className="text-gold/80 font-display text-[10px] tracking-[0.3em]">UNI · UI</div>
+          <div className="text-black/80 font-display text-[10px] tracking-[0.3em]">UNI · UI</div>
           <div>
-            <div className="text-gold font-display text-base leading-tight">University Uploaded Intelligence</div>
-            <div className="mt-2 h-px bg-gold/40" />
-            <div className="text-gold/60 text-[10px] mt-2">FUTO Live · Semester Materials</div>
+            <div className="text-black font-display text-base leading-tight">University Uploaded Intelligence</div>
+            <div className="mt-2 h-px bg-black/40" />
+            <div className="text-black/60 text-[10px] mt-2">FUTO Live · Semester Materials</div>
           </div>
         </div>
       </div>
@@ -108,10 +108,10 @@ function Spine({ progress }: { progress: MotionValue<number> }) {
       style={{ opacity, y }}
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-[260px] rounded-sm"
     >
-      <div className="h-full w-full bg-gradient-to-b from-amber-900 via-amber-950 to-amber-900 relative">
-        <div className="absolute top-4 left-0 right-0 h-1 bg-gold" />
-        <div className="absolute top-1/2 left-0 right-0 h-1 bg-gold" />
-        <div className="absolute bottom-4 left-0 right-0 h-1 bg-gold" />
+      <div className="h-full w-full bg-gradient-to-b from-black via-black to-black relative">
+        <div className="absolute top-4 left-0 right-0 h-1 bg-[#FFD93D]" />
+        <div className="absolute top-1/2 left-0 right-0 h-1 bg-[#FFD93D]" />
+        <div className="absolute bottom-4 left-0 right-0 h-1 bg-[#FFD93D]" />
       </div>
     </motion.div>
   );
@@ -137,7 +137,7 @@ function TornCard({
       className={`absolute ${positions[index]} max-w-[200px] sm:max-w-[260px] z-20 pointer-events-none`}
     >
       <div className="torn-paper glass p-4 sm:p-5">
-        <p className="font-hand text-gold-bright text-base sm:text-xl leading-snug">
+        <p className="font-hand text-black text-base sm:text-xl leading-snug">
           "{quote}"
         </p>
       </div>
@@ -160,7 +160,7 @@ export default function Hero() {
   return (
     <section ref={ref} id="hero" className="relative" style={{ height: "400vh" }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background via-background to-surface" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#FFD93D] via-[#FFD93D] to-black" />
 
         <div className="absolute inset-0 grid place-items-center scale-75 sm:scale-100 will-change-transform">
           <motion.div
@@ -187,27 +187,27 @@ export default function Hero() {
         >
           {/* V2 announcement. This is the reason the page exists now, so it
               sits above the brand line rather than buried under it. */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold/12 border border-gold/35 text-gold text-[10px] sm:text-[11px] uppercase tracking-[0.22em]">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/10 border border-black/35 text-black text-[10px] sm:text-[11px] uppercase tracking-[0.22em]">
+            <span className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
             V2 is coming — and it is coming to every Southern Nigerian university
           </div>
-          <h1 className="mt-5 font-display text-4xl sm:text-6xl md:text-7xl font-bold text-gold leading-[1.05]">
-            YOUR SEMESTER, <span className="text-gold-bright">UPLOADED.</span>
+          <h1 className="mt-5 font-display text-4xl sm:text-6xl md:text-7xl font-bold text-black leading-[1.05]">
+            YOUR SEMESTER, <span className="text-black">UPLOADED.</span>
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-muted-foreground">
+          <p className="mt-4 max-w-2xl mx-auto text-sm sm:text-base text-black/60">
             THE NEXT VERSION OF UNI UI IS BEING BUILT WITH STUDENT CREATORS ACROSS NIGERIA.
             FIRST WAVE: 6 UNIVERSITIES IN NOVEMBER 2026. JOIN THE WAITLIST TO GET YOUR CAMPUS IN.
           </p>
           <motion.button
             style={{ opacity: buttonOpacity }}
             onClick={() => scrollTo("join")}
-            className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover will-change-transform"
+            className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold will-change-transform"
           >
             JOIN THE WAITLIST <ArrowRight className="w-4 h-4" />
           </motion.button>
           <motion.div
             style={{ opacity: scrollPromptOpacity }}
-            className="mt-6 text-[10px] tracking-[0.3em] text-muted-foreground/60 uppercase"
+            className="mt-6 text-[10px] tracking-[0.3em] text-black/60 uppercase"
           >
             'Live at FUTO now · Full Southern Nigeria coverage by August 2027'
           </motion.div>

@@ -11,12 +11,20 @@ import { INSTITUTIONS } from '@/lib/institutions';
  */
 export async function GET() {
   try {
+    // Gracefully handle missing Supabase config instead of crashing.
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const secret = process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!url || !secret) {
+      return NextResponse.json({ schools: [], total: 0 });
+    }
+
     const { data: entries, error } = await supabaseAdmin
       .from('waitlist')
       .select('institution');
 
     if (error || !entries) {
-      return NextResponse.json({ error: 'Failed to load school counts' }, { status: 500 });
+      return NextResponse.json({ schools: [], total: 0 });
     }
 
     const counts = new Map<string, number>();
@@ -37,6 +45,6 @@ export async function GET() {
     return NextResponse.json({ schools, total });
   } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ schools: [], total: 0 });
   }
 }

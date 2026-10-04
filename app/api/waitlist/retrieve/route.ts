@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const secret = process.env.SUPABASE_SECRET_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !secret) {
+    return NextResponse.json({ error: 'Waitlist is temporarily unavailable.' }, { status: 503 });
+  }
+
   const phone = request.nextUrl.searchParams.get('phone');
   
   if (!phone) {

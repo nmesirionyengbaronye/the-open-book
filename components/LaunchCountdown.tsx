@@ -13,7 +13,7 @@ export default function LaunchCountdown() {
 
   useEffect(() => {
     const launchDate = new Date(
-      process.env.NEXT_PUBLIC_LAUNCH_DATE || '2026-11-01'
+      process.env.NEXT_PUBLIC_LAUNCH_DATE || '2026-11-30'
     ).getTime();
     const updateCountdown = () => {
       const now = new Date().getTime();
@@ -57,19 +57,19 @@ export default function LaunchCountdown() {
 
   return (
     <div className="flex flex-col items-center mb-12 px-5">
-      <div className="text-[10px] uppercase tracking-[0.4em] text-gold/60 mb-6 font-medium">
+      <div className="text-[10px] uppercase tracking-[0.4em] text-black/70 mb-6 font-medium">
         Launch Sequence Initiated
       </div>
       <div className="flex items-center gap-3 sm:gap-6">
         <CountdownUnit value={timeLeft.days} label="Days" />
-        <div className="text-gold/30 text-2xl font-display mt-[-20px]">:</div>
+        <div className="text-black/30 text-2xl font-display mt-[-20px]">:</div>
         <CountdownUnit value={timeLeft.hours} label="Hours" />
-        <div className="text-gold/30 text-2xl font-display mt-[-20px]">:</div>
+        <div className="text-black/30 text-2xl font-display mt-[-20px]">:</div>
         <CountdownUnit value={timeLeft.minutes} label="Minutes" />
       </div>
       <div className="mt-8 text-center max-w-md">
-        <p className="text-xs text-muted-foreground leading-relaxed tracking-wide">
-          Uni UI is <span className="text-gold">live for FUTO students now</span> at app.uniui.com.ng. The first waitlist wave — 6 more universities — launches November 2026, with 3 universities added each month through {WAITLIST_FULL_COVERAGE_DATE}.
+        <p className="text-xs text-black/70 leading-relaxed tracking-wide">
+          The first waitlist wave — 6 universities — launches November 2026, with 3 universities added each month through {WAITLIST_FULL_COVERAGE_DATE}.
         </p>
       </div>
     </div>
@@ -79,13 +79,12 @@ export default function LaunchCountdown() {
 function CountdownUnit({ value, label }: { value: number; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="glass-strong w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border-gold/20 relative group overflow-hidden">
-        <div className="absolute inset-0 bg-gold/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-        <span className="text-2xl sm:text-4xl font-display font-bold text-white tracking-tighter">
+      <div className="bg-white w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center border border-black/10 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+        <span className="text-2xl sm:text-4xl font-display font-bold text-black tracking-tighter">
           {value.toString().padStart(2, '0')}
         </span>
       </div>
-      <span className="text-[10px] uppercase tracking-widest text-gold/60 font-medium">
+      <span className="text-[10px] uppercase tracking-widest text-black/70 font-medium">
         {label}
       </span>
     </div>

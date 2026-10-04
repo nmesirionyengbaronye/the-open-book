@@ -14,50 +14,57 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
-      <h1 className="text-3xl font-bold text-white">Contact Us</h1>
-      <p className="mt-2 text-sm text-white/60">We'd love to hear from you.</p>
+    <div className="mx-auto max-w-3xl px-4 py-12 bg-[#FFD93D] text-black font-body antialiased">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black text-[#FFD93D] shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.25em]">Contact</span>
+      </div>
+      <h1 className="mt-6 text-4xl sm:text-5xl font-display font-bold uppercase tracking-tight leading-[0.95]">
+        ONE INBOX.<br className="hidden sm:block" /> REAL ANSWERS.
+      </h1>
+      <p className="mt-4 text-base sm:text-lg text-black/70 max-w-2xl leading-relaxed">
+        We'd love to hear from you.
+      </p>
 
-      <div className="mt-8 space-y-6 text-sm text-white/80">
-        <section>
-          <h2 className="text-lg font-semibold text-white">One email address</h2>
-          <p>
+      <div className="mt-10 space-y-6">
+        <section className="rounded-2xl border border-black/10 bg-black/5 p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+          <h2 className="font-display text-xl font-bold uppercase tracking-tight">One email address</h2>
+          <p className="mt-2 text-sm leading-relaxed text-black/75">
             Support, partnerships and general enquiries all reach the same inbox:{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-[#D4AF37] hover:underline">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-black underline underline-offset-2 font-semibold">
               sofia@uniui.com.ng
             </a>
           </p>
         </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-white">Faster than email</h2>
-          <p>
+        <section className="rounded-2xl border border-black/10 bg-black/5 p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+          <h2 className="font-display text-xl font-bold uppercase tracking-tight">Faster than email</h2>
+          <p className="mt-2 text-sm leading-relaxed text-black/75">
             For anything urgent — a wrong referral count, a creator payout question, or a claim
             that needs checking before you post — use the WhatsApp channel. Creator questions are
             fastest in the UNIUI Creators group.
           </p>
         </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-white">Follow the build</h2>
-          <p>
+        <section className="rounded-2xl border border-black/10 bg-black/5 p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+          <h2 className="font-display text-xl font-bold uppercase tracking-tight">Follow the build</h2>
+          <p className="mt-2 text-sm leading-relaxed text-black/75">
             Uni UI is on{' '}
-            <a href={X_URL} target="_blank" rel="noreferrer" className="text-[#D4AF37] hover:underline">
+            <a href={X_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
               X
             </a>{' '}
             and{' '}
-            <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="text-[#D4AF37] hover:underline">
+            <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
               TikTok
             </a>{' '}
             as{' '}
-            <span className="text-[#D4AF37]">@1stuniui_com_ng</span> for V2 progress and rollout
+            <span className="font-semibold">@1stuniui_com_ng</span> for V2 progress and rollout
             announcements.
           </p>
         </section>
 
-        <section>
-          <h2 className="text-lg font-semibold text-white">Response time</h2>
-          <p>We typically respond within 24–48 hours during business days.</p>
+        <section className="rounded-2xl border border-black/10 bg-black/5 p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+          <h2 className="font-display text-xl font-bold uppercase tracking-tight">Response time</h2>
+          <p className="mt-2 text-sm leading-relaxed text-black/75">We typically respond within 24–48 hours during business days.</p>
         </section>
       </div>
     </div>

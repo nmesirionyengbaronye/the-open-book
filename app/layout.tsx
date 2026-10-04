@@ -126,6 +126,30 @@ export default function RootLayout({
             run first inside the Mini App WebView, leaving window.Telegram undefined. */}
         <script src="https://telegram.org/js/telegram-web-app.js" async={false} />
         <link rel="manifest" href="/site.webmanifest" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `document.documentElement.style.setProperty('--tg-viewport-height','100vh');document.documentElement.style.setProperty('--tg-viewport-stable-height','100vh');`,
+          }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                var id=null;
+                function onScroll(){
+                  document.documentElement.classList.add('scroll-active');
+                  clearTimeout(id);
+                  id=setTimeout(function(){
+                    document.documentElement.classList.remove('scroll-active');
+                    id=null;
+                  }, 1200);
+                }
+                window.addEventListener('scroll', onScroll, { passive: true });
+                onScroll();
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <CursorTrail />

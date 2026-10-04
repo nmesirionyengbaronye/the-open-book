@@ -12,14 +12,14 @@ export function WhatIs() {
     <section id="about" className="relative py-24 px-5">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-start">
         <motion.div initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={fadeUp} transition={spring}>
-          <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">ABOUT</div>
-          <h2 className="mt-3 text-3xl sm:text-5xl font-display font-bold">
-            WHAT IS <span className="text-gold">UNI UI</span>?
-          </h2>
+           <div className="text-xs tracking-[0.3em] text-black/80 uppercase">ABOUT</div>
+           <h2 className="mt-3 text-3xl sm:text-5xl font-display font-bold">
+             WHAT IS <span className="text-black">UNI UI</span>?
+           </h2>
         </motion.div>
         <motion.div
           initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }} variants={fadeUp} custom={1} transition={spring}
-          className="text-muted-foreground text-base sm:text-lg leading-relaxed space-y-4"
+          className="text-black/70 text-base sm:text-lg leading-relaxed space-y-4"
         >
           <p>
             UNI UI STANDS FOR <span className="text-foreground font-medium">UNIVERSITY UPLOADED INTELLIGENCE</span>.
@@ -50,7 +50,7 @@ export function Features() {
           initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={spring}
           className="text-3xl sm:text-4xl font-display font-bold text-center"
         >
-          BUILT FOR THE WAY YOU <span className="text-gold">ACTUALLY STUDY</span>.
+          BUILT FOR THE WAY YOU <span className="text-black">ACTUALLY STUDY</span>.
         </motion.h2>
         <div className="mt-12 grid md:grid-cols-3 gap-6">
           {FEATURES.map((f, i) => (
@@ -85,16 +85,16 @@ export function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
   return (
-    <section className="py-20 px-5 bg-surface/30">
+    <section className="py-20 px-5 bg-[#FFD93D]">
       <div ref={ref} className="max-w-5xl mx-auto">
         <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={spring}
-          className="text-3xl sm:text-4xl font-display font-bold text-center">
+          className="text-3xl sm:text-4xl font-display font-bold text-center text-black">
           HOW IT WORKS
         </motion.h2>
         <div className="mt-14 relative">
-          <div className="absolute left-6 sm:left-1/2 top-0 bottom-0 w-px bg-gold/15" />
+          <div className="absolute left-6 sm:left-1/2 top-0 bottom-0 w-px bg-black/10" />
           <div
-            className="absolute left-6 sm:left-1/2 top-0 w-px bg-gradient-to-b from-gold to-gold-bright transition-all duration-1000"
+            className="absolute left-6 sm:left-1/2 top-0 w-px bg-gradient-to-b from-[#FFD93D] to-[#000000] transition-all duration-1000"
             style={{ height: inView ? "100%" : "0%" }}
           />
           {STEPS.map((s, i) => (
@@ -108,12 +108,12 @@ export function HowItWorks() {
             >
               <div className="hidden sm:block" />
               <div className="pl-16 sm:pl-0">
-                <div className="absolute left-0 sm:left-1/2 top-0 sm:-translate-x-1/2 w-12 h-12 rounded-full bg-background border-2 border-gold grid place-items-center gold-glow">
-                  <s.icon className="w-5 h-5 text-gold" />
+                <div className="absolute left-0 sm:left-1/2 top-0 sm:-translate-x-1/2 w-12 h-12 rounded-full bg-[#FFD93D] border-2 border-black grid place-items-center">
+                  <s.icon className="w-5 h-5 text-black" />
                 </div>
-                <div className="text-gold font-display text-sm tracking-widest">{s.n}</div>
-                <h3 className="mt-1 text-xl font-display font-semibold">{s.t}</h3>
-                <p className="mt-1 text-muted-foreground text-sm">{s.d}</p>
+                <div className="text-black font-display text-sm tracking-widest">{s.n}</div>
+                <h3 className="mt-1 text-xl font-display font-semibold text-black">{s.t}</h3>
+                <p className="mt-1 text-black/70 text-sm">{s.d}</p>
               </div>
             </motion.div>
           ))}
@@ -125,8 +125,8 @@ export function HowItWorks() {
 
 const TESTIMONIALS = [
   { name: "Chisom", dept: "MCE 300L · FUTO", text: "I paid ₦5,000 for MTH 201 tutorials. Still failed. Uni UI helped me pass with a B. Free." },
-  { name: "Tunde", dept: "EEE 200L · UNILAG", text: "It pulled an answer straight from my lecturer's slide. I literally saw the page number. Mind blown." },
-  { name: "Amaka", dept: "Biochem 300L · UNN", text: "Glycolysis used to scare me. Asked Uni UI three follow-ups and finally got it. In Pidgin sef." },
+  { name: "Tunde", dept: "EEE 200L · FUTO", text: "It pulled an answer straight from my lecturer's slide. I literally saw the page number. Mind blown." },
+  { name: "Amaka", dept: "Biochem 300L · FUTO", text: "Glycolysis used to scare me. Asked Uni UI three follow-ups and finally got it. In Pidgin sef." },
   { name: "Ifeanyi", dept: "Comp Sci 200L · FUTO", text: "I uploaded my entire DSA past question pack. The verified solutions saved my CGPA." },
 ];
 
@@ -362,64 +362,65 @@ const fadeUp = {
 export function RolloutRoadmap() {
   return (
     <section id="roadmap" className="py-20 px-5">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.3 }}
           variants={fadeUp} transition={spring}
-          className="text-center mb-12"
+          className="text-center mb-14"
         >
           <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">Rollout</div>
           <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold">
             WHEN DOES <span className="text-gold">MY UNIVERSITY</span> GO LIVE?
           </h2>
           <p className="mt-3 max-w-2xl mx-auto text-sm text-muted-foreground">
-            Uni UI is live for FUTO today. The waitlist opens universities in waves &mdash; 6 go
+            Uni UI is live for FUTO today. The waitlist opens universities in waves — 6 go
             live November 2026, then 3 more every month until full Southern coverage by{' '}
             <span className="text-gold">{WAITLIST_FULL_COVERAGE_DATE}</span>.
           </p>
         </motion.div>
 
-        <div className="relative pl-4">
-          <div className="absolute left-[17px] top-0 bottom-0 w-px bg-white/10" />
-          <div className="space-y-3">
-            {WAITLIST_ROADMAP.map((phase, i) => {
-              const isFirst = i === 0;
-              const isComplete = phase.complete;
-              const dotColor = isFirst
-                ? 'bg-emerald-400'
-                : isComplete
-                  ? 'bg-gold'
-                  : 'bg-white/20';
-              const plus = phase.universities > 0
-                ? `+${phase.universities} university${phase.universities > 1 ? 's' : ''}`
-                : 'complete';
-              return (
-                <motion.div
-                  key={phase.key}
-                  initial={{ opacity: 0, x: -8 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ ...spring, delay: i * 0.05 }}
-                  className="relative flex items-start gap-3"
-                >
-                  <span className={`w-3.5 h-3.5 flex-shrink-0 mt-0.5 rounded-full ${dotColor}`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-sm font-medium text-foreground">{phase.month}</span>
-                      <span className={isComplete ? 'text-[10px] uppercase tracking-wider text-gold/80' : 'text-xs text-white/40'}>{plus}</span>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {WAITLIST_ROADMAP.map((phase, i) => {
+            const isFirst = i === 0;
+            const isComplete = phase.complete;
+            return (
+              <motion.div
+                key={phase.key}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ ...spring, delay: i * 0.05 }}
+                className={`rounded-2xl p-5 border ${
+                  isFirst
+                    ? 'bg-emerald-500/10 border-emerald-400/40'
+                    : isComplete
+                      ? 'bg-[#FFD93D]/10 border-[#FFD93D]/40'
+                      : 'bg-white border-black/10'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-[0.25em] text-black/80 font-semibold">
+                      {phase.month}
                     </div>
-                    <div className="mt-0.5 text-xs text-muted-foreground">
-                      {isComplete
-                        ? `All Southern-Nigeria universities live by ${WAITLIST_FULL_COVERAGE_DATE}`
-                        : isFirst
-                          ? 'First wave of 6 universities goes live'
-                          : '3 more universities go live'}
+                    <div className="mt-2 font-display text-xl font-bold text-black">
+                      {isFirst ? 'Live now' : isComplete ? 'Complete' : 'Upcoming'}
                     </div>
                   </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                  <div className="w-10 h-10 rounded-full bg-black text-[#FFD93D] grid place-items-center font-display text-sm font-bold">
+                    {phase.universities}
+                  </div>
+                </div>
+                <p className="mt-3 text-xs text-black/70 leading-relaxed">
+                  {isFirst
+                    ? 'FUTO is already live. The first wave of 6 universities opens next.'
+                    : isComplete
+                      ? `All Southern-Nigeria universities live by ${WAITLIST_FULL_COVERAGE_DATE}.`
+                      : '3 more universities go live this month.'}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

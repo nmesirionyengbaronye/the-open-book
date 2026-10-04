@@ -40,94 +40,95 @@ export default function FeedbackPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] text-white flex flex-col items-center justify-center p-6">
-      <div className="absolute top-8 left-8">
-        <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Home
-        </Link>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full"
-      >
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gold/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-gold/20">
-            <MessageSquare className="w-8 h-8 text-gold" />
-          </div>
-          <h1 className="text-3xl font-display font-bold">Feedback</h1>
-          <p className="text-muted-foreground mt-2">
-            Help us make Uni UI better for everyone. What features or improvements would you like to see?
-          </p>
+    <main className="min-h-screen pt-24 pb-20 px-5 bg-[#FFD93D] text-black font-body antialiased">
+      <div className="mx-auto max-w-md">
+        <div className="absolute top-8 left-8">
+          <Link href="/" className="flex items-center gap-2 text-black/70 hover:text-black transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
         </div>
 
-        {submitted ? (
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="glass-strong p-8 rounded-2xl text-center border border-gold/20"
-          >
-            <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Submission Received</h2>
-            <p className="text-muted-foreground mb-6">
-              Your feedback is valuable to us. We'll take it into consideration as we build the future of Uni UI.
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-black text-[#FFD93D] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
+              <MessageSquare className="w-8 h-8" />
+            </div>
+            <h1 className="text-4xl font-display font-bold uppercase tracking-tight leading-[0.95]">Feedback</h1>
+            <p className="mt-3 text-black/70">
+              Help us make Uni UI better for everyone. What features or improvements would you like to see?
             </p>
-            <button
-              onClick={() => { setSubmitted(false); setForm({ fullName: '', recommendation: '' }); }}
-              className="text-gold hover:underline text-sm font-medium"
-            >
-              Send more feedback
-            </button>
-          </motion.div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium ml-1">
-                Your Full Name
-              </label>
-              <input
-                required
-                type="text"
-                placeholder="Chisom Okeke"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-gold/50 transition-colors"
-              />
-            </div>
+          </div>
 
-            <div className="space-y-1.5">
-              <label className="text-xs uppercase tracking-wider text-muted-foreground font-medium ml-1">
-                Your Feedback
-              </label>
-              <textarea
-                required
-                rows={5}
-                placeholder="I would love to see a feature that..."
-                value={form.recommendation}
-                onChange={(e) => setForm({ ...form, recommendation: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-gold/50 transition-colors resize-none"
-              />
-            </div>
-
-            <button
-              disabled={loading}
-              type="submit"
-              className="w-full bg-gold text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-gold/90 transition-all disabled:opacity-50 gold-glow"
+          {submitted ? (
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="rounded-2xl border border-black/10 bg-black/5 p-8 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.25)]"
             >
-              {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <>
-                  <Send className="w-4 h-4" />
-                  Send Feedback
-                </>
-              )}
-            </button>
-          </form>
-        )}
-      </motion.div>
-    </div>
+              <CheckCircle2 className="w-12 h-12 text-black mx-auto mb-4" />
+              <h2 className="text-xl font-bold mb-2 font-display uppercase tracking-tight">Submission Received</h2>
+              <p className="text-black/70 mb-6">
+                Your feedback is valuable to us. We'll take it into consideration as we build the future of Uni UI.
+              </p>
+              <button
+                onClick={() => { setSubmitted(false); setForm({ fullName: '', recommendation: '' }); }}
+                className="text-black underline underline-offset-2 text-sm font-medium"
+              >
+                Send more feedback
+              </button>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider text-black/80 font-medium ml-1">
+                  Your Full Name
+                </label>
+                <input
+                  required
+                  type="text"
+                  placeholder="Chisom Okeke"
+                  value={form.fullName}
+                  onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+                  className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-black/40 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider text-black/80 font-medium ml-1">
+                  Your Feedback
+                </label>
+                <textarea
+                  required
+                  rows={5}
+                  placeholder="I would love to see a feature that..."
+                  value={form.recommendation}
+                  onChange={(e) => setForm({ ...form, recommendation: e.target.value })}
+                  className="w-full bg-white border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:border-black/40 transition-colors resize-none"
+                />
+              </div>
+
+              <button
+                disabled={loading}
+                type="submit"
+                className="w-full bg-black text-[#FFD93D] font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-black/90 transition-all disabled:opacity-50"
+              >
+                {loading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Feedback
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+        </motion.div>
+      </div>
+    </main>
   );
 }

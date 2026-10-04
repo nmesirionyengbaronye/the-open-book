@@ -13,7 +13,7 @@ const templates = {
   instagram: (code: string) =>
     `Early access unlocked 🎟️ Join me on the UniUI waitlist and let's both move up faster:\n${REFERRAL_LINK}${code}`,
   twitter: (code: string) =>
-    `I just joined the UniUI waitlist. If you’re a student who hates clunky school tools, you’ll want in too:\n${REFERRAL_LINK}${code}`,
+    `I just joined the UniUI waitlist. If you're a student who hates clunky school tools, you'll want in too:\n${REFERRAL_LINK}${code}`,
 };
 
 export default function ShareTemplates({ code, fullName }: { code: string; fullName: string }) {
@@ -32,20 +32,20 @@ export default function ShareTemplates({ code, fullName }: { code: string; fullN
 
   return (
     <div className="mt-5">
-      <div className="flex items-center gap-2 text-[#D4AF37]">
+      <div className="flex items-center gap-2 text-black">
         <Share2 className="h-4 w-4" />
-        <h3 className="text-sm font-semibold tracking-wide">Share templates</h3>
+        <h3 className="text-sm font-semibold tracking-wide text-black">Share templates</h3>
       </div>
       <div className="mt-2 space-y-2">
         {Object.entries(templates).map(([key, template]) => (
           <div
             key={key}
-            className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"
+            className="flex items-start justify-between gap-3 rounded-xl border border-black/10 bg-black/5 px-4 py-3"
           >
-            <p className="text-[11px] leading-relaxed text-white/70">{template(code, fullName)}</p>
+            <p className="text-[11px] leading-relaxed text-black/70">{template(code, fullName)}</p>
             <button
               onClick={() => copy(template(code, fullName), key)}
-              className="shrink-0 rounded-full bg-white/10 p-2 text-white/70 hover:bg-[#D4AF37]/20 hover:text-[#D4AF37]"
+              className="shrink-0 rounded-full bg-black/10 p-2 text-black/70 hover:bg-black/20 hover:text-black"
             >
               {copied === key ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             </button>

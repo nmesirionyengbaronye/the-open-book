@@ -43,14 +43,14 @@ const TIPS = [
 
 export function ReferralTips() {
   return (
-    <section className="py-20 px-5 bg-surface/30">
+    <section className="py-20 px-5 bg-[#FFD93D]">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-10">
-          <div className="text-xs tracking-[0.3em] text-gold/80 uppercase">Growth Playbook</div>
-          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold">
-            How to <span className="text-gold">go viral</span> on Uni UI
+          <div className="text-xs tracking-[0.3em] text-black/80 uppercase">Growth Playbook</div>
+          <h2 className="mt-3 text-3xl sm:text-4xl font-display font-bold text-black">
+            How to <span className="text-black">go viral</span> on Uni UI
           </h2>
-          <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+          <p className="mt-3 text-black/70 max-w-xl mx-auto">
             Six proven tactics to maximize your referrals and unlock rewards faster.
           </p>
         </div>
@@ -65,13 +65,13 @@ export function ReferralTips() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
                 transition={{ delay: i * 0.08 }}
-                className="glass rounded-2xl p-6 gold-glow-hover"
+                className="bg-white rounded-2xl p-6 shadow-[4px_4px_0px_rgba(0,0,0,0.25)] border border-black/10"
               >
-                <div className="w-12 h-12 rounded-xl bg-gold/15 grid place-items-center">
-                  <Icon className="w-6 h-6 text-gold" />
+                <div className="w-12 h-12 rounded-xl bg-[#FFD93D] grid place-items-center">
+                  <Icon className="w-6 h-6 text-black" />
                 </div>
-                <h3 className="mt-5 text-xl font-display font-semibold">{tip.title}</h3>
-                <p className="mt-2 text-muted-foreground text-sm leading-relaxed">{tip.body}</p>
+                <h3 className="mt-5 text-xl font-display font-semibold text-black">{tip.title}</h3>
+                <p className="mt-2 text-black/70 text-sm leading-relaxed">{tip.body}</p>
               </motion.div>
             );
           })}

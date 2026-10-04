@@ -8,14 +8,14 @@ import { usePathname, useRouter } from 'next/navigation';
 const LINKS = [
   { id: "hero", label: "Home", path: "/" },
   { id: "about", label: "About", path: "/about" },
-  { id: "join", label: "Join", path: "/join" },
   { id: "creators", label: "Creators", path: "/creators" },
+  { id: "join", label: "Join", path: "/join" },
   { id: "leaderboard", label: "Leaderboard", path: "/leaderboard" },
   { id: "status", label: "Status", path: "/status" },
   { id: "milestones", label: "Milestones", path: "/milestones" },
-  { id: "dashboard", label: "Dashboard", path: "/dashboard" },
   { id: "winners", label: "Winners", path: "/winners" },
   { id: "feedback", label: "Feedback", path: "/feedback" },
+  { id: "referral", label: "Referrals", path: "/referral" },
 ];
 
 export function Navbar() {
@@ -39,10 +39,8 @@ export function Navbar() {
 
   const handleLinkClick = (path: string, id?: string) => {
     if (path === pathname && id) {
-      // Already on the page, scroll to section
       scrollTo(id);
     } else {
-      // Navigate to the page
       router.push(path);
       setOpen(false);
     }
@@ -50,46 +48,40 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled ? "glass-strong border-b border-gold/20" : "bg-transparent"}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all ${scrolled ? "glass-strong border-b border-black/20" : "bg-transparent"}`}
     >
       <div className="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
-<button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2.5 group">
-             {/* logo.png is already a solid brand tile, so it must not be wrapped
-                 in a gold box — stacking one yellow field on another is what
-                 read as a smudge behind the mark. */}
-             <img
-               src="/logo.png"
-               alt="Uni UI"
-               width={64}
-               height={36}
-               className="h-7 w-auto rounded-md ring-1 ring-gold/20 group-hover:ring-gold/50 transition"
-             />
-             <span className="font-display text-lg tracking-tight">
-               UNI <span className="text-gold">UI</span>
-             </span>
-           </button>
+        <button onClick={() => handleLinkClick("/", "hero")} className="flex items-center gap-2.5 group">
+          <img
+            src="/mascots/cat.svg"
+            alt="Uni UI mascot"
+            width={32}
+            height={32}
+            className="h-8 w-auto rounded-md"
+          />
+          <img
+            src="/logo.png"
+            alt="Uni UI"
+            width={64}
+            height={36}
+            className="h-7 w-auto rounded-md ring-1 ring-black/20 group-hover:ring-black/50 transition"
+          />
+          <span className="font-display text-lg tracking-tight text-black">
+            UNI <span className="text-black">UI</span>
+          </span>
+        </button>
 
-        <nav className="hidden md:flex items-center gap-1">
-          {LINKS.map((l) => (
-            <button
-              key={l.id}
-              onClick={() => handleLinkClick(l.path, l.id)}
-              className={`px-3 py-2 text-sm text-muted-foreground hover:text-gold transition-colors rounded-md ${pathname === l.path ? 'text-gold bg-gold/10' : ''}`}
-            >
-              {l.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
           <button
             onClick={() => handleLinkClick("/join")}
-            className="ml-3 px-4 py-2 rounded-lg bg-gold text-background text-sm font-semibold gold-glow-hover"
+            className="hidden sm:inline-flex px-4 py-2 rounded-lg bg-[#FFD93D] text-black text-sm font-semibold"
           >
             Join Waitlist
           </button>
-        </nav>
-
-        <button className="md:hidden p-2 text-gold" onClick={() => setOpen((v) => !v)} aria-label="Menu">
-          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+          <button className="p-2 text-black" onClick={() => setOpen((v) => !v)} aria-label="Menu">
+            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -98,21 +90,21 @@ export function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden overflow-hidden glass-strong border-t border-gold/15"
+            className="overflow-hidden glass-strong border-b border-black/15"
           >
             <div className="px-5 py-4 flex flex-col gap-1">
               {LINKS.map((l) => (
                 <button
                   key={l.id}
                   onClick={() => handleLinkClick(l.path, l.id)}
-                  className={`px-3 py-2 text-sm text-muted-foreground hover:text-gold transition-colors rounded-md ${pathname === l.path ? 'text-gold bg-gold/10' : ''}`}
+                  className={`px-3 py-2 text-sm text-black/60 hover:text-black transition-colors rounded-md ${pathname === l.path ? 'text-black bg-black/10' : ''}`}
                 >
                   {l.label}
                 </button>
               ))}
               <button
                 onClick={() => handleLinkClick("/join")}
-                className="mt-3 px-4 py-3 rounded-lg bg-gold text-background font-semibold"
+                className="sm:hidden mt-3 px-4 py-3 rounded-lg bg-[#FFD93D] text-black font-semibold"
               >
                 Join Waitlist
               </button>

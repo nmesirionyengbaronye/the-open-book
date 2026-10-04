@@ -18,7 +18,7 @@ import { CONTENT_TYPES, CREATOR_LEVELS } from '@/lib/creators';
 import { WHATSAPP_URL } from '@/lib/links';
 
 const inputCls =
-  'w-full bg-background/60 border border-gold/20 rounded-lg px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-gold focus:ring-2 focus:ring-gold/20 transition';
+  'w-full bg-white border border-black/10 rounded-lg px-3.5 py-2.5 text-sm text-black placeholder:text-black/60 focus:outline-none focus:border-black/40 transition';
 
 const STEPS = ['You', 'Reach', 'Content', 'Pitch'];
 
@@ -151,7 +151,7 @@ export function CreatorApplicationForm() {
   return (
     <section id="apply" className="py-16 px-5">
       <div className="max-w-2xl mx-auto">
-        <div className="rounded-2xl p-8 sm:p-10 glass border border-[#D4AF37]/30 shadow-[0_0_15px_0_rgba(212,175,55,0.2)]">
+        <div className="rounded-2xl p-8 sm:p-10 border border-black/10 bg-black/5 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]">
           <Progress step={step} />
 
           <div className="relative mt-8 overflow-hidden" style={{ minHeight: 360 }}>
@@ -189,12 +189,12 @@ export function CreatorApplicationForm() {
                         autoComplete="tel"
                       />
                       {form.whatsapp && !normalized && (
-                        <p className="mt-2 text-xs text-destructive">
+                        <p className="mt-2 text-xs text-red-600">
                           Use a valid Nigerian number (e.g. 0801 234 5678).
                         </p>
                       )}
                       {normalized && (
-                        <p className="mt-2 text-xs text-emerald-400">Looks good — {normalized}</p>
+                        <p className="mt-2 text-xs text-emerald-600">Looks good — {normalized}</p>
                       )}
                     </Field>
                     <Field label="Email">
@@ -207,7 +207,7 @@ export function CreatorApplicationForm() {
                         autoComplete="email"
                       />
                       {form.email && !emailOk && (
-                        <p className="mt-2 text-xs text-destructive">Enter a valid email address.</p>
+                        <p className="mt-2 text-xs text-red-600">Enter a valid email address.</p>
                       )}
                     </Field>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -237,8 +237,8 @@ export function CreatorApplicationForm() {
                             onClick={() => set('level', l)}
                             className={`px-4 py-2 rounded-lg text-sm border transition ${
                               form.level === l
-                                ? 'border-gold bg-gold/15 text-gold'
-                                : 'border-gold/20 text-muted-foreground hover:border-gold/40'
+                                ? 'border-black bg-black text-[#FFD93D]'
+                                : 'border-black/10 text-black hover:border-black/30'
                             }`}
                           >
                             {l}
@@ -315,8 +315,8 @@ export function CreatorApplicationForm() {
                               onClick={() => toggleContentType(t)}
                               className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm border transition ${
                                 active
-                                  ? 'border-gold bg-gold/15 text-gold'
-                                  : 'border-gold/20 text-muted-foreground hover:border-gold/40'
+                                  ? 'border-black bg-black text-[#FFD93D]'
+                                  : 'border-black/10 text-black hover:border-black/30'
                               }`}
                             >
                               {active && <Check className="w-3.5 h-3.5" />}
@@ -335,8 +335,8 @@ export function CreatorApplicationForm() {
                             onClick={() => set('promotedBefore', v)}
                             className={`px-5 py-2 rounded-lg text-sm border transition ${
                               form.promotedBefore === v
-                                ? 'border-gold bg-gold/15 text-gold'
-                                : 'border-gold/20 text-muted-foreground hover:border-gold/40'
+                                ? 'border-black bg-black text-[#FFD93D]'
+                                : 'border-black/10 text-black hover:border-black/30'
                             }`}
                           >
                             {v === 'yes' ? 'Yes' : 'No'}
@@ -361,10 +361,10 @@ export function CreatorApplicationForm() {
                 {step === 3 && (
                   <>
                     {referralCode && (
-                      <div className="glass rounded-xl p-4 flex items-start gap-3 text-sm border-gold/40">
-                        <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                      <div className="rounded-xl border border-black/10 bg-black/5 p-4 flex items-start gap-3 text-sm">
+                        <Sparkles className="w-5 h-5 text-black shrink-0 mt-0.5" />
                         <div>
-                          Referred by <span className="text-gold font-semibold">{referralCode}</span> — you both get
+                          Referred by <span className="text-black font-semibold">{referralCode}</span> — you both get
                           credit.
                         </div>
                       </div>
@@ -380,7 +380,7 @@ export function CreatorApplicationForm() {
                         placeholder="I make JAMB and WAEC prep content for students who can't afford the courses..."
                         className={inputCls + ' resize-y'}
                       />
-                      <span className="mt-1.5 block text-[11px] text-muted-foreground/70">
+                      <span className="mt-1.5 block text-[11px] text-black/70">
                         {form.whyJoin.trim().length} characters
                       </span>
                     </Field>
@@ -392,7 +392,7 @@ export function CreatorApplicationForm() {
                         placeholder="I'd do a 30-second screen recording of me searching my lecture notes, then post it during exam season..."
                         className={inputCls + ' resize-y'}
                       />
-                      <span className="mt-1.5 block text-[11px] text-muted-foreground/70">
+                      <span className="mt-1.5 block text-[11px] text-black/70">
                         {form.howPromote.trim().length} characters
                       </span>
                     </Field>
@@ -411,7 +411,7 @@ export function CreatorApplicationForm() {
                     </div>
 
                     {error && (
-                      <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-destructive flex items-start gap-2">
+                      <div className="rounded-lg border border-red-600/40 bg-red-600/10 p-3 text-red-600 flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                         <div className="text-xs leading-relaxed">{error}</div>
                       </div>
@@ -423,15 +423,15 @@ export function CreatorApplicationForm() {
                         id="creator-consent"
                         checked={consent}
                         onChange={(e) => setConsent(e.target.checked)}
-                        className="mt-0.5 w-4 h-4 accent-gold"
+                        className="mt-0.5 w-4 h-4 accent-black"
                         required
                       />
-                      <label htmlFor="creator-consent" className="text-xs text-muted-foreground leading-relaxed">
+                      <label htmlFor="creator-consent" className="text-xs text-black/80 leading-relaxed">
                         I agree that Uni UI may contact me on WhatsApp about the Creator Program and store these
                         details to review my application. Payout details are collected separately, and only once
                         I have earned something. See the{' '}
-                        <a href="/privacy" className="text-gold underline">Privacy Policy</a> and{' '}
-                        <a href="/terms" className="text-gold underline">Terms</a>.
+                        <a href="/privacy" className="text-black underline underline-offset-2">Privacy Policy</a> and{' '}
+                        <a href="/terms" className="text-black underline underline-offset-2">Terms</a>.
                       </label>
                     </div>
                   </>
@@ -444,7 +444,7 @@ export function CreatorApplicationForm() {
             <button
               onClick={back}
               disabled={step === 0}
-              className="px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-gold disabled:opacity-30 inline-flex items-center gap-2"
+              className="px-4 py-2.5 rounded-lg text-sm text-black/70 hover:text-black disabled:opacity-30 inline-flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
@@ -452,7 +452,7 @@ export function CreatorApplicationForm() {
               <button
                 onClick={next}
                 disabled={!stepValid}
-                className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold disabled:opacity-40 inline-flex items-center gap-2 gold-glow-hover"
+                className="px-5 py-2.5 rounded-lg bg-black text-[#FFD93D] font-semibold disabled:opacity-40 inline-flex items-center gap-2"
               >
                 Continue <ArrowRight className="w-4 h-4" />
               </button>
@@ -460,7 +460,7 @@ export function CreatorApplicationForm() {
               <button
                 onClick={submit}
                 disabled={submitting || !stepValid}
-                className="px-5 py-2.5 rounded-lg bg-gold text-background font-semibold inline-flex items-center gap-2 gold-glow-hover disabled:opacity-50"
+                className="px-5 py-2.5 rounded-lg bg-black text-[#FFD93D] font-semibold inline-flex items-center gap-2 disabled:opacity-60"
               >
                 {submitting ? (
                   <>
@@ -475,7 +475,7 @@ export function CreatorApplicationForm() {
             )}
           </div>
         </div>
-        <p className="mt-3 text-center text-[10px] text-muted-foreground/60">
+        <p className="mt-3 text-center text-[10px] text-black/70">
           No follower minimum. No contract. You post when you want. Applications are reviewed within 48 hours.
         </p>
       </div>
@@ -490,33 +490,33 @@ function ApplicationSent({ code, referredBy }: { code: string; referredBy: strin
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-2xl p-8 text-center glass border border-[#D4AF37]/30 shadow-[0_0_15px_0_rgba(212,175,55,0.2)]"
+          className="rounded-2xl p-8 text-center border border-black/10 bg-black/5 shadow-[4px_4px_0px_rgba(0,0,0,0.25)]"
         >
-          <div className="w-16 h-16 mx-auto rounded-full bg-gold/20 grid place-items-center">
-            <Check className="w-8 h-8 text-gold" />
+          <div className="w-16 h-16 mx-auto rounded-full bg-black text-[#FFD93D] grid place-items-center">
+            <Check className="w-8 h-8" />
           </div>
           <h3 className="mt-5 text-2xl font-display font-bold">Application received.</h3>
-          <p className="mt-2 text-muted-foreground text-sm">
+          <p className="mt-2 text-black/70 text-sm">
             We review applications within 48 hours. If approved, you&apos;ll get a WhatsApp message with your
             next steps and an invite to the UNIUI Creators group.
           </p>
 
-          <div className="mt-6 glass rounded-xl p-4 text-left">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+          <div className="mt-6 rounded-xl border border-black/10 bg-black/5 p-4 text-left">
+            <div className="text-[10px] uppercase tracking-wider text-black/80">
               Your creator code
             </div>
-            <div className="mt-1 font-mono text-xl text-gold">{code}</div>
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <div className="mt-1 font-mono text-xl text-black">{code}</div>
+            <p className="mt-2 text-[11px] text-black/70">
               Send this to creators you refer so they can link it to their application. If they apply through
               your link, you both get credit.
             </p>
           </div>
 
           {referredBy && (
-            <div className="mt-4 glass rounded-xl p-4 text-left flex items-start gap-3 border-gold/40">
-              <CheckCircle2 className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">
-                Your referral from <span className="text-gold font-semibold">{referredBy}</span> has been
+            <div className="mt-4 rounded-xl border border-black/10 bg-black/5 p-4 text-left flex items-start gap-3">
+              <CheckCircle2 className="w-5 h-5 text-black shrink-0 mt-0.5" />
+              <p className="text-xs text-black/70">
+                Your referral from <span className="text-black font-semibold">{referredBy}</span> has been
                 recorded. They&apos;ve been told about you.
               </p>
             </div>
@@ -527,13 +527,13 @@ function ApplicationSent({ code, referredBy }: { code: string; referredBy: strin
               href={WHATSAPP_URL}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-gold text-background font-semibold gold-glow-hover"
+              className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold"
             >
               <MessageCircle className="w-5 h-5" /> Join the WhatsApp community
             </a>
             <a
               href="/join"
-              className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl glass border-gold/40 text-gold font-medium hover:bg-gold/10"
+              className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl border border-black/10 bg-black/5 text-black font-medium hover:bg-black/10"
             >
               Join the waitlist while you wait
             </a>
@@ -547,11 +547,11 @@ function ApplicationSent({ code, referredBy }: { code: string; referredBy: strin
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-xs uppercase tracking-wider text-muted-foreground mb-1.5">
+      <span className="block text-xs uppercase tracking-wider text-black/80 mb-1.5">
         {label}
       </span>
       {children}
-      {hint && <span className="block text-[11px] text-muted-foreground/70 mt-1.5">{hint}</span>}
+      {hint && <span className="block text-[11px] text-black/70 mt-1.5">{hint}</span>}
     </label>
   );
 }
@@ -562,10 +562,10 @@ function Progress({ step }: { step: number }) {
       {STEPS.map((l, i) => (
         <div key={l} className="flex-1 flex items-center gap-2">
           <div
-            className={`h-1.5 rounded-full flex-1 transition-all ${i <= step ? 'bg-gold' : 'bg-white/10'}`}
+            className={`h-1.5 rounded-full flex-1 transition-all ${i <= step ? 'bg-black' : 'bg-black/10'}`}
           />
           <span
-            className={`text-[10px] uppercase tracking-wider ${i <= step ? 'text-gold' : 'text-muted-foreground'}`}
+            className={`text-[10px] uppercase tracking-wider ${i <= step ? 'text-black' : 'text-black/60'}`}
           >
             {l}
           </span>
