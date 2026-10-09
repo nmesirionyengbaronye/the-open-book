@@ -6,7 +6,7 @@ import CursorTrail from '@/components/CursorTrail';
 import { Toaster } from 'sonner';
 import PageTransition from '@/components/PageTransition';
 import './globals.css';
-import { jsonLdScript } from '@/lib/seo';
+import { jsonLdScript, organizationSchema } from '@/lib/seo';
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://waitlist.uniui.com.ng';
 
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/og-image.png',
-        width: 640,
-        height: 360,
+        width: 1200,
+        height: 630,
         alt: 'Uni UI – University Uploaded Intelligence',
       },
     ],
@@ -58,51 +58,7 @@ export const metadata: Metadata = {
   },
 };
 
-const jsonLd = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'Uni UI',
-    url: baseUrl,
-    logo: `${baseUrl}/favicon.jpg`,
-    description: 'AI-powered semester exam preparation for Nigerian university students.',
-    founder: {
-      '@type': 'Person',
-      name: 'FUTO Student Founder',
-    },
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebApplication',
-    name: 'Uni UI',
-    url: baseUrl,
-    applicationCategory: 'EducationalApplication',
-    operatingSystem: 'All',
-    description: 'Upload your course materials and get accurate, source-cited answers to exam questions.',
-    // Real prices. A `price: '0'` Offer here would be a factual error that
-    // contradicts the pricing on /join, and search engines surface offers.
-    offers: [
-      {
-        '@type': 'Offer',
-        name: 'Scholar',
-        description: 'Subscription plan. Earns creator commission on first payment and six recurring months.',
-        price: '2500',
-        priceCurrency: 'NGN',
-        availability: 'https://schema.org/PreOrder',
-        url: `${baseUrl}/join`,
-      },
-      {
-        '@type': 'Offer',
-        name: 'Deep Study',
-        description: 'One-time purchase. No recurring commission.',
-        price: '10000',
-        priceCurrency: 'NGN',
-        availability: 'https://schema.org/PreOrder',
-        url: `${baseUrl}/join`,
-      },
-    ],
-  },
-];
+const jsonLd = organizationSchema();
 
 export default function RootLayout({
   children,

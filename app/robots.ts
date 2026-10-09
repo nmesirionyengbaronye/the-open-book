@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
         // Admin and API surfaces must never appear in a search result. They are
         // already behind auth, but disallowing stops their URLs from being
         // discovered and indexed as thin pages.
-        disallow: ['/admin', '/admin/', '/api/'],
+        disallow: ['/admin', '/admin/', '/api/', '/dashboard', '/retrieve', '/rewards', '/r/', '/data-deletion'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

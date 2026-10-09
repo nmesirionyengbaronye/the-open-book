@@ -11,6 +11,10 @@ import {
   TrendingUp,
   ShieldCheck,
   ArrowRight,
+  Building2,
+  GraduationCap,
+  Mail,
+  MapPin,
 } from "lucide-react";
 
 const spring = { type: 'spring', stiffness: 100, damping: 12, mass: 0.5 } as const;
@@ -341,6 +345,72 @@ export default function AboutClient() {
                   a system. A place where your academic life lives, where the information stays, where
                   the structure is provided, where you&apos;re not alone. The rest is you.
                 </p>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <SectionHeading
+              eyebrow="The team"
+              title="Built by students, for students."
+              description="We&apos;re not a Silicon Valley startup. We&apos;re Nigerian students who lived this problem and decided to solve it."
+            />
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-2xl border border-black/10 bg-black/5 p-6 sm:p-8 shadow-[4px_4px_0px_rgba(0,0,0,0.25)] text-center">
+                <div className="w-24 h-24 rounded-full bg-black/10 mx-auto mb-4 flex items-center justify-center">
+                  <GraduationCap className="w-10 h-10 text-gold" />
+                </div>
+                <h3 className="font-display text-lg font-bold uppercase tracking-tight">Founder</h3>
+                <p className="mt-1 text-sm text-black/60">FUTO Student</p>
+                <p className="mt-3 text-sm leading-relaxed text-black/80">
+                  Started Uni UI at Federal University of Technology, Owerri after experiencing the
+                  exact chaos every semester. Built the first version to solve their own study problems,
+                  then realized every Nigerian student has the same problems.
+                </p>
+                <div className="mt-4 flex items-center justify-center gap-4 text-sm text-black/60">
+                  <a href="mailto:sofia@uniui.com.ng" className="flex items-center gap-1 hover:text-gold transition-colors">
+                    <Mail className="w-4 h-4" />
+                    sofia@uniui.com.ng
+                  </a>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    Owerri, Imo State
+                  </span>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-black/10 bg-black/5 p-6 sm:p-8 shadow-[4px_4px_0px_rgba(0,0,0,0.25)] text-center">
+                <div className="w-24 h-24 rounded-full bg-black/10 mx-auto mb-4 flex items-center justify-center">
+                  <Users className="w-10 h-10 text-gold" />
+                </div>
+                <h3 className="font-display text-lg font-bold uppercase tracking-tight">Student Team</h3>
+                <p className="mt-1 text-sm text-black/60">Course Reps & Contributors</p>
+                <p className="mt-3 text-sm leading-relaxed text-black/80">
+                  Course representatives across departments upload lecture slides, past questions, and
+                  tutorial solutions. They&apos;re the reason the knowledge base grows every week.
+                  Every upload earns credits and builds the platform for their peers.
+                </p>
+                <div className="mt-4 text-sm text-black/60">
+                  <Building2 className="w-4 h-4 inline-block mr-1" />
+                  FUTO, UNILAG, ABU, OAU, and more
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-black/10 bg-black/5 p-6 sm:p-8 shadow-[4px_4px_0px_rgba(0,0,0,0.25)] text-center">
+                <div className="w-24 h-24 rounded-full bg-black/10 mx-auto mb-4 flex items-center justify-center">
+                  <Flag className="w-10 h-10 text-gold" />
+                </div>
+                <h3 className="font-display text-lg font-bold uppercase tracking-tight">Our Mission</h3>
+                <p className="mt-1 text-sm text-black/60">Every Nigerian Student</p>
+                <p className="mt-3 text-sm leading-relaxed text-black/80">
+                  We&apos;re rolling out across Southern Nigeria — 6 universities in November 2026,
+                  then 3 more every month until every government-owned university, state university,
+                  and polytechnic in the region is covered by August 2027.
+                </p>
+                <div className="mt-4 text-sm text-black/60">
+                  <Flag className="w-4 h-4 inline-block mr-1" />
+                  Southern Nigeria expansion
+                </div>
               </div>
             </div>
           </section>

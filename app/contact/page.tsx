@@ -1,16 +1,17 @@
 import { Metadata } from 'next';
 import { SUPPORT_EMAIL, TIKTOK_URL, X_URL, INSTAGRAM_URL } from '@/lib/links';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Contact',
+export const metadata: Metadata = pageMeta({
+  title: 'Contact Uni UI',
   description:
     'Contact Uni UI for support, partnerships, creator programme enquiries, or general questions.',
   keywords: [
     'contact Uni UI', 'Uni UI support', 'Uni UI partnerships',
     'creator programme contact', 'Uni UI help',
   ],
-  alternates: { canonical: '/contact' },
-};
+  path: '/contact',
+});
 
 export default function ContactPage() {
   return (

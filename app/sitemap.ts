@@ -40,5 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     page('/privacy', 0.3, 'monthly'),
     page('/feedback', 0.4, 'weekly'),
     page('/data-deletion', 0.3, 'monthly'),
+    page('/recommendations', 0.4, 'weekly'),
+    page('/blog', 0.7, 'weekly'),
   ];
 }

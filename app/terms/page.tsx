@@ -1,12 +1,13 @@
 import { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Terms of Service',
   description:
     'The terms governing use of the Uni UI website, waitlist, rewards and creator programme.',
   keywords: ['Uni UI terms', 'terms of service', 'Uni UI creator programme terms'],
-  alternates: { canonical: '/terms' },
-};
+  path: '/terms',
+});
 
 export default function TermsPage() {
   return (

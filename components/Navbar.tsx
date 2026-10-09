@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 const LINKS = [
   { id: "hero", label: "Home", path: "/" },
   { id: "about", label: "About", path: "/about" },
+  { id: "blog", label: "Blog", path: "/blog" },
   { id: "creators", label: "Creators", path: "/creators" },
   { id: "join", label: "Join", path: "/join" },
   { id: "leaderboard", label: "Leaderboard", path: "/leaderboard" },

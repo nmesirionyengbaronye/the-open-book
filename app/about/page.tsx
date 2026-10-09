@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import AboutClient from './AboutClient';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'About Uni UI – University Uploaded Intelligence',
   description:
     'Uni UI is the place where a Nigerian student\'s entire semester lives: courses, notes, past questions, progress, and study groups — all in one structured platform built from the ground up for Nigerian universities.',
@@ -18,8 +19,8 @@ export const metadata: Metadata = {
     'past questions platform',
     'student productivity Nigeria',
   ],
-  alternates: { canonical: '/about' },
-};
+  path: '/about',
+});
 
 export default function AboutPage() {
   return <AboutClient />;

@@ -22,24 +22,26 @@ export default function Footer02() {
                <li><Link href="/rewards" className="hover:text-black transition">Rewards</Link></li>
              </ul>
            </div>
-           <div>
-             <div className="text-xs uppercase tracking-widest text-black/60 mb-3">Community</div>
-             <ul className="space-y-2 text-sm text-black/70">
-               <li><Link href="/about" className="hover:text-black transition">About</Link></li>
-               <li><Link href="/creators" className="hover:text-black transition">Creator Network</Link></li>
-               <li><Link href="/leaderboard" className="hover:text-black transition">Leaderboard</Link></li>
-               <li><Link href="/winners" className="hover:text-black transition">Winners</Link></li>
-               <li><Link href="/feedback" className="hover:text-black transition">Feedback</Link></li>
-             </ul>
-           </div>
-           <div>
-             <div className="text-xs uppercase tracking-widest text-black/60 mb-3">Legal</div>
-             <ul className="space-y-2 text-sm text-black/70">
-               <li><Link href="/privacy" className="hover:text-black transition">Privacy Policy</Link></li>
-               <li><Link href="/terms" className="hover:text-black transition">Terms of Service</Link></li>
-               <li><Link href="/data-deletion" className="hover:text-black transition">Delete My Data</Link></li>
-             </ul>
-           </div>
+<div>
+              <div className="text-xs uppercase tracking-widest text-black/60 mb-3">Community</div>
+              <ul className="space-y-2 text-sm text-black/70">
+                <li><Link href="/about" className="hover:text-black transition">About</Link></li>
+                <li><Link href="/blog" className="hover:text-black transition">Blog</Link></li>
+                <li><Link href="/creators" className="hover:text-black transition">Creator Network</Link></li>
+                <li><Link href="/leaderboard" className="hover:text-black transition">Leaderboard</Link></li>
+                <li><Link href="/winners" className="hover:text-black transition">Winners</Link></li>
+                <li><Link href="/feedback" className="hover:text-black transition">Feedback</Link></li>
+              </ul>
+            </div>
+<div>
+              <div className="text-xs uppercase tracking-widest text-black/60 mb-3">Legal</div>
+              <ul className="space-y-2 text-sm text-black/70">
+                <li><Link href="/privacy" className="hover:text-black transition">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-black transition">Terms of Service</Link></li>
+                <li><Link href="/data-deletion" className="hover:text-black transition">Delete My Data</Link></li>
+                <li><Link href="/sitemap" className="hover:text-black transition">All Pages</Link></li>
+              </ul>
+            </div>
            <div>
              <div className="text-xs uppercase tracking-widest text-black/60 mb-3">Stay connected</div>
              <ul className="space-y-2 text-sm text-black/70">

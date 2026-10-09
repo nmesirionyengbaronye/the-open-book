@@ -1,12 +1,13 @@
 import { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Privacy Policy',
   description:
     'How Uni UI collects, uses and protects your personal data across the waitlist and creator programme.',
   keywords: ['Uni UI privacy policy', 'data protection', 'NDPA', 'Uni UI data deletion'],
-  alternates: { canonical: '/privacy' },
-};
+  path: '/privacy',
+});
 
 export default function PrivacyPage() {
   return (
