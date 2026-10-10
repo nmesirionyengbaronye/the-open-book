@@ -28,8 +28,11 @@ function page(path: string, priority: number, changeFrequency: 'daily' | 'weekly
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     page('/', 1.0, 'daily'),
-    page('/join', 0.9, 'daily'),
+    page('/students', 0.9, 'daily'),
+    page('/join', 0.8, 'daily'),
     page('/creators', 0.9, 'weekly'),
+    page('/institutions', 0.8, 'weekly'),
+    page('/families', 0.8, 'weekly'),
     page('/about', 0.7, 'monthly'),
     page('/status', 0.6, 'daily'),
     page('/leaderboard', 0.6, 'daily'),

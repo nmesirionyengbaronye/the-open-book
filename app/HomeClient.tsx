@@ -16,6 +16,7 @@ import HeroSection from '@/components/HeroSection';
 import Greeting from '@/components/Greeting';
 import LaunchCountdown from '@/components/LaunchCountdown';
 import { WhatIs, Features, HowItWorks, RolloutRoadmap, Testimonials, FAQ } from '@/components/Sections';
+import { WaitlistPaths } from '@/components/WaitlistPaths';
 import { ArrowRight, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 import useKonamiCode from '@/hooks/useKonamiCode';
@@ -29,6 +30,7 @@ export default function HomeClient() {
       <Greeting />
       <HeroSection />
       <LaunchCountdown />
+      <WaitlistPaths />
       <section className="relative z-10 bg-[#FFD93D] text-black">
         <WhatIs />
         <Features />

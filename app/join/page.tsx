@@ -146,6 +146,20 @@ export default function JoinPage() {
       </section>
 
       <JoinForm />
+
+      {/* Cross-path discovery (additive) */}
+      <section className="py-12 px-5 border-t border-black/5">
+        <div className="max-w-2xl mx-auto text-center space-y-3 text-sm text-muted-foreground">
+          <p>
+            A parent or guardian?{' '}
+            <Link href="/families" className="text-gold underline">Join the family waitlist →</Link>
+          </p>
+          <p>
+            Represent an institution?{' '}
+            <Link href="/institutions" className="text-gold underline">Request recognition →</Link>
+          </p>
+        </div>
+      </section>
     </>
   );
 }

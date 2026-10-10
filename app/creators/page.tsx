@@ -487,6 +487,21 @@ export default function CreatorsPage() {
         </div>
       </section>
 
+      {/* Cross-path discovery (additive) */}
+      <section className="px-5 py-12" aria-label="Other waitlists">
+        <div className="max-w-2xl mx-auto text-center space-y-3 text-sm text-muted-foreground">
+          <p>
+            Not a creator? <Link href="/join" className="text-gold underline">See the student waitlist →</Link>
+          </p>
+          <p>
+            A parent? <Link href="/families" className="text-gold underline">Join the family waitlist →</Link>
+          </p>
+          <p>
+            Represent an institution? <Link href="/institutions" className="text-gold underline">Request recognition →</Link>
+          </p>
+        </div>
+      </section>
+
       <CreatorApplicationForm />
     </>
   );
