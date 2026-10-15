@@ -27,16 +27,17 @@ const spring = { type: 'spring', stiffness: 100, damping: 12, mass: 0.5 } as con
 export function SchoolCounters() {
   const [data, setData] = useState<SchoolData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/waitlist/schools')
       .then((r) => r.json())
       .then(setData)
-      .catch(() => {})
+      .catch(() => setError('Could not load school data. Please try again later.'))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading || !data || !data.schools) {
+  if (loading) {
     return (
       <section className="py-20 px-5 bg-[#FFD93D]">
         <div className="max-w-4xl mx-auto">
@@ -49,6 +50,20 @@ export function SchoolCounters() {
               <div key={i} className="bg-white rounded-2xl p-6 h-24 animate-pulse border border-black/10" />
             ))}
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !data || !data.schools) {
+    return (
+      <section className="py-20 px-5 bg-[#FFD93D]">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="text-xs tracking-[0.3em] text-black/80 uppercase">By School</div>
+          <h2 className="mt-3 text-2xl font-display font-bold text-black">
+            {error || 'No data available yet.'}
+          </h2>
+          <p className="mt-2 text-sm text-black/70">Check back soon — we update this as students join.</p>
         </div>
       </section>
     );

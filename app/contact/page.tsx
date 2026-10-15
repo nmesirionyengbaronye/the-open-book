@@ -50,13 +50,13 @@ export default function ContactPage() {
           <h2 className="font-display text-xl font-bold uppercase tracking-tight">Follow the build</h2>
           <p className="mt-2 text-sm leading-relaxed text-black/75">
             Uni UI is on{' '}
-            <a href={X_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
+            <a href={X_URL} target="_blank" rel="noopener noreferrer" className="text-black underline underline-offset-2 font-semibold">
               X
             </a>,{' '}
-            <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
+            <a href={TIKTOK_URL} target="_blank" rel="noopener noreferrer" className="text-black underline underline-offset-2 font-semibold">
               TikTok
             </a>, and{' '}
-            <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" className="text-black underline underline-offset-2 font-semibold">
+            <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-black underline underline-offset-2 font-semibold">
               Instagram
             </a>{' '}
             for V2 progress and rollout announcements.

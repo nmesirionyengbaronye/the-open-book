@@ -27,6 +27,6 @@ export const GIVEAWAY_RULES: string[] = [
   `Mystery boxes (containing 1, 2 or 5 spin tickets) unlock at every ${MILESTONE}-referral milestone (verified).`,
   'Referrals must be real, verified people. Fake, recycled, or self-referrals are not allowed.',
   'One account per person. Multiple accounts, bots, or VPN abuse lead to disqualification and forfeited winnings.',
-  'Prizes are promotional. UniUI may review activity and withhold payouts where abuse is suspected.',
-  'UniUI reserves the right to modify, pause, or end the giveaway at any time, with notice in the community.',
+  'Prizes are promotional. Uni UI may review activity and withhold payouts where abuse is suspected.',
+  'Uni UI reserves the right to modify, pause, or end the giveaway at any time, with notice in the community.',
 ];

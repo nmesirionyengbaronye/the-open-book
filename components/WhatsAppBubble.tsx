@@ -6,7 +6,7 @@ import { MessageCircle } from "lucide-react";
 export function WhatsAppBubble() {
   return (
     <motion.a
-      href={process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || "https://chat.whatsapp.com/uniui-community"} target="_blank" rel="noreferrer"
+      href={process.env.NEXT_PUBLIC_WHATSAPP_GROUP_URL || "https://chat.whatsapp.com/uniui-community"} target="_blank" rel="noopener noreferrer"
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 1.2, type: "spring" }}

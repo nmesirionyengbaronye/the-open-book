@@ -113,7 +113,7 @@ export function WinnersClient() {
             href="/"
             className="inline-flex items-center rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-[#FFD93D]"
           >
-            Back to UniUI
+                Back to Uni UI
           </Link>
         </div>
       </div>

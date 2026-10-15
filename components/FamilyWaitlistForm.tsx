@@ -128,7 +128,7 @@ export function FamilyWaitlistForm() {
 
   if (result) {
     const url = typeof window !== 'undefined' ? `${window.location.origin}/families` : '/families';
-    const shareText = `UniUI family accounts let parents track their child's progress and pay fees in one place. I just joined the waitlist (${result.position}). Join me: ${url}`;
+    const shareText = `Uni UI family accounts let parents track their child's progress and pay fees in one place. I just joined the waitlist (${result.position}). Join me: ${url}`;
     return (
       <section id="fam-join" className="py-20 px-5">
         <div className="max-w-xl mx-auto">

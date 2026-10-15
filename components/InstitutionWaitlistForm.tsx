@@ -151,7 +151,7 @@ export function InstitutionWaitlistForm() {
     const url = typeof window !== 'undefined'
       ? `${window.location.origin}/institutions`
       : '/institutions';
-    const shareText = `UniUI is bringing its analytics platform to institutions. I've joined the institution waitlist (${result.position} in queue). Join me: ${url}`;
+    const shareText = `Uni UI is bringing its analytics platform to institutions. I've joined the institution waitlist (${result.position} in queue). Join me: ${url}`;
     return (
       <section id="inst-join" className="py-20 px-5">
         <div className="max-w-xl mx-auto">

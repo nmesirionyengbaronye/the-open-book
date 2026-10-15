@@ -18,13 +18,13 @@ export default function TermsPage() {
         <h1 className="mt-6 text-4xl sm:text-5xl font-display font-bold uppercase tracking-tight leading-[0.95]">
           Terms of Service
         </h1>
-        <p className="mt-3 text-sm text-black/60">Last updated: August 2026</p>
+        <p className="mt-3 text-sm text-black/60">Last updated: October 2026</p>
 
         <div className="mt-10 space-y-6 text-sm leading-relaxed text-black/80">
         <section>
           <h2 className="font-display text-lg font-bold uppercase tracking-tight">1. Acceptance of Terms</h2>
           <p>
-            By joining the UniUI waitlist or participating in the rewards program, you agree to these terms.
+            By joining the Uni UI waitlist or participating in the rewards program, you agree to these terms.
             If you do not agree, please do not use our services.
           </p>
         </section>

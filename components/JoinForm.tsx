@@ -192,7 +192,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                   {!institutionObj?.live && <WaitlistRoadmap />}
 
                  <div className="mt-6 flex flex-col gap-3">
-                    <a href={WHATSAPP_URL} target="_blank" rel="noreferrer"
+                    <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
                        className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold">
                       <MessageCircle className="w-5 h-5" /> Join WhatsApp Community
                     </a>
@@ -255,7 +255,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                     <span className="text-emerald-400 font-semibold">{liveVerified == null ? '—' : `${liveVerified.toLocaleString()}`}</span> verified for rewards
                   </div>
                 )}
-                {!liveTotal && (
+                {liveTotal === null && (
                   <div className="text-xs text-white/70">Loading waitlist count…</div>
                 )}
               </div>
@@ -454,7 +454,7 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row gap-2">
-                      <a href={APP_URL} target="_blank" rel="noreferrer"
+                      <a href={APP_URL} target="_blank" rel="noopener noreferrer"
                         className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-[#FFD93D] text-black text-xs font-semibold hover:bg-[#FFD93D]/90 transition">
                         Enter the app
                       </a>
@@ -553,10 +553,10 @@ export function JoinForm({ konamiUnlocked = false }: { konamiUnlocked?: boolean 
              </a>
            </div>
 
-           <a href={WHATSAPP_URL} target="_blank" rel="noreferrer"
-              className="mt-6 inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold">
-             <MessageCircle className="w-5 h-5" /> Join the WhatsApp Community
-           </a>
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer"
+               className="mt-6 inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold">
+              <MessageCircle className="w-5 h-5" /> Join the WhatsApp Community
+            </a>
          </motion.div>
        </div>
      </section>

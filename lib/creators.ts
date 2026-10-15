@@ -137,7 +137,7 @@ export const CreatorApplicationSchema = z.object({
   how_promote: z
     .string()
     .trim()
-    .min(15, 'Tell us how you would promote UniUI — at least 15 characters')
+    .min(15, 'Tell us how you would promote Uni UI — at least 15 characters')
     .max(1000, 'Please keep this under 1000 characters'),
   promoted_before: z.boolean({
     invalid_type_error: 'Let us know if you have promoted a product before',

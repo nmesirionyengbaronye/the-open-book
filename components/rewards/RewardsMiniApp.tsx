@@ -391,7 +391,7 @@ function BlockedPage({
         <a
           href={botLink}
           target="_blank"
-          rel="noreferrer"
+          rel="noopener noreferrer"
           className="mt-6 rounded-full bg-black px-6 py-2.5 text-sm font-semibold text-[#FFD93D]"
         >
           Go to the bot

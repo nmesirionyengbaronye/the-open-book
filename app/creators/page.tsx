@@ -189,15 +189,15 @@ export default function CreatorsPage() {
           <div className="glass rounded-2xl p-8 border-gold/30 text-center">
             <Target className="w-8 h-8 text-gold mx-auto" />
             <div className="mt-4 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-              Warm audience at launch day
+              Projected warm audience at launch day
             </div>
             <div className="mt-2 text-5xl font-display font-bold text-gold">
               {NETWORK_AUDIENCE.toLocaleString('en-NG')}
             </div>
             <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-              {FOUNDING_NETWORK_SIZE} creators averaging 1,000 engaged followers each. That is the
+              {FOUNDING_NETWORK_SIZE} creators averaging 1,000 engaged followers each — a projected total of {NETWORK_AUDIENCE.toLocaleString('en-NG')}. That is the
               asset the network builds before V2 exists — and the reason launch becomes a spike
-              rather than a start.
+              rather than a start. Actual figures will vary.
             </p>
           </div>
         </div>

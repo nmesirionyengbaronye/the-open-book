@@ -249,7 +249,7 @@ export const IMMEDIATE_START_PATH: readonly Week[] = [
   {
     week: 'Week 1',
     focus: 'Onboard and set up your creator identity',
-    posts: 'Introduction post: "I am building with UniUI."',
+    posts: 'Introduction post: "I am building with Uni UI."',
   },
   {
     week: 'Week 2',

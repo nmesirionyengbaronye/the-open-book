@@ -384,7 +384,7 @@ export function CreatorApplicationForm() {
                         {form.whyJoin.trim().length} characters
                       </span>
                     </Field>
-                    <Field label="How would you promote UniUI?">
+                    <Field label="How would you promote Uni UI?">
                       <textarea
                         value={form.howPromote}
                         onChange={(e) => set('howPromote', e.target.value)}
@@ -526,7 +526,7 @@ function ApplicationSent({ code, referredBy }: { code: string; referredBy: strin
             <a
               href={WHATSAPP_URL}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl bg-black text-[#FFD93D] font-semibold"
             >
               <MessageCircle className="w-5 h-5" /> Join the WhatsApp community
